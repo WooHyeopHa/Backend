@@ -68,9 +68,17 @@ pipeline {
         }
         cleanup {
             script {
-                sh """
-                docker rmi ${env.IMAGE_NAME}:${env.BUILD_NUMBER} || true
-                """
+                def previousBuildNumber = "${env.BUILD_NUMBER.toInteger() - 1}"
+                def previousTag = "${env.IMAGE_NAME}:${previousBuildNumber}"
+
+                def tagExists = sh(script: "docker images -q ${previousTag}", returnStatus: true) == 0
+
+                if (tagExists) {
+                    sh "docker rmi ${previousTag} || true"
+                    echo "Removed previous Docker image: ${previousTag}"
+                } else {
+                    echo "No previous Docker image found with tag: ${previousTag}"
+                }
             }
         }
     }
