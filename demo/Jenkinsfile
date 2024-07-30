@@ -69,15 +69,15 @@ pipeline {
         cleanup {
             script {
                 def previousBuildNumber = "${env.BUILD_NUMBER.toInteger() - 1}"
-                def previousTag = "${env.IMAGE_NAME}:${previousBuildNumber}"
+                def previousTag = "${env.DOCKER_REGISTRY_URL}:${previousBuildNumber}"
 
                 def tagExists = sh(script: "docker images -q ${previousTag}", returnStatus: true) == 0
 
                 if (tagExists) {
                     sh "docker rmi ${previousTag} || true"
-                    echo "Removed previous Docker image: ${previousTag}"
+                    echo "이전 버전의 도커 이미지가 삭제되었습니다: ${previousTag}"
                 } else {
-                    echo "No previous Docker image found with tag: ${previousTag}"
+                    echo "이전 버전의 도커 이미지가 발견되지 않았습니다: ${previousTag}"
                 }
             }
         }
