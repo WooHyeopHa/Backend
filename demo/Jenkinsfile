@@ -69,7 +69,7 @@ pipeline {
         cleanup {
             script {
                 def previousBuildNumber = "${env.BUILD_NUMBER.toInteger() - 1}"
-                def previousTag = "${env.DOCKER_REGISTRY_URL}:${previousBuildNumber}"
+                def previousTag = "${env.IMAGE_NAME}:${previousBuildNumber}"
 
                 def tagExists = sh(script: "docker images -q ${previousTag}", returnStatus: true) == 0
 
