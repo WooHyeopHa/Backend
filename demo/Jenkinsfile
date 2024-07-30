@@ -30,6 +30,16 @@ pipeline {
             }
         }
 
+        stage('Cleanup Old Containers') {
+                    steps {
+                        script {
+                            sh """
+                            docker ps -a -q -f name=${env.IMAGE_NAME} | xargs -r docker rm -f
+                            """
+                        }
+                    }
+                }
+
         stage('Deploy Docker Container') {
             steps {
                 script {
@@ -42,11 +52,18 @@ pipeline {
     }
 
     post {
-        success {
-            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+            success {
+                echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+            }
+            failure {
+                echo '빌드 또는 배포에 실패했습니다.'
+            }
+            cleanup {
+                script {
+                    sh """
+                    docker rmi ${env.IMAGE_NAME}:${env.BUILD_NUMBER} || true
+                    """
+                }
+            }
         }
-        failure {
-            echo '빌드 또는 배포에 실패했습니다.'
-        }
-    }
 }
