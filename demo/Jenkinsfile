@@ -31,7 +31,6 @@ pipeline {
                     script {
                         def image = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
                         sh "docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW}"
-                        sh "docker tag ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
                         sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
                     }
                 }
@@ -69,7 +68,7 @@ pipeline {
         cleanup {
             script {
                 def previousBuildNumber = "${env.BUILD_NUMBER.toInteger() - 1}"
-                def previousTag = "${env.IMAGE_NAME}:${previousBuildNumber}"
+                def previousTag = "${env.DOCKER_REGISTRY_URL}:${previousBuildNumber}"
 
                 def tagExists = sh(script: "docker images -q ${previousTag}", returnStatus: true) == 0
 
