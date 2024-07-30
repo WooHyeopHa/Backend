@@ -27,11 +27,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    def image = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
-                    sh "docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW}"
-                    sh "docker tag ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
-                    sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
+                dir("${env.DEMO_DIRECTORY}") {
+                    script {
+                        def image = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
+                        sh "docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW}"
+                        sh "docker tag ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
+                        sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
+                    }
                 }
             }
         }
