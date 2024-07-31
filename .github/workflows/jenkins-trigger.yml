@@ -1,0 +1,27 @@
+name: Trigger Jenkins Job
+
+on:
+  push:
+    branches:
+      - 'ehyeok9/CICD'
+    paths:
+      - 'demo/**'
+  pull_request:
+    branches:
+      - 'ehyeok9/CICD'
+    paths:
+      - 'demo/**'
+
+jobs:
+  trigger-jenkins:
+    name: Trigger Jenkins Job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Single Job
+        uses: appleboy/jenkins-action@master
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          user: ${{ secrets.JENKINS_USERNAME }}
+          token: ${{ secrets.JENKINS_API_TOKEN }}
+          job: "wwh-exhibition-service"
