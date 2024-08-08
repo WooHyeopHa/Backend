@@ -6,7 +6,7 @@ pipeline {
         GITHUB_CREDENTIALS = credentials('Github-Credential')
         DOCKER_CREDENTIALS = credentials('Docker-Credential')
         IMAGE_NAME = 'findMuse-API-server'
-        DEMO_DIRECTORY = 'findMuse-API'
+        PROJECT_DIRECTORY = 'finMuse-API'
         DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/whh"
     }
 
@@ -19,7 +19,7 @@ pipeline {
 
         stage('Build JAR') {
             steps {
-                dir("${env.DEMO_DIRECTORY}") {
+                dir("${env.PROJECT_DIRECTORY}") {
                     sh './gradlew clean build'
                 }
             }
@@ -27,7 +27,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir("${env.DEMO_DIRECTORY}") {
+                dir("${env.PROJECT_DIRECTORY}") {
                     script {
                         def image = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
                         sh "docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW}"
