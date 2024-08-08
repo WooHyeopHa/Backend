@@ -3,9 +3,11 @@ pipeline {
 
     environment {
         REPOSITORY_NAME = 'Backend'
+        GITHUB_CREDENTIALS = credentials('Github-Credential')
+        DOCKER_CREDENTIALS = credentials('Docker-Credential')
         IMAGE_NAME = 'findmuse-api-server'
         PROJECT_DIRECTORY = 'finMuse-API'
-        DOCKER_REGISTRY_URL = "findmuse-api-server"
+        DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/${IMAGE_NAME}"
     }
 
     stages {
@@ -39,7 +41,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'Docker-Credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
                         def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
                         sh "docker tag ${imageTag} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
                         sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
                     }
