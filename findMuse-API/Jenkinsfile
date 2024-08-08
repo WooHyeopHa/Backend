@@ -6,7 +6,7 @@ pipeline {
         GITHUB_CREDENTIALS = credentials('Github-Credential')
         DOCKER_CREDENTIALS = credentials('Docker-Credential')
         IMAGE_NAME = 'findmuse-api-server'
-        PROJECT_DIRECTORY = 'finMuse-API'
+        PROJECT_DIRECTORY = 'findMuse-API'
         DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/${IMAGE_NAME}"
     }
 

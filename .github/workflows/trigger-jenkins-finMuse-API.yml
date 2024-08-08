@@ -5,12 +5,12 @@ on:
     branches:
       - 'develop'
     paths:
-      - 'finMuse-API/**'
+      - 'findMuse-API/**'
   pull_request:
     branches:
       - 'develop'
     paths:
-      - 'finMuse-API/**'
+      - 'findMuse-API/**'
 
 jobs:
   trigger-jenkins-finMuse-API:
