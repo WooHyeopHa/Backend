@@ -1,0 +1,87 @@
+pipeline {
+    agent any
+
+    environment {
+        REPOSITORY_NAME = 'Backend'
+        GITHUB_CREDENTIALS = credentials('Github-Credential')
+        DOCKER_CREDENTIALS = credentials('Docker-Credential')
+        IMAGE_NAME = 'findMuse-API-server'
+        DEMO_DIRECTORY = 'demo'
+        DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/whh"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'ehyeok9/develop', url: "https://github.com/WooHyeopHa/${env.REPOSITORY_NAME}.git", credentialsId: 'Github-Credential'
+            }
+        }
+
+        stage('Build JAR') {
+            steps {
+                dir("${env.DEMO_DIRECTORY}") {
+                    sh './gradlew clean build'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir("${env.DEMO_DIRECTORY}") {
+                    script {
+                        def image = docker.build("${env.IMAGE_NAME}:${env.BUILD_NUMBER}")
+                        sh "docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW}"
+                        sh "docker tag ${env.IMAGE_NAME}:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
+                        sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
+                    }
+                }
+            }
+        }
+
+        stage('Cleanup Old Containers') {
+            steps {
+                script {
+                    sh """
+                    docker ps -a -q -f name=${env.IMAGE_NAME} | xargs -r docker rm -f
+                    """
+                }
+            }
+        }
+
+        stage('Deploy Docker Container') {
+            steps {
+                script {
+                    sh """
+                    docker run -d -p 80:80 --name ${env.IMAGE_NAME} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+        }
+        failure {
+            echo '빌드 또는 배포에 실패했습니다.'
+        }
+        cleanup {
+            script {
+                def previousBuildNumber = "${env.BUILD_NUMBER.toInteger() - 1}"
+                def previousTag = "${env.IMAGE_NAME}:${previousBuildNumber}"
+                def registryTage = "${env.DOCKER_REGISTRY_URL}:${previousBuildNumber}"
+
+                def tagExists = sh(script: "docker images -q ${previousTag}", returnStatus: true) == 0
+
+                if (tagExists) {
+                    sh "docker rmi ${previousTag} || true"
+                    sh "docker rmi ${registryTage} || true"
+                    echo "이전 버전의 도커 이미지가 삭제되었습니다: ${previousTag}"
+                } else {
+                    echo "이전 버전의 도커 이미지가 발견되지 않았습니다: ${previousTag}"
+                }
+            }
+        }
+    }
+}
