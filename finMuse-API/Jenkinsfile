@@ -5,9 +5,9 @@ pipeline {
         REPOSITORY_NAME = 'Backend'
         GITHUB_CREDENTIALS = credentials('Github-Credential')
         DOCKER_CREDENTIALS = credentials('Docker-Credential')
-        IMAGE_NAME = 'findMuse-API-server'
+        IMAGE_NAME = 'findmuse-api-server'
         PROJECT_DIRECTORY = 'finMuse-API'
-        DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/whh"
+        DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/findmuse-api-server"
     }
 
     stages {
