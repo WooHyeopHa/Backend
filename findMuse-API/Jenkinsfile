@@ -17,6 +17,26 @@ pipeline {
             }
         }
 
+        stage('Set Profile to Server') {
+            steps {
+                dir("${env.PROJECT_DIRECTORY}") {
+                    script {
+                        sh "sed -i 's/active: local/active: server/' src/main/resources/application.yml"
+                        }
+                    }
+                }
+            }
+
+        stage('Download env.properties') {
+            steps {
+                withCredentials([file(credentialsId: 'ENV-PROPERTIES', variable: 'ConfigFile')]) {
+                    script {
+                        sh "cp \$ConfigFile ${env.PROJECT_DIRECTORY}/src/main/resources/env.properties"
+                        }
+                    }
+                }
+            }
+
         stage('Build JAR') {
             steps {
                 dir("${env.PROJECT_DIRECTORY}") {
