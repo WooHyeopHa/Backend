@@ -6,11 +6,6 @@ on:
       - 'develop'
     paths:
       - 'findMuse-chatting/**'
-  pull_request:
-    branches:
-      - 'develop'
-    paths:
-      - 'findMuse-chatting/**'
 
 jobs:
   trigger-jenkins-findMuse-chatting:
