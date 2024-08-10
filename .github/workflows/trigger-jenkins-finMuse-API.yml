@@ -6,11 +6,6 @@ on:
       - 'develop'
     paths:
       - 'findMuse-API/**'
-  pull_request:
-    branches:
-      - 'develop'
-    paths:
-      - 'findMuse-API/**'
 
 jobs:
   trigger-jenkins-finMuse-API:
