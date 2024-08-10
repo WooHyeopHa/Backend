@@ -85,7 +85,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    docker run -d -p 80:8080 --name ${env.IMAGE_NAME} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}
+                    docker run -d -p 8080:8080 --name ${env.IMAGE_NAME} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}
                     """
                 }
             }
