@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'develop', url: "https://github.com/WooHyeopHa/${env.REPOSITORY_NAME}.git", credentialsId: 'Github-Credential'
+                git branch: 'dev-chat', url: "https://github.com/WooHyeopHa/${env.REPOSITORY_NAME}.git", credentialsId: 'Github-Credential'
             }
         }
 
