@@ -32,7 +32,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'ENV-PROPERTIES', variable: 'ConfigFile')]) {
                     script {
                         sh "chmod -R 755 ${env.PROJECT_DIRECTORY}/src/main/resources/"
-                        sh "cp \$ConfigFile ${env.PROJECT_DIRECTORY}/src/main/resources/env.properties"
+                        sh "cp \$ConfigFile ${env.PROJECT_DIRECTORY}/src/main/resources/application-env.properties"
                         }
                     }
                 }
