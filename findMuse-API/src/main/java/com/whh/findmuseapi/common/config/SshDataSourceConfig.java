@@ -21,7 +21,6 @@ public class SshDataSourceConfig {
     @Bean("dataSource")
     @Primary
     public DataSource dataSource(DataSourceProperties properties) {
-        System.out.println("시작");
         log.info("Datasource Properties URL: {}", properties.getUrl());
         log.info("Datasource Properties Username: {}", properties.getUsername());
         log.info("Datasource Properties Password: {}", properties.getPassword());

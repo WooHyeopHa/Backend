@@ -14,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 @Slf4j
 @Component
 @Profile("local")
-@ConfigurationProperties(prefix = "ec2")
 @Validated
 @Setter
 public class SshTunnelConfig {
