@@ -3,7 +3,7 @@ name: Trigger Jenkins Job for findMuse-chatting
 on:
   push:
     branches:
-      - 'develop'
+      - 'dev-chat'
     paths:
       - 'findMuse-chatting/**'
 
