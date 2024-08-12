@@ -39,6 +39,8 @@ dependencies {
 
     implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
 
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'   // AWS
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 
