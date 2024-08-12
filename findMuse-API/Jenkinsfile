@@ -7,7 +7,7 @@ pipeline {
         DOCKER_CREDENTIALS = credentials('Docker-Credential')
         IMAGE_NAME = 'findmuse-api-server'
         PROJECT_DIRECTORY = 'findMuse-API'
-        DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/${IMAGE_NAME}"
+//         DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/${IMAGE_NAME}"
     }
 
     stages {
@@ -57,18 +57,18 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'Docker-Credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    script {
-                        def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-                        sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
-                        sh "docker tag ${imageTag} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
-                        sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
-                    }
-                }
-            }
-        }
+//         stage('Push Docker Image') {
+//             steps {
+//                 withCredentials([usernamePassword(credentialsId: 'Docker-Credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+//                     script {
+//                         def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+//                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+//                         sh "docker tag ${imageTag} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
+//                         sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
+//                     }
+//                 }
+//             }
+//         }
 
         stage('Cleanup Old Containers') {
             steps {
@@ -85,7 +85,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    docker run -d -p 8080:8080 --name ${env.IMAGE_NAME} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}
+                    docker run -d -p 8080:8080 --name ${env.IMAGE_NAME} ${env.IMAGE_NAME}:${env.BUILD_NUMBER}
                     """
                 }
             }
@@ -121,18 +121,15 @@ pipeline {
         }
         cleanup {
             script {
-                def previousBuildNumber = "${env.BUILD_NUMBER.toInteger() - 1}"
-                def previousTag = "${env.IMAGE_NAME}:${previousBuildNumber}"
-                def registryTag = "${env.DOCKER_REGISTRY_URL}:${previousBuildNumber}"
+                def imageIds = sh(script: "docker images -q ${env.IMAGE_NAME}", returnStdout: true).trim().split('\n')
 
-                def tagExists = sh(script: "docker images -q ${previousTag}", returnStatus: true) == 0
+                if (imageIds.size() > 0) {
+                    echo "다음 이미지를 삭제합니다: ${imageIds.join(', ')}"
 
-                if (tagExists) {
-                    sh "docker rmi ${previousTag} || true"
-                    sh "docker rmi ${registryTag} || true"
-                    echo "이전 버전의 도커 이미지가 삭제되었습니다: ${previousTag}"
+                    sh "docker rmi ${imageIds.join(' ')} || true"
+                    echo "동일한 이미지 이름을 가진 모든 Docker 이미지가 삭제되었습니다."
                 } else {
-                    echo "이전 버전의 도커 이미지가 발견되지 않았습니다: ${previousTag}"
+                    echo "동일한 이미지 이름을 가진 Docker 이미지가 발견되지 않았습니다."
                 }
             }
         }
