@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### Secret ###
-./src/main/resources/application-env.properties
+application-env.properties
