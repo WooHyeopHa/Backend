@@ -3,7 +3,7 @@ name: Trigger Jenkins Job for finMuse-API
 on:
   push:
     branches:
-      - 'develop'
+      - 'dev-api'
     paths:
       - 'findMuse-API/**'
 
