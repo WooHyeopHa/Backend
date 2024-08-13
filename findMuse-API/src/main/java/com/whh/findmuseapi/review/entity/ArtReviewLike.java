@@ -4,9 +4,11 @@ import com.whh.findmuseapi.art.entity.Art;
 import com.whh.findmuseapi.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ArtReviewLike {
 

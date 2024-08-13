@@ -4,11 +4,13 @@ import com.whh.findmuseapi.common.constant.Infos.InvieteStatus;
 import com.whh.findmuseapi.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Volunteer {
 

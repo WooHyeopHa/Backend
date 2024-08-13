@@ -13,6 +13,7 @@ import com.whh.findmuseapi.review.entity.ArtReviewLike;
 import com.whh.findmuseapi.review.entity.UserReview;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import static com.whh.findmuseapi.common.constant.Infos.LoginType;
 import static com.whh.findmuseapi.common.constant.Infos.Gender;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 

@@ -3,9 +3,11 @@ package com.whh.findmuseapi.file.entity;
 import com.whh.findmuseapi.art.entity.Art;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class File {
 

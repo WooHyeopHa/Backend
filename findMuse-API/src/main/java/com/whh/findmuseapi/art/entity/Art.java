@@ -4,6 +4,7 @@ import com.whh.findmuseapi.file.entity.File;
 import com.whh.findmuseapi.review.entity.ArtReview;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import static com.whh.findmuseapi.common.constant.Infos.*;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Art {
 
