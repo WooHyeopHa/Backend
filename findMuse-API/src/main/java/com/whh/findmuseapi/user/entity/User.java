@@ -18,18 +18,23 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Setter;
 
 import static com.whh.findmuseapi.common.constant.Infos.LoginType;
 import static com.whh.findmuseapi.common.constant.Infos.Gender;
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @Setter
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+    private String accountId;
+    private String name;
+    private String email;
+    
     private String nickname;
     private String birthYear;
     @Enumerated(EnumType.STRING)
