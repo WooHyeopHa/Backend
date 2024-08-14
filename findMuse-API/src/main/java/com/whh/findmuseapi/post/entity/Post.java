@@ -41,4 +41,7 @@ public class Post {
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Volunteer> volunteeredList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<PostTag> tagList = new ArrayList<>();
 }

@@ -1,4 +1,4 @@
-package com.whh.findmuseapi.user.entity;
+package com.whh.findmuseapi.post.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,18 +11,11 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Taste {
+public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "taste_id")
+    @Column(name = "tag_id")
     private Long id;
     private String name;
-
-    @OneToMany(mappedBy ="parent")
-    private List<Taste> childs = new ArrayList<>();
-
-    @ManyToOne()
-    @JoinColumn(referencedColumnName = "taste_id", name = "parent_id")
-    private Taste parent;
 
 }
