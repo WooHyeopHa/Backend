@@ -40,3 +40,4 @@ out/
 ./src/main/resources/application-env.properties
 src/main/resources/application-env.properties
 application-env.properties
+./src/main/resources/apple/AuthKey_7Z3RT775AY.p8
