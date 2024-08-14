@@ -31,8 +31,8 @@ public class Infos {
 
     @RequiredArgsConstructor
     public enum InvieteStatus {
-        ACCESS("승인됌"),
-        DENY("거절됌"),
+        ACCESS("승인됨"),
+        DENY("거절됨"),
         Wait("대기중");
 
         private final String info;
