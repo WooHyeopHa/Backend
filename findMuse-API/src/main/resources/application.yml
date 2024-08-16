@@ -27,13 +27,17 @@ cloud:
       bucket: ${S3_BUCKET_NAME}
 
 apple:
-  auth:
-    token-url: https://appleid.apple.com/auth/token
-    public-key-url: https://appleid.apple.com/auth/keys
-  redirect-uri: ${APPLE_REDIRECT_URL}
-  iss: https://appleid.apple.com
-  aud: ${APPLE_CLIENT_ID}
   team-id: ${APPLE_TEAM_ID}
-  key:
-    id: ${APPLE_KEY_ID}
-    path: classpath:/apple/AuthKey_${APPLE_KEY_ID}.p8
+  login-key: ${APPLE_KEY_ID}
+  client-id: ${APPLE_CLIENT_ID}
+  redirect-url: ${APPLE_REDIRECT_URL}
+  key-path: apple/AuthKey_${APPLE_KEY_ID}.p8
+
+jwt:
+  secretKey: "${JWT_SECRET_KEY}"
+  access:
+    expiration: 3600
+    header: "Authorization"
+  refresh:
+    expiration: 604800
+    header: "X-Refresh-Token"
