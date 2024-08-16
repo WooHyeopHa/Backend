@@ -1,11 +1,15 @@
 package com.whh.findmuseapi.ios.dto.key;
 
-public record ApplePublicKey(
-    String kty,
-    String kid,
-    String alg,
-    String n,
-    String e
-) {
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class ApplePublicKey {
+    private String kty;
+    private String kid;
+    private String use;
+    private String alg;
+    private String n;
+    private String e;
 }
