@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FindMuse - Apple Login</title>
+  <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+</head>
+<body>
+<h1>Welcome to FindMuse</h1>
+<div id="appleid-signin" data-color="black" data-border="true" data-type="sign in"></div>
+<div id="result"></div>
+
+<script>
+  AppleID.auth.init({
+    clientId : 'store.findmuse.fmservice',
+    scope : 'name email',
+    redirectURI: 'https://findmuse.store/oauth/apple/callback',
+    state : 'origin:web'
+  });
+
+  // 애플 로그인 성공 후 처리
+  document.addEventListener('AppleIDSignInOnSuccess', (event) => {
+    console.log('Apple ID Sign In Success:', event.detail.data);
+
+    // 서버로 데이터를 전송
+    const { code, id_token, user } = event.detail.data;
+
+    fetch('/oauth/apple/callback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        state: 'origin:web', // 예시로 설정한 state 값
+        code: code,
+        id_token: id_token,
+        user: JSON.stringify(user) // 사용자 정보를 문자열로 변환
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Server Response:', data);
+      document.getElementById('result').textContent = 'Login successful! Check server response.';
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  });
+
+  // 애플 로그인 실패 처리
+  document.addEventListener('AppleIDSignInOnFailure', (event) => {
+    console.error('Apple ID Sign In Failure:', event.detail.error);
+    document.getElementById('result').textContent = 'Login failed. Please try again.';
+  });
+</script>
+</body>
+</html>
