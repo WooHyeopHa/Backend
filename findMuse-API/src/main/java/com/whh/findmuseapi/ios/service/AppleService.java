@@ -57,23 +57,12 @@ public class AppleService {
     private final AppleJwtUtils appleJwtUtils;
     
     public User login(AppleLoginResponse appleLoginResponse) throws BadRequestException{
-        String accountId;
-        String name;
-        String email;
-        String accessToken;
-        
-        User user;
-        
         try {
-            boolean isVerify = appleJwtUtils.verifyIdentityToken(appleLoginResponse.getIdToken());
-            
-            if (!isVerify) {
-                throw new BadRequestException();
-            }
+            appleJwtUtils.verifyIdentityToken(appleLoginResponse.getIdToken());
             
             AppleToken.Response tokenResponse = generateAuthToken(appleLoginResponse.getCode());
             
-            accessToken = tokenResponse.getAccessToken();
+            String accessToken = tokenResponse.getAccessToken();
             
             // ID Token을 통해 회원 고유 식별자 받기
             SignedJWT signedJWT = SignedJWT.parse(String.valueOf(tokenResponse.getIdToken()));
@@ -84,19 +73,19 @@ public class AppleService {
             JsonNode jsonNode = objectMapper.readTree(payload.toJSONString());
             
             // 유저 정보 추출
-            accountId = String.valueOf(payload.get("sub"));
-            email = String.valueOf(payload.get("email"));
+            String accountId = String.valueOf(payload.get("sub"));
+            String email = String.valueOf(payload.get("email"));
             
             JsonNode nameNode = jsonNode.path("name");
             String firstName = nameNode.path("firstName").asText("");
             String lastName = nameNode.path("lastName").asText("");
-            name = firstName + " " + lastName;
+            String name = firstName + " " + lastName;
           
             User findUser = userRepository.findByAccountId(accountId).orElse(null);
             
             if (findUser == null) {
                 // 신규 회원가입의 경우 DB에 저장
-                user = userRepository.save(
+                return userRepository.save(
                     User.builder()
                         .accountId(accountId)
                         .name(name)
@@ -106,7 +95,6 @@ public class AppleService {
                         .refreshToken(jwtService.createRefreshToken())
                         .build()
                 );
-                return user;
             } else {
                 // 기존 회원 경우 Acess Token 업데이트를 위해 DB에 저장
                 findUser.setAccessToken(accessToken);

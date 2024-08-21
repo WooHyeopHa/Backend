@@ -39,7 +39,7 @@ public class AppleJwtUtils {
      * @param idToken
      * @return boolean
      */
-    public boolean verifyIdentityToken(String idToken) throws BadRequestException{
+    public void verifyIdentityToken(String idToken) throws BadRequestException{
         
         try {
             SignedJWT signedJWT = SignedJWT.parse(idToken);
@@ -58,16 +58,12 @@ public class AppleJwtUtils {
             }
             
             // RSA 검증
-            if (verifyPublicKey(signedJWT)) {
-                return true;
-            }
+            verifyPublicKey(signedJWT);
             
         } catch (ParseException e) {
             log.info(e.toString());
             throw new BadRequestException();
         }
-        
-        return false;
     }
     
     /**
@@ -76,7 +72,7 @@ public class AppleJwtUtils {
      * @param signedJWT
      * @return boolean
      */
-    private boolean verifyPublicKey(SignedJWT signedJWT) {
+    private void verifyPublicKey(SignedJWT signedJWT) throws BadRequestException{
         
         try {
             ApplePublicKeys keys = appleAuthClient.getAppleAuthPublicKey();
@@ -87,8 +83,8 @@ public class AppleJwtUtils {
                 RSAPublicKey publicKey = rsaKey.toRSAPublicKey();
                 JWSVerifier verifier = new RSASSAVerifier(publicKey);
                 
-                if (signedJWT.verify(verifier)) {
-                    return true;
+                if (!signedJWT.verify(verifier)) {
+                    throw new BadRequestException();
                 }
             }
         } catch (ParseException e) {
@@ -102,7 +98,5 @@ public class AppleJwtUtils {
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
-        
-        return false;
     }
 }
