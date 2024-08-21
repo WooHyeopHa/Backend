@@ -124,13 +124,13 @@ public class AppleService {
         if (code == null) throw new IllegalArgumentException();
         
         String clientId = appleProperties.getClientId();
-        return appleAuthClient.getToken(AppleToken.Request.of(
-            code,
-            clientId,
-            createClientSecretKey(clientId),
-            "authorization_code",
-            null
-        ));
+        return appleAuthClient.getToken(AppleToken.Request.builder()
+                .code(code)
+                .client_id(clientId)
+                .client_secret(createClientSecretKey(clientId))
+                .grant_type("authorization_code")
+                .refresh_token(null)
+            .build());
     }
     
     public String createClientSecretKey(String clientId) throws BadRequestException{
