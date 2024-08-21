@@ -32,6 +32,7 @@ apple:
   client-id: ${APPLE_CLIENT_ID}
   redirect-url: ${APPLE_REDIRECT_URL}
   key-path: apple/AuthKey_${APPLE_KEY_ID}.p8
+  auth-url: "https://appleid.apple.com"
 
 jwt:
   secretKey: "${JWT_SECRET_KEY}"

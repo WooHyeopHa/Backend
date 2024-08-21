@@ -56,8 +56,6 @@ public class AppleService {
     private final AppleAuthClient appleAuthClient;
     private final AppleJwtUtils appleJwtUtils;
     
-    private final String APPLE_AUTH_URL = "https://appleid.apple.com";
-    
     public User login(AppleLoginResponse appleLoginResponse) throws BadRequestException{
         String accountId;
         String name;
@@ -147,7 +145,7 @@ public class AppleService {
                 .setIssuer(appleProperties.getTeamId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 30)) // 만료 시간 (30초)
-                .setAudience(APPLE_AUTH_URL)
+                .setAudience(appleProperties.getAuthUrl())
                 .setSubject(clientId)
                 .signWith(SignatureAlgorithm.ES256, getPrivateKey())
                 .compact();

@@ -15,4 +15,5 @@ public class AppleProperties {
     private String clientId;
     private String redirectUrl;
     private String keyPath;
+    private String authUrl;
 }
