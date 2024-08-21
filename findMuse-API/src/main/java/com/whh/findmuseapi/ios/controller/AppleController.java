@@ -25,14 +25,7 @@ public class AppleController {
     private final AppleService appleService;
     
     @PostMapping("/callback")
-    public ApiResponse<?> callback(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        AppleLoginResponse appleLoginResponse = AppleLoginResponse.builder()
-            .state(request.getParameter("state"))
-            .code(request.getParameter("code"))
-            .idToken(request.getParameter("id_token"))
-            .user(request.getParameter("user"))
-            .build();
-        
+    public ApiResponse<?> callback(AppleLoginResponse appleLoginResponse) throws IOException {
         // 로그 추가 (디버깅 용도)
         System.out.println(appleLoginResponse.toString());
         
