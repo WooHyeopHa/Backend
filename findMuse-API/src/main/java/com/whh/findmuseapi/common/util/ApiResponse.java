@@ -34,24 +34,8 @@ public class ApiResponse<T> {
     }
     
     // 예외 발생으로 API 호출 실패시 반환
-    public static ApiResponse<?> createError(ResponseCode responseCode) {
-        return new ApiResponse<>(responseCode, null);
-    }
-    
-    // 데이터 유효성 문제
-    // Hibernate Validator에 의해 유효하지 않은 데이터로 인해 API 호출이 거부될때 반환
-    public static ApiResponse<?> createFail(int status, BindingResult bindingResult) {
-        Map<String, String> errors = new HashMap<>();
-        
-        List<ObjectError> allErrors = bindingResult.getAllErrors();
-        for (ObjectError error : allErrors) {
-            if (error instanceof FieldError) {
-                errors.put(((FieldError) error).getField(), error.getDefaultMessage());
-            } else {
-                errors.put( error.getObjectName(), error.getDefaultMessage());
-            }
-        }
-        return new ApiResponse<>(status, errors, null);
+    public static ApiResponse<?> createError(ResponseCode responseCode, String errorMessage) {
+        return new ApiResponse<>(responseCode.getStatus(), null, errorMessage);
     }
     
     private ApiResponse(int status, T data, String message) {

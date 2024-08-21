@@ -42,7 +42,7 @@ public class AppleController {
         if (user != null) {
             return ApiResponse.createSuccess(ResponseCode.CREATED, user);
         }
-        return ApiResponse.createError(ResponseCode.INTERNAL_SERVER_ERROR);
+        return ApiResponse.createError(ResponseCode.INTERNAL_SERVER_ERROR, "전역 에러 처리 전 임시 메시지");
     }
     
     @PostMapping("/token")
@@ -52,9 +52,8 @@ public class AppleController {
         if (user != null) {
             appleService.loginSuccess(user, response);
             return ApiResponse.createSuccess(ResponseCode.SUCCESS, user);
-        } else {
-            return ApiResponse.createError(ResponseCode.INTERNAL_SERVER_ERROR);
         }
+        return ApiResponse.createError(ResponseCode.INTERNAL_SERVER_ERROR, "전역 에러 처리 전 임시 메시지");
     }
     
     @DeleteMapping("/revoke")
