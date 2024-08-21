@@ -21,6 +21,7 @@ public class PostCreateRequest {
     @PositiveOrZero
     private Long userId;
 
+    // 추후에 다시 길이 제한 걸어야 할 듯.
     @NotNull(message = "제목을 입력해 주세요.")
     private String title;
 

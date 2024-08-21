@@ -1,6 +1,8 @@
 package com.whh.findmuseapi.post.service;
 
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
+import com.whh.findmuseapi.post.dto.response.PostReadResponse;
+import com.whh.findmuseapi.post.entity.Post;
 
 /**
  * class: PostService.
@@ -19,4 +21,23 @@ public interface PostService {
      * @param createRequest 게시물 생성 정보
      */
     void createPost(PostCreateRequest createRequest);
+
+    /**
+     * 게시물 단일 조회 로직입니다.
+     *
+     * @param postId 게시글 아이디
+     * @return 게시글
+     */
+    PostReadResponse readPost(Long postId);
+
+    /**
+     * 회원 유효성 검사
+     * 게시물 유효성 검사
+     * 회원 글쓴이 검사
+     *
+     * @param userId 글쓴이 아이디
+     * @param postId 게시글 아이디
+     */
+    void deletePost(Long userId, Long postId);
+
 }

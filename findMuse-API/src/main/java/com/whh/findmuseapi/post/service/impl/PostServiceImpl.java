@@ -3,12 +3,18 @@ package com.whh.findmuseapi.post.service.impl;
 import com.whh.findmuseapi.art.entity.Art;
 import com.whh.findmuseapi.art.repository.ArtRepository;
 import com.whh.findmuseapi.common.Exception.NotFoundException;
+import com.whh.findmuseapi.common.Exception.UnAuthorizationException;
 import com.whh.findmuseapi.common.constant.Infos;
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
+import com.whh.findmuseapi.post.dto.response.PostReadResponse;
 import com.whh.findmuseapi.post.entity.Post;
 import com.whh.findmuseapi.post.entity.PostTag;
 import com.whh.findmuseapi.post.entity.Tag;
+import com.whh.findmuseapi.post.entity.Volunteer;
+import com.whh.findmuseapi.post.repository.PostRepository;
+import com.whh.findmuseapi.post.repository.PostTagRepository;
 import com.whh.findmuseapi.post.repository.TagRepository;
+import com.whh.findmuseapi.post.repository.VolunteerRepository;
 import com.whh.findmuseapi.post.service.PostService;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
@@ -27,9 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
+    private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ArtRepository artRepository;
     private final TagRepository tagRepository;
+    private final VolunteerRepository volunteerRepository;
+    private final PostTagRepository postTagRepository;
 
 
     /**
@@ -67,4 +76,54 @@ public class PostServiceImpl implements PostService {
 
         post.updateTagList(postTagList);
     }
+
+    @Override
+    @Transactional
+    public PostReadResponse readPost(Long postId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("모집글: " + postId));
+        post.updateCount();
+
+        return PostReadResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .place(post.getPlace())
+                .createDate(post.getCreateDate())
+                .endDate(post.getEndDate())
+                .inviteCount(post.getInviteCount())
+                .viewCount(post.getViewCount())
+                .ages(post.getAges().name())
+                .artName(post.getArt().getTitle())
+                .userId(post.getUser().getId())
+                .volunteeredList(post.getVolunteeredList().stream()
+                        .map(volunteer -> volunteer.getUser().getId())
+                        .toList())
+                .tagList(post.getTagList().stream()
+                        .map(tag -> tag.getTag().getName())
+                        .toList())
+                .build();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deletePost(Long userId, Long postId) {
+        User writer = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("회원: " + userId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("게시글: " + postId));
+
+        if (!post.getUser().getId().equals(writer.getId())) {
+            // 예외들 일단 임시방편
+            throw new UnAuthorizationException("게시글");
+        }
+
+        List<Volunteer> volunteers = post.getVolunteeredList();
+        volunteerRepository.deleteAll(volunteers);
+
+        List<PostTag> tags = post.getTagList();
+        postTagRepository.deleteAll(tags);
+
+        postRepository.delete(post);
+    }
+
 }

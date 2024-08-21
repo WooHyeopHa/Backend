@@ -58,6 +58,9 @@ public class Post {
     public void updateTagList(List<PostTag> tagList) {
         this.tagList = tagList;
     }
+    public void updateCount(){
+        this.viewCount = Math.addExact(1, this.viewCount);
+    }
 
     @Builder
     public Post(String title, String content, String place, LocalDate endDate, int inviteCount, Ages ages, Art art,
