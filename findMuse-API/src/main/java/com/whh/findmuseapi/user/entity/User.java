@@ -14,24 +14,19 @@ import com.whh.findmuseapi.review.entity.ArtReviewLike;
 import com.whh.findmuseapi.review.entity.UserReview;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import static com.whh.findmuseapi.common.constant.Infos.LoginType;
 import static com.whh.findmuseapi.common.constant.Infos.Gender;
 
 @Entity
-@Getter @Setter @Builder
-//@NoArgsConstructor(access = AccessLevel.PUBLIC)
-@RequiredArgsConstructor
-@AllArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -99,6 +94,14 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<ComplaintUser> complaintList = new ArrayList<>();
+    
+    @Builder
+    public User(String accountId, String email, Role role, String refreshToken) {
+        this.accountId = accountId;
+        this.email = email;
+        this.role = role;
+        this.refreshToken = refreshToken;
+    }
     
     public void authorizeUser() {
         this.role = Role.USER;
