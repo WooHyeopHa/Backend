@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.whh.findmuseapi.common.constant.Infos.Role;
+import com.whh.findmuseapi.ios.dto.AppleRevokeRequest;
 import com.whh.findmuseapi.jwt.service.JwtService;
 import com.whh.findmuseapi.ios.config.AppleProperties;
 import com.whh.findmuseapi.ios.dto.AppleLoginResponse;
@@ -153,31 +154,16 @@ public class AppleService {
         User user = extractUserFromAccessToken(accessToken);
         deleteUserAcount(user);
         
-        String data = "client_id=" + appleProperties.getClientId() +
-            "&client_secret=" + createClientSecretKey(appleProperties.getClientId()) +
-            "&token=" + user.getAccessToken() +
-            "&token_type_hint=access_token";
-        sendRevokeRequest(data);
-    }
-    
-    private void sendRevokeRequest(String data) {
-        RestTemplate restTemplate = new RestTemplate();
-        String appleRevokeUrl = "https://appleid.apple.com/auth/revoke";
+        AppleRevokeRequest appleRevokeRequest = AppleRevokeRequest.builder()
+            .client_id(appleProperties.getClientId())
+            .client_secret(createClientSecretKey(appleProperties.getClientId()))
+            .token(user.getAccessToken())
+            .token_type_hint("access_token")
+            .build();
         
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        String responseBody = appleAuthClient.revoke(appleRevokeRequest);
         
-        HttpEntity<String> entity = new HttpEntity<>(data, headers);
-        
-        ResponseEntity<String> responseEntity = restTemplate.exchange(appleRevokeUrl, HttpMethod.POST, entity, String.class);
-        
-        // Get the response status code and body
-        HttpStatus statusCode = (HttpStatus) responseEntity.getStatusCode();
-        String responseBody = responseEntity.getBody();
-        
-        log.info("애플 포그인 연결해제 요청 결과");
-        log.info("Status Code: " + statusCode);
-        log.info("Response: " + responseBody);
+        log.info("애플 연결해제 요청 결과 : " + responseBody);
     }
     
     public void deleteUserAcount(User user) {

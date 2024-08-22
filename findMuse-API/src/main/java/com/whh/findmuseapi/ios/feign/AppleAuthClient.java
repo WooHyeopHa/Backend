@@ -1,5 +1,6 @@
 package com.whh.findmuseapi.ios.feign;
 
+import com.whh.findmuseapi.ios.dto.AppleRevokeRequest;
 import com.whh.findmuseapi.ios.dto.AppleToken;
 import com.whh.findmuseapi.ios.dto.key.ApplePublicKeys;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -13,4 +14,7 @@ public interface AppleAuthClient {
     
     @PostMapping(value = "/token", consumes = "application/x-www-form-urlencoded")
     AppleToken.Response getToken(AppleToken.Request request);
+    
+    @PostMapping(value = "/revoke", consumes = "application/x-www-form-urlencoded")
+    String revoke(AppleRevokeRequest request);
 }
