@@ -39,7 +39,6 @@ public class User {
     private Long id;
     private String accountId;
     private String email;
-    private String name;
     
     private String nickname;
     private String birthYear;

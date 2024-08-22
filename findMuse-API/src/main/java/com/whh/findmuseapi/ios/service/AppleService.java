@@ -75,11 +75,6 @@ public class AppleService {
             // 유저 정보 추출
             String accountId = String.valueOf(payload.get("sub"));
             String email = String.valueOf(payload.get("email"));
-            
-            JsonNode nameNode = jsonNode.path("name");
-            String firstName = nameNode.path("firstName").asText("");
-            String lastName = nameNode.path("lastName").asText("");
-            String name = firstName + " " + lastName;
           
             User findUser = userRepository.findByAccountId(accountId).orElse(null);
             
@@ -88,24 +83,23 @@ public class AppleService {
                 return userRepository.save(
                     User.builder()
                         .accountId(accountId)
-                        .name(name)
                         .email(email)
                         .role(Role.GUEST)
                         .accessToken(accessToken)
                         .refreshToken(jwtService.createRefreshToken())
                         .build()
                 );
-            } else {
-                // 기존 회원 경우 Acess Token 업데이트를 위해 DB에 저장
-                findUser.setAccessToken(accessToken);
-                userRepository.save(findUser);
             }
+            // 기존 회원 경우 Acess Token 업데이트를 위해 DB에 저장
+            findUser.setAccessToken(accessToken);
+            userRepository.save(findUser);
             return findUser;
         } catch (JsonProcessingException | ParseException e) {
             log.info(e.toString());
             throw new BadRequestException();
         }
     }
+    
     public AppleToken.Response generateAuthToken(String code) throws BadRequestException{
         if (code == null) throw new IllegalArgumentException();
         
@@ -119,7 +113,7 @@ public class AppleService {
             .build());
     }
     
-    public String createClientSecretKey(String clientId) throws BadRequestException{
+    private String createClientSecretKey(String clientId) throws BadRequestException{
         // headersParams 적재
         Map<String, Object> headerParamsMap = new HashMap<>();
         headerParamsMap.put("kid", appleProperties.getLoginKey());
