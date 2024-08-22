@@ -100,7 +100,7 @@ public class AppleService {
         }
     }
     
-    public AppleToken.Response generateAuthToken(String code) throws BadRequestException{
+    private AppleToken.Response generateAuthToken(String code) throws BadRequestException{
         if (code == null) throw new IllegalArgumentException();
         
         String clientId = appleProperties.getClientId();
