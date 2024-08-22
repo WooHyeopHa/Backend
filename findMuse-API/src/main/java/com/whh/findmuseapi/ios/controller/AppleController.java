@@ -50,8 +50,8 @@ public class AppleController {
     }
     
     @DeleteMapping("/revoke")
-    public ApiResponse<?> revokeAppleAccount(@RequestHeader("Authorization") String accessToken) throws BadRequestException{
-        appleService.deleteAppleAccount(accessToken);
+    public ApiResponse<?> revokeAppleAccount(Long userId) throws BadRequestException{
+        appleService.deleteAppleAccount(userId);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 }

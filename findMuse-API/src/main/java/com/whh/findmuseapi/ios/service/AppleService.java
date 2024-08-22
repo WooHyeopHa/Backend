@@ -95,19 +95,6 @@ public class AppleService {
         }
     }
     
-    private AppleToken.Response generateAuthToken(String code) throws BadRequestException{
-        if (code == null) throw new IllegalArgumentException();
-        
-        String clientId = appleProperties.getClientId();
-        return appleAuthClient.getToken(AppleToken.Request.builder()
-                .code(code)
-                .client_id(clientId)
-                .client_secret(createClientSecretKey(clientId))
-                .grant_type("authorization_code")
-                .refresh_token(null)
-            .build());
-    }
-    
     private String createClientSecretKey(String clientId) throws BadRequestException{
         // headersParams 적재
         Map<String, Object> headerParamsMap = new HashMap<>();
@@ -144,15 +131,28 @@ public class AppleService {
         return converter.getPrivateKey(privateKeyInfo);
     }
     
-    public void deleteAppleAccount(String accessToken) throws BadRequestException{
-        User user = extractUserFromAccessToken(accessToken);
+    private AppleToken.Response generateAuthToken(String code) throws BadRequestException{
+        if (code == null) throw new IllegalArgumentException();
+        
+        String clientId = appleProperties.getClientId();
+        return appleAuthClient.getToken(AppleToken.Request.builder()
+            .code(code)
+            .client_id(clientId)
+            .client_secret(createClientSecretKey(clientId))
+            .grant_type("authorization_code")
+            .refresh_token(null)
+            .build());
+    }
+    
+    public void deleteAppleAccount(Long userId) throws BadRequestException{
+        User user = userRepository.findById(userId).orElseThrow();
         deleteUserAcount(user);
         
         AppleRevokeRequest appleRevokeRequest = AppleRevokeRequest.builder()
             .client_id(appleProperties.getClientId())
             .client_secret(createClientSecretKey(appleProperties.getClientId()))
-            .token(user.getAccessToken())
-            .token_type_hint("access_token")
+            .token(user.getRefreshToken())
+            .token_type_hint("refresh_token")
             .build();
         
         String responseBody = appleAuthClient.revoke(appleRevokeRequest);
