@@ -8,18 +8,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * class: PostCreateRequest.
+ * class: PostUpdateRequest.
  *
  * @author devminseo
- * @version 8/20/24
+ * @version 8/22/24
  */
 
 @Getter
 @NoArgsConstructor
-public class PostCreateRequest {
+public class PostUpdateRequest {
     @NotNull(message = "아이디를 입력해 주세요.")
     @PositiveOrZero
     private Long userId;
+
+    @NotNull(message = "게시글 번호를 입력해 주세요.")
+    @PositiveOrZero
+    private Long postId;
 
     // 추후에 다시 길이 제한 걸어야 할 듯.
     @NotNull(message = "제목을 입력해 주세요.")

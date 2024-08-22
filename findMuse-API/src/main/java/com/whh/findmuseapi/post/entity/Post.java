@@ -1,7 +1,9 @@
 package com.whh.findmuseapi.post.entity;
 
 import com.whh.findmuseapi.art.entity.Art;
+import com.whh.findmuseapi.common.constant.Infos;
 import com.whh.findmuseapi.common.constant.Infos.Ages;
+import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
 import com.whh.findmuseapi.user.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -60,6 +62,17 @@ public class Post {
     }
     public void updateCount(){
         this.viewCount = Math.addExact(1, this.viewCount);
+    }
+
+    public void updatePost(PostUpdateRequest updateRequest,Art newArt,List<PostTag> postTagList) {
+        this.title = updateRequest.getTitle();
+        this.content = updateRequest.getContent();
+        this.place = updateRequest.getPlace();
+        this.endDate = updateRequest.getEndDate();
+        this.inviteCount = updateRequest.getInviteCount();
+        this.ages = Infos.Ages.valueOf(updateRequest.getAges());
+        this.art = newArt;
+        this.tagList = postTagList;
     }
 
     @Builder

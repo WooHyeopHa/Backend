@@ -6,6 +6,7 @@ import com.whh.findmuseapi.common.Exception.NotFoundException;
 import com.whh.findmuseapi.common.Exception.UnAuthorizationException;
 import com.whh.findmuseapi.common.constant.Infos;
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
+import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
 import com.whh.findmuseapi.post.dto.response.PostReadResponse;
 import com.whh.findmuseapi.post.entity.Post;
 import com.whh.findmuseapi.post.entity.PostTag;
@@ -77,6 +78,9 @@ public class PostServiceImpl implements PostService {
         post.updateTagList(postTagList);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public PostReadResponse readPost(Long postId) {
@@ -102,6 +106,35 @@ public class PostServiceImpl implements PostService {
                         .map(tag -> tag.getTag().getName())
                         .toList())
                 .build();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updatePost(PostUpdateRequest updateRequest) {
+        User writer = userRepository.findById(updateRequest.getUserId()).orElseThrow(() -> new NotFoundException("회원: " + updateRequest.getUserId()));
+        Post post = postRepository.findById(updateRequest.getPostId()).orElseThrow(() -> new NotFoundException("게시글: " + updateRequest.getPostId()));
+
+        if (!post.getUser().getId().equals(writer.getId())) {
+            // 예외들 일단 임시방편
+            throw new UnAuthorizationException("게시글");
+        }
+
+        Art art = artRepository.findArtByTitle(updateRequest.getArtTitle())
+                .orElseThrow(() -> new NotFoundException("전시회: " + updateRequest.getArtTitle()));
+
+        List<Tag> tagList = updateRequest.getTagList().stream()
+                .map(tagName -> tagRepository.findByName(tagName)
+                        .orElseThrow(() -> new NotFoundException("태그: " + tagName)))
+                .toList();
+
+        // 나중에 개선사항(아직은 태그의 수가 많지 않아서 부하가 딱히 없을 것으로 예상)
+        postTagRepository.deleteAllByPost(post);
+
+        List<PostTag> postTagList = tagList.stream().map(tag -> PostTag.builder().post(post).tag(tag).build()).toList();
+
+        post.updatePost(updateRequest, art, postTagList);
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.whh.findmuseapi.post.service;
 
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
+import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
 import com.whh.findmuseapi.post.dto.response.PostReadResponse;
-import com.whh.findmuseapi.post.entity.Post;
 
 /**
  * class: PostService.
@@ -29,6 +29,13 @@ public interface PostService {
      * @return 게시글
      */
     PostReadResponse readPost(Long postId);
+
+    /**
+     * 게시물 수정 로직입니다.
+     *
+     * @param updateRequest 수정 사항
+     */
+    void updatePost(PostUpdateRequest updateRequest);
 
     /**
      * 회원 유효성 검사

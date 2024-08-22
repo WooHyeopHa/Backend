@@ -1,10 +1,5 @@
 package com.whh.findmuseapi.post.dto.response;
 
-import com.whh.findmuseapi.art.entity.Art;
-import com.whh.findmuseapi.common.constant.Infos;
-import com.whh.findmuseapi.post.entity.PostTag;
-import com.whh.findmuseapi.post.entity.Volunteer;
-import com.whh.findmuseapi.user.entity.User;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Builder;

@@ -18,7 +18,7 @@ public class GlobalExceptionAdvice {
 
     /**
      * 컨트롤러들의 request DTO에 대한 공통 Validation 핸들러 처리 메서드 입니다.
-     *
+     * 아직 ? 안에 들어갈 에러 처리 클래스를 받아지 않아 미완성입니다.
      */
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException e) {
