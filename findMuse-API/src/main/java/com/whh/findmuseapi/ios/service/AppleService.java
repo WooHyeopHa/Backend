@@ -1,12 +1,12 @@
 package com.whh.findmuseapi.ios.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.whh.findmuseapi.common.constant.Infos.Role;
 import com.whh.findmuseapi.ios.dto.AppleRevokeRequest;
+import com.whh.findmuseapi.ios.dto.key.ApplePublicKeys;
 import com.whh.findmuseapi.jwt.service.JwtService;
 import com.whh.findmuseapi.ios.config.AppleProperties;
 import com.whh.findmuseapi.ios.dto.AppleLoginResponse;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.security.PrivateKey;
-import java.text.ParseException;
+import java.security.PublicKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,14 +36,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @EnableConfigurationProperties({ AppleProperties.class })
@@ -57,21 +50,21 @@ public class AppleService {
     private final AppleAuthClient appleAuthClient;
     private final AppleJwtUtils appleJwtUtils;
     
+    public ReadOnlyJWTClaimsSet getTokenClaims(String identityToken) throws BadRequestException {
+        SignedJWT signedJWT = appleJwtUtils.verifyIdentityToken(identityToken);
+        
+        ApplePublicKeys applePublicKeys = appleAuthClient.getAppleAuthPublicKey();
+        PublicKey publicKey = appleJwtUtils.generatePublicKey(signedJWT, applePublicKeys);
+        
+        return appleJwtUtils.getTokenClaims(signedJWT, publicKey);
+    }
     public User login(AppleLoginResponse appleLoginResponse) throws BadRequestException{
         try {
-            appleJwtUtils.verifyIdentityToken(appleLoginResponse.getIdToken());
-            
-            AppleToken.Response tokenResponse = generateAuthToken(appleLoginResponse.getCode());
-            
-            String accessToken = tokenResponse.getAccessToken();
-            
-            // ID Token을 통해 회원 고유 식별자 받기
-            SignedJWT signedJWT = SignedJWT.parse(String.valueOf(tokenResponse.getIdToken()));
-            ReadOnlyJWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
+            //
+            ReadOnlyJWTClaimsSet jwtClaimsSet = getTokenClaims(appleLoginResponse.getIdToken());
             
             ObjectMapper objectMapper = new ObjectMapper();
             JSONObject payload = objectMapper.readValue(jwtClaimsSet.toJSONObject().toJSONString(), JSONObject.class);
-            JsonNode jsonNode = objectMapper.readTree(payload.toJSONString());
             
             // 유저 정보 추출
             String accountId = String.valueOf(payload.get("sub"));
@@ -86,16 +79,17 @@ public class AppleService {
                         .accountId(accountId)
                         .email(email)
                         .role(Role.GUEST)
-                        .accessToken(accessToken)
+//                        .accessToken(accessToken)
                         .refreshToken(jwtService.createRefreshToken())
                         .build()
                 );
             }
             // 기존 회원 경우 Acess Token 업데이트를 위해 DB에 저장
-            findUser.setAccessToken(accessToken);
+//            findUser.setAccessToken(accessToken);
             userRepository.save(findUser);
+            
             return findUser;
-        } catch (JsonProcessingException | ParseException e) {
+        } catch (JsonProcessingException e) {
             log.info(e.toString());
             throw new BadRequestException();
         }
@@ -127,7 +121,7 @@ public class AppleService {
                 .setHeader(headerParamsMap)
                 .setIssuer(appleProperties.getTeamId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 30)) // 만료 시간 (30초)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 30))
                 .setAudience(appleProperties.getAuthUrl())
                 .setSubject(clientId)
                 .signWith(SignatureAlgorithm.ES256, getPrivateKey())

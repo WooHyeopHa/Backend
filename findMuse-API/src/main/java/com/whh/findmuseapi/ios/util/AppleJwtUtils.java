@@ -1,22 +1,23 @@
 package com.whh.findmuseapi.ios.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.whh.findmuseapi.ios.config.AppleProperties;
 import com.whh.findmuseapi.ios.dto.key.ApplePublicKey;
 import com.whh.findmuseapi.ios.dto.key.ApplePublicKeys;
 import com.whh.findmuseapi.ios.feign.AppleAuthClient;
+import java.math.BigInteger;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +32,13 @@ public class AppleJwtUtils {
     private final AppleAuthClient appleAuthClient;
     private final AppleProperties appleProperties;
     
-    private final String APPLE_AUTH_URL = "https://appleid.apple.com";
-    
     /**
      * User가 Sign in with Apple 요청(<a href="https://appleid.apple.com/auth/authorize">...</a>)으로 전달 받은 identity token을 이용한 최초 검증
      *
      * @param idToken
-     * @return boolean
+     * @return SignedJWT
      */
-    public void verifyIdentityToken(String idToken) throws BadRequestException{
+    public SignedJWT verifyIdentityToken(String idToken) throws BadRequestException{
         
         try {
             SignedJWT signedJWT = SignedJWT.parse(idToken);
@@ -53,12 +52,12 @@ public class AppleJwtUtils {
             
             // ISS, AUD 검증
             String AUD = appleProperties.getClientId();
-            if (!APPLE_AUTH_URL.equals(payload.getIssuer()) | !AUD.equals(payload.getAudience().get(0))) {
+            String AUTH_URL = appleProperties.getAuthUrl();
+            if (!AUTH_URL.equals(payload.getIssuer()) | !AUD.equals(payload.getAudience().get(0))) {
                 throw new BadRequestException();
             }
             
-            // RSA 검증
-            verifyPublicKey(signedJWT);
+            return signedJWT;
             
         } catch (ParseException e) {
             log.info(e.toString());
@@ -67,36 +66,42 @@ public class AppleJwtUtils {
     }
     
     /**
-     * Apple 서버에서 공개 키를 받아서 서명 확인
+     * id_token에서 추출한 alg, kid와 일치하는 alg, kid를 가진 publicKey 찾기
+     * publicKey를 통해 RSAPublicKey 생성
      *
-     * @param signedJWT
-     * @return boolean
+     * @param signedJWT, keys
+     * @return PublicKey
      */
-    private void verifyPublicKey(SignedJWT signedJWT) throws BadRequestException{
-        
+    public PublicKey generatePublicKey(SignedJWT signedJWT, ApplePublicKeys keys) {
         try {
-            ApplePublicKeys keys = appleAuthClient.getAppleAuthPublicKey();
-            ObjectMapper objectMapper = new ObjectMapper();
+            JWSHeader header = signedJWT.getHeader();
+            ApplePublicKey applePublicKey = keys.getMatchedKey(header.getKeyID(), header.getAlgorithm().getName());
             
-            for (ApplePublicKey key : keys.getKeys()) {
-                RSAKey rsaKey = (RSAKey) JWK.parse(objectMapper.writeValueAsString(key));
-                RSAPublicKey publicKey = rsaKey.toRSAPublicKey();
-                JWSVerifier verifier = new RSASSAVerifier(publicKey);
-                
-                if (!signedJWT.verify(verifier)) {
-                    throw new BadRequestException();
-                }
-            }
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+            byte[] nBytes = Base64.getUrlDecoder().decode(applePublicKey.getN());
+            byte[] eBytes = Base64.getUrlDecoder().decode(applePublicKey.getE());
+            
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(new BigInteger(1, nBytes), new BigInteger(1, eBytes));
+            
+            KeyFactory keyFactory = KeyFactory.getInstance(applePublicKey.getKty());
+            return keyFactory.generatePublic(publicKeySpec);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeySpecException e) {
             throw new RuntimeException(e);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        } catch (JOSEException e) {
+        }
+    }
+    public ReadOnlyJWTClaimsSet getTokenClaims(SignedJWT signedJWT, PublicKey publicKey) {
+        try {
+            JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
+            
+            if (!signedJWT.verify(verifier)) {
+                throw new RuntimeException();
+            }
+            
+            return signedJWT.getJWTClaimsSet();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+    
 }
