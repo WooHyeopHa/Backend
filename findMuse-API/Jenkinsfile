@@ -35,9 +35,7 @@ pipeline {
                         sh "cp \$ConfigFile ${env.PROJECT_DIRECTORY}/src/main/resources/application-env.properties"
                     }
                 }
-            }
 
-            steps {
                 withCredentials([file(credentialsId: 'APPLE_AUTH_KEY', variable: 'AuthKeyFile')]) {
                     script {
                         sh "mkdir -p ${env.PROJECT_DIRECTORY}/src/main/resources/apple/"
