@@ -18,8 +18,8 @@ import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 public class OpenFeignConfig {
     @Bean
     Retryer.Default retryer() {
-        // 0.5초의 간격으로 시작해 최대 3초의 간격으로 점점 증가하며, 최대 5번 재시도한다.
-        return new Retryer.Default(500, TimeUnit.SECONDS.toMillis(3000), 5);
+        // 1초의 간격으로 시작해 최대 5초의 간격으로 점점 증가하며, 최대5번 재시도한다.
+        return new Retryer.Default(1000, TimeUnit.SECONDS.toMillis(5000), 5);
     }
     
     @Bean
