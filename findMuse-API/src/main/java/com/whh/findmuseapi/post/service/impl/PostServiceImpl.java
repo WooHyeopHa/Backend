@@ -1,9 +1,9 @@
 package com.whh.findmuseapi.post.service.impl;
 
-//import com.whh.findmuseapi.art.repository.ArtRepository;
-import com.whh.findmuseapi.common.exception.NotFoundException;
-import com.whh.findmuseapi.common.exception.UnAuthorizationException;
-import com.whh.findmuseapi.common.constant.Infos;
+import com.whh.findmuseapi.art.entity.Art;
+import com.whh.findmuseapi.art.repository.ArtRepository;
+import com.whh.findmuseapi.common.Exception.NotFoundException;
+import com.whh.findmuseapi.common.Exception.UnAuthorizationException;
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
 import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
 import com.whh.findmuseapi.post.dto.response.PostReadResponse;
@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-//    private final ArtRepository artRepository;
+    private final ArtRepository artRepository;
     private final TagRepository tagRepository;
     private final VolunteerRepository volunteerRepository;
     private final PostTagRepository postTagRepository;
@@ -53,28 +53,21 @@ public class PostServiceImpl implements PostService {
     public void createPost(PostCreateRequest createRequest) {
         User user = userRepository.findById(createRequest.getUserId())
                 .orElseThrow(() -> new NotFoundException("회원: " + createRequest.getUserId()));
-//        Art art = artRepository.findArtByTitle(createRequest.getArtTitle())
-//                .orElseThrow(() -> new NotFoundException("전시회: " + createRequest.getArtTitle()));
+        Art art = artRepository.findById(createRequest.getArtId())
+                .orElseThrow(() -> new NotFoundException("전시회: " + createRequest.getArtId()));
 
         List<Tag> tagList = createRequest.getTagList().stream()
                 .map(tagName -> tagRepository.findByName(tagName)
                         .orElseThrow(() -> new NotFoundException("태그: " + tagName)))
                 .toList();
 
-        Post post = Post.builder()
-                .title(createRequest.getTitle())
-                .content(createRequest.getContent())
-                .place(createRequest.getPlace())
-                .endDate(createRequest.getEndDate())
-                .inviteCount(createRequest.getInviteCount())
-                .ages(Infos.Ages.valueOf(createRequest.getAges()))
-//                .art(art)
-                .user(user)
-                .build();
+        Post post = Post.toEntity(createRequest, art, user);
+
+        postRepository.save(post);
 
         List<PostTag> postTagList = tagList.stream().map(tag -> PostTag.builder().post(post).tag(tag).build()).toList();
 
-        post.updateTagList(postTagList);
+        post.getTagList().addAll(postTagList);
     }
 
     /**
@@ -82,35 +75,23 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional
-    public PostReadResponse readPost(Long postId) {
+    public PostReadResponse readPost(Long postId,Long userId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("모집글: " + postId));
-        post.updateCount();
+        post.viewCountPlusOne();
 
-        return PostReadResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .place(post.getPlace())
-                .createDate(post.getCreateDate())
-                .endDate(post.getEndDate())
-                .inviteCount(post.getInviteCount())
-                .viewCount(post.getViewCount())
-                .ages(post.getAges().name())
-                .artName(post.getArt().getTitle())
-                .userId(post.getUser().getId())
-                .volunteeredList(post.getVolunteeredList().stream()
-                        .map(volunteer -> volunteer.getUser().getId())
-                        .toList())
-                .tagList(post.getTagList().stream()
-                        .map(tag -> tag.getTag().getName())
-                        .toList())
-                .build();
+        boolean isWriter = userId.equals(post.getUser().getId());
+
+        //TODO 수락된 인원 명수 가져오기
+        // 글쓴이가 아니라면 신청했는지 정보도 함께
+        // user의 닉네임, 평점, 후기 개수 회원정보도 같이 넘겨줘야함 수정사항
+        return PostReadResponse.toDto(post, 1, isWriter);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void updatePost(PostUpdateRequest updateRequest) {
         User writer = userRepository.findById(updateRequest.getUserId()).orElseThrow(() -> new NotFoundException("회원: " + updateRequest.getUserId()));
         Post post = postRepository.findById(updateRequest.getPostId()).orElseThrow(() -> new NotFoundException("게시글: " + updateRequest.getPostId()));
@@ -120,8 +101,8 @@ public class PostServiceImpl implements PostService {
             throw new UnAuthorizationException("게시글");
         }
 
-//        Art art = artRepository.findArtByTitle(updateRequest.getArtTitle())
-//                .orElseThrow(() -> new NotFoundException("전시회: " + updateRequest.getArtTitle()));
+        Art art = artRepository.findById(updateRequest.getArtId())
+                .orElseThrow(() -> new NotFoundException("전시회: " + updateRequest.getArtId()));
 
         List<Tag> tagList = updateRequest.getTagList().stream()
                 .map(tagName -> tagRepository.findByName(tagName)
@@ -133,7 +114,7 @@ public class PostServiceImpl implements PostService {
 
         List<PostTag> postTagList = tagList.stream().map(tag -> PostTag.builder().post(post).tag(tag).build()).toList();
 
-//        post.updatePost(updateRequest, art, postTagList);
+        post.updatePost(updateRequest, art, postTagList);
     }
 
     /**
