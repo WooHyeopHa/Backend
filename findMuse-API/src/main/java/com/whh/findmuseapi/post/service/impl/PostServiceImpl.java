@@ -1,9 +1,8 @@
 package com.whh.findmuseapi.post.service.impl;
 
-import com.whh.findmuseapi.art.entity.Art;
 //import com.whh.findmuseapi.art.repository.ArtRepository;
-import com.whh.findmuseapi.common.Exception.NotFoundException;
-import com.whh.findmuseapi.common.Exception.UnAuthorizationException;
+import com.whh.findmuseapi.common.exception.NotFoundException;
+import com.whh.findmuseapi.common.exception.UnAuthorizationException;
 import com.whh.findmuseapi.common.constant.Infos;
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
 import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
