@@ -3,6 +3,7 @@ package com.whh.findmuseapi.post.entity;
 import com.whh.findmuseapi.art.entity.Art;
 import com.whh.findmuseapi.common.constant.Infos;
 import com.whh.findmuseapi.common.constant.Infos.Ages;
+import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
 import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
 import com.whh.findmuseapi.user.entity.User;
 import jakarta.persistence.*;
@@ -57,10 +58,7 @@ public class Post {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<PostTag> tagList = new ArrayList<>();
 
-    public void updateTagList(List<PostTag> tagList) {
-        this.tagList = tagList;
-    }
-    public void updateCount(){
+    public void viewCountPlusOne(){
         this.viewCount = Math.addExact(1, this.viewCount);
     }
 
@@ -73,6 +71,19 @@ public class Post {
         this.ages = Infos.Ages.valueOf(updateRequest.getAges());
         this.art = newArt;
         this.tagList = postTagList;
+    }
+
+    public static Post toEntity(PostCreateRequest createRequest,Art art,User user) {
+        return Post.builder()
+                .title(createRequest.getTitle())
+                .content(createRequest.getContent())
+                .place(createRequest.getPlace())
+                .endDate(createRequest.getEndDate())
+                .inviteCount(createRequest.getInviteCount())
+                .ages(Infos.Ages.valueOf(createRequest.getAges()))
+                .art(art)
+                .user(user)
+                .build();
     }
 
     @Builder
