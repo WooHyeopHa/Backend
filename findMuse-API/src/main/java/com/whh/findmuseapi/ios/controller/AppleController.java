@@ -5,6 +5,7 @@ import com.whh.findmuseapi.common.util.ApiResponse;
 import com.whh.findmuseapi.ios.dto.AppleLoginResponse;
 import com.whh.findmuseapi.ios.service.AppleService;
 import com.whh.findmuseapi.user.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,12 @@ public class AppleController {
     private final AppleService appleService;
     
     @PostMapping("/callback")
-    public ApiResponse<?> callback(AppleLoginResponse appleLoginResponse) throws IOException {
+    public ApiResponse<?> callback(HttpServletRequest request) throws IOException {
+        AppleLoginResponse appleLoginResponse = AppleLoginResponse.builder()
+            .code(request.getParameter("code"))
+            .idToken(request.getParameter("id_token"))
+            .build();
+        
         // 로그 추가 (디버깅 용도)
         System.out.println(appleLoginResponse.toString());
         
