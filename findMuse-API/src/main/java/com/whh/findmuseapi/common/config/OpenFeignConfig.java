@@ -17,9 +17,15 @@ import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 @EnableFeignClients("com.whh.findmuseapi")
 public class OpenFeignConfig {
     @Bean
-    Retryer.Default retryer() {
-        // 1초의 간격으로 시작해 최대 5초의 간격으로 점점 증가하며, 최대5번 재시도한다.
-        return new Retryer.Default(1000, TimeUnit.SECONDS.toMillis(5000), 5);
+    public Request.Options requestOptions() {
+        long connectionTimeout = 10;
+        long readTimeout = 5; // read - timeout 5초로 설정
+        return new Request.Options(connectionTimeout, TimeUnit.SECONDS, readTimeout, TimeUnit.SECONDS, false);
+    }
+    
+    @Bean
+    public Retryer retryer() {
+        return Retryer.NEVER_RETRY;
     }
     
     @Bean

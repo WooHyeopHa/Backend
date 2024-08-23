@@ -6,14 +6,6 @@ spring:
   profiles:
     active: local, env
 
-  cloud:
-    openfeign:
-      client:
-        config:
-          appleAuthClient:
-            connect-timeout: 5
-            read-timeout: 10
-
 cloud:
   aws:
     credentials:
