@@ -47,7 +47,6 @@ public class User {
     private boolean activateStatus;
     private LoginType loginType;
     
-    private String accessToken;
     private String refreshToken;
     
     @Enumerated(EnumType.STRING)
