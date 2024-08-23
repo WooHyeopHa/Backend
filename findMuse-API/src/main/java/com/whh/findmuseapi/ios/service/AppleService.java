@@ -52,10 +52,13 @@ public class AppleService {
     
     public ReadOnlyJWTClaimsSet getTokenClaims(String identityToken) throws BadRequestException {
         log.info("사용자 id_token" + identityToken);
+        
         SignedJWT signedJWT = appleJwtUtils.verifyIdentityToken(identityToken);
+        log.info("signedJwt : " + signedJWT);
         
         ApplePublicKeys applePublicKeys = appleAuthClient.getAppleAuthPublicKey();
         log.info("appleKeys" + applePublicKeys.toString());
+        
         PublicKey publicKey = appleJwtUtils.generatePublicKey(signedJWT, applePublicKeys);
         
         return appleJwtUtils.getTokenClaims(signedJWT, publicKey);

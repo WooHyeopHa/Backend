@@ -30,9 +30,6 @@ public class AppleController {
             .idToken(request.getParameter("id_token"))
             .build();
         
-        // 로그 추가 (디버깅 용도)
-        System.out.println(appleLoginResponse.toString());
-        
         User user = appleService.login(appleLoginResponse);
         
         // 로그인 성공

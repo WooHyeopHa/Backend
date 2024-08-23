@@ -11,8 +11,8 @@ spring:
       client:
         config:
           appleAuthClient:
-            connect-timeout: 3
-            read-timeout: 1
+            connect-timeout: 5
+            read-timeout: 2
 
 cloud:
   aws:
