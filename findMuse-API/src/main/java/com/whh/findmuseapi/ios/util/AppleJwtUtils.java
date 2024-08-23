@@ -75,6 +75,7 @@ public class AppleJwtUtils {
     public PublicKey generatePublicKey(SignedJWT signedJWT, ApplePublicKeys keys) {
         try {
             JWSHeader header = signedJWT.getHeader();
+            log.info("token header : " + header);
             ApplePublicKey applePublicKey = keys.getMatchedKey(header.getKeyID(), header.getAlgorithm().getName());
             
             byte[] nBytes = Base64.getUrlDecoder().decode(applePublicKey.getN());

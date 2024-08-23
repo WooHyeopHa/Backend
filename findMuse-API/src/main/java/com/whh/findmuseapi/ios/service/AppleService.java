@@ -51,9 +51,11 @@ public class AppleService {
     private final AppleJwtUtils appleJwtUtils;
     
     public ReadOnlyJWTClaimsSet getTokenClaims(String identityToken) throws BadRequestException {
+        log.info("사용자 id_token" + identityToken);
         SignedJWT signedJWT = appleJwtUtils.verifyIdentityToken(identityToken);
         
         ApplePublicKeys applePublicKeys = appleAuthClient.getAppleAuthPublicKey();
+        log.info("appleKeys" + applePublicKeys.toString());
         PublicKey publicKey = appleJwtUtils.generatePublicKey(signedJWT, applePublicKeys);
         
         return appleJwtUtils.getTokenClaims(signedJWT, publicKey);
@@ -68,6 +70,7 @@ public class AppleService {
             
             // 유저 정보 추출
             String accountId = String.valueOf(payload.get("sub"));
+            log.info("accountId" + accountId);
             String email = String.valueOf(payload.get("email"));
           
             User findUser = userRepository.findByAccountId(accountId).orElse(null);
@@ -87,7 +90,7 @@ public class AppleService {
             // 기존 회원 경우 Acess Token 업데이트를 위해 DB에 저장
 //            findUser.setAccessToken(accessToken);
             userRepository.save(findUser);
-            
+            log.info("로그인 성공");
             return findUser;
         } catch (JsonProcessingException e) {
             log.info(e.toString());
