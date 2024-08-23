@@ -7,7 +7,7 @@ pipeline {
         DOCKER_CREDENTIALS = credentials('Docker-Credential')
         IMAGE_NAME = 'findmuse-api-server'
         PROJECT_DIRECTORY = 'findMuse-API'
-//         DOCKER_REGISTRY_URL = "${DOCKER_CREDENTIALS_USR}/${IMAGE_NAME}"
+        APPLE_KEY_ID = credentials('APPLE_KEY_ID')
     }
 
     stages {
@@ -27,16 +27,26 @@ pipeline {
                 }
             }
 
-        stage('Download env.properties') {
+        stage('Download Secret File') {
             steps {
                 withCredentials([file(credentialsId: 'ENV-PROPERTIES', variable: 'ConfigFile')]) {
                     script {
                         sh "chmod -R 755 ${env.PROJECT_DIRECTORY}/src/main/resources/"
                         sh "cp \$ConfigFile ${env.PROJECT_DIRECTORY}/src/main/resources/application-env.properties"
-                        }
                     }
                 }
             }
+
+            steps {
+                withCredentials([file(credentialsId: 'APPLE_AUTH_KEY', variable: 'AuthKeyFile')]) {
+                    script {
+                        sh "mkdir -p ${env.PROJECT_DIRECTORY}/src/main/resources/apple/"
+                        sh "cp \$AuthKeyFile ${env.PROJECT_DIRECTORY}/src/main/resources/apple/AuthKey_${env.APPLE_KEY_ID}.p8"
+                        sh "chmod 600 ${env.PROJECT_DIRECTORY}/src/main/resources/apple/AuthKey_${env.APPLE_KEY_ID}.p8"
+                    }
+                }
+            }
+        }
 
         stage('Build JAR') {
             steps {
@@ -56,19 +66,6 @@ pipeline {
                 }
             }
         }
-
-//         stage('Push Docker Image') {
-//             steps {
-//                 withCredentials([usernamePassword(credentialsId: 'Docker-Credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-//                     script {
-//                         def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-//                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
-//                         sh "docker tag ${imageTag} ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
-//                         sh "docker push ${env.DOCKER_REGISTRY_URL}:${env.BUILD_NUMBER}"
-//                     }
-//                 }
-//             }
-//         }
 
         stage('Cleanup Old Containers') {
             steps {

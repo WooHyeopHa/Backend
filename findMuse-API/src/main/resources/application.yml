@@ -2,8 +2,17 @@ server:
   port: 8080
 
 spring:
+
   profiles:
     active: local, env
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          appleAuthClient:
+            connect-timeout: 3
+            read-timeout: 1
 
 cloud:
   aws:
@@ -17,3 +26,19 @@ cloud:
     s3:
       bucket: ${S3_BUCKET_NAME}
 
+apple:
+  team-id: ${APPLE_TEAM_ID}
+  login-key: ${APPLE_KEY_ID}
+  client-id: ${APPLE_CLIENT_ID}
+  redirect-url: ${APPLE_REDIRECT_URL}
+  key-path: apple/AuthKey_${APPLE_KEY_ID}.p8
+  auth-url: "https://appleid.apple.com"
+
+jwt:
+  secretKey: "${JWT_SECRET_KEY}"
+  access:
+    expiration: 3600
+    header: "Authorization"
+  refresh:
+    expiration: 604800
+    header: "X-Refresh-Token"
