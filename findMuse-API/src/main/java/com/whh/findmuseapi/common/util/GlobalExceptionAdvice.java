@@ -1,7 +1,13 @@
 package com.whh.findmuseapi.common.util;
 
+import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.Exception.CustomParseException;
 import com.whh.findmuseapi.common.constant.ResponseCode;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
+import org.bouncycastle.openssl.PEMException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,5 +29,65 @@ public class GlobalExceptionAdvice {
         List<String> result = e.getBindingResult().getAllErrors().stream()
             .map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
         return ApiResponse.createError(ResponseCode.VALIDATION_ERROR, result.toString());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: 형식 분석 오류 처리
+    @ExceptionHandler(CustomParseException.class)
+    public ApiResponse<?> handleParseException(CustomParseException ex) {
+        return ApiResponse.createError(ResponseCode.PARSE_EXCEPTION, ex.getMessage());
+    }
+    
+    // 400 BAD_REQUEST: 잘못된 요청
+    @ExceptionHandler(CustomBadRequestException.class)
+    public ApiResponse<?> handleBadRequestException(CustomBadRequestException ex) {
+        return ApiResponse.createError(ResponseCode.BAD_REQUEST, ex.getMessage());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: 지원되지 않는 알고리즘 처리
+    @ExceptionHandler(NoSuchAlgorithmException.class)
+    public ApiResponse<?> handleNoSuchAlgorithmException(NoSuchAlgorithmException ex) {
+        return ApiResponse.createError(ResponseCode.NO_SUCH_ALGORITHM, ex.getMessage());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: 잘못된 키 사양 처리
+    @ExceptionHandler(InvalidKeySpecException.class)
+    public ApiResponse<?> handleInvalidKeySpecException(InvalidKeySpecException ex) {
+        return ApiResponse.createError(ResponseCode.INVALID_KEY_SPEC, ex.getMessage());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: JOSE 처리 오류 처리
+    @ExceptionHandler(com.nimbusds.jose.JOSEException.class)
+    public ApiResponse<?> handleJOSEException(com.nimbusds.jose.JOSEException ex) {
+        return ApiResponse.createError(ResponseCode.JOSE_EXCEPTION, ex.getMessage());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: JSON 처리 오류 처리
+    @ExceptionHandler(com.fasterxml.jackson.core.JsonProcessingException.class)
+    public ApiResponse<?> handleJsonProcessingException(com.fasterxml.jackson.core.JsonProcessingException ex) {
+        return ApiResponse.createError(ResponseCode.JSON_PROCESSING_EXCEPTION, ex.getMessage());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: JSON 매핑 오류 처리
+    @ExceptionHandler(com.fasterxml.jackson.databind.JsonMappingException.class)
+    public ApiResponse<?> handleJsonMappingException(com.fasterxml.jackson.databind.JsonMappingException ex) {
+        return ApiResponse.createError(ResponseCode.JSON_MAPPING_EXCEPTION, ex.getMessage());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: 입출력 오류 처리
+    @ExceptionHandler(IOException.class)
+    public ApiResponse<?> handleIOException(IOException ex) {
+        return ApiResponse.createError(ResponseCode.IO_EXCEPTION, ex.getMessage());
+    }
+    
+    // 500 INTERNAL_SERVER_ERROR: PEM 처리 오류 처리
+    @ExceptionHandler(PEMException.class)
+    public ApiResponse<?> handlePEMException(PEMException ex) {
+        return ApiResponse.createError(ResponseCode.PEM_EXCEPTION, ex.getMessage());
+    }
+    
+    // 그 외의 모든 예외 처리
+    @ExceptionHandler(Exception.class)
+    public ApiResponse<?> handleAllExceptions(Exception ex) {
+        return ApiResponse.createError(ResponseCode.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 }
