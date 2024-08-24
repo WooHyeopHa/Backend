@@ -1,30 +1,78 @@
 package com.whh.findmuseapi.common.constant;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ResponseCode {
+    /*
+     * 200 OK: 요청 성공
+     */
+    SUCCESS(HttpStatus.OK, "Request successful."),
     
-    SUCCESS(200, "요청이 성공적으로 처리되었습니다"),
-    CREATED(201, "자원이 성공적으로 생성되었습니다"),
-    ACCEPTED(202, "요청이 접수되었지만 처리 중입니다"),
-    NO_CONTENT(204, "요청에 대해 반환할 내용이 없습니다"),
+    /*
+     * 201 CREATED: 리소스 생성 성공
+     */
+    RESOURCE_CREATED(HttpStatus.CREATED, "Resource created successfully."),
+    /*
+     * 500 INTERNAL_SERVER_ERROR: 형식 분석 오류
+     */
+    PARSE_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "Parse error."),
     
-    BAD_REQUEST(400, "잘못된 요청입니다"),
-    UNAUTHORIZED(401, "인증이 필요합니다"),
-    FORBIDDEN(403, "접근이 금지되었습니다"),
-    NOT_FOUND(404, "자원을 찾을 수 없습니다"),
+    /*
+     * 500 INTERNAL_SERVER_ERROR: 지원되지 않는 알고리즘
+     */
+    NO_SUCH_ALGORITHM(HttpStatus.INTERNAL_SERVER_ERROR, "Unsupported algorithm."),
     
-    INTERNAL_SERVER_ERROR(500, "서버 오류가 발생했습니다"),
-    NOT_IMPLEMENTED(501, "구현되지 않은 기능입니다"),
-    BAD_GATEWAY(502, "잘못된 게이트웨이입니다"),
-    SERVICE_UNAVAILABLE(503, "서비스를 사용할 수 없습니다"),
-    GATEWAY_TIMEOUT(504, "게이트웨이 시간 초과입니다");
+    /*
+     * 500 INTERNAL_SERVER_ERROR: 잘못된 키 사양
+     */
+    INVALID_KEY_SPEC(HttpStatus.INTERNAL_SERVER_ERROR, "Invalid key specification."),
     
-    private final int status;
+    /*
+     * 500 INTERNAL_SERVER_ERROR: JOSE 처리 오류
+     */
+    JOSE_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "JOSE processing error."),
+    
+    /*
+     * 400 BAD_REQUEST: 잘못된 요청
+     */
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad request."),
+    
+    /*
+     * 400 BAD_REQUEST: 유효성 검사 오류
+     */
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Validation error."),
+    
+    /*
+     * 500 INTERNAL_SERVER_ERROR: JSON 처리 오류
+     */
+    JSON_PROCESSING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "JSON processing error."),
+    
+    /*
+     * 500 INTERNAL_SERVER_ERROR: JSON 매핑 오류
+     */
+    JSON_MAPPING_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "JSON mapping error."),
+    
+    /*
+     * 500 INTERNAL_SERVER_ERROR: 입출력 오류
+     */
+    IO_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "I/O error."),
+    
+    /*
+     * 500 INTERNAL_SERVER_ERROR: PEM 처리 오류
+     */
+    PEM_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "PEM processing error."),
+    /*
+     * 500 INTERNAL_SERVER_ERROR: 서버 내부 오류
+     */
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error.");
+    
+    
+    private final HttpStatus status;
     private final String message;
     
-    ResponseCode(int status, String message) {
+    ResponseCode(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
     }
