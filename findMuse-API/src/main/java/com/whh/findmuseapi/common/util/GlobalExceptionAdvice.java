@@ -1,8 +1,8 @@
 package com.whh.findmuseapi.common.util;
 
+import com.whh.findmuseapi.common.constant.ResponseCode;
 import java.util.List;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,15 +15,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
-
     /**
      * 컨트롤러들의 request DTO에 대한 공통 Validation 핸들러 처리 메서드 입니다.
-     * 아직 ? 안에 들어갈 에러 처리 클래스를 받아지 않아 미완성입니다.
      */
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException e) {
+    public ApiResponse<?> handleValidationException(MethodArgumentNotValidException e) {
         List<String> result = e.getBindingResult().getAllErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
-        return null;
+            .map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
+        return ApiResponse.createError(ResponseCode.VALIDATION_ERROR, result.toString());
     }
 }
