@@ -56,6 +56,11 @@ public class AppleJwtUtils {
             String AUD = appleProperties.getClientId();
             String AUTH_URL = appleProperties.getAuthUrl();
             if (!AUTH_URL.equals(payload.getIssuer()) | !AUD.equals(payload.getAudience().get(0))) {
+                log.info(payload.getIssuer());
+                log.info("Auth Url : " + AUTH_URL);
+                
+                log.info(payload.getAudience().get(0));
+                log.info("AUD" + AUD);
                 throw new BadRequestException();
             }
             
@@ -63,7 +68,7 @@ public class AppleJwtUtils {
             
         } catch (ParseException e) {
             log.info(e.getMessage());
-            throw new BadRequestException();
+            throw new RuntimeException(e);
         }
     }
     

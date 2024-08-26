@@ -66,6 +66,7 @@ public class AppleService {
     public User login(AppleLoginResponse appleLoginResponse) throws BadRequestException{
         try {
             //
+            log.info(appleLoginResponse.toString());
             ReadOnlyJWTClaimsSet jwtClaimsSet = getTokenClaims(appleLoginResponse.getIdToken());
             
             ObjectMapper objectMapper = new ObjectMapper();
