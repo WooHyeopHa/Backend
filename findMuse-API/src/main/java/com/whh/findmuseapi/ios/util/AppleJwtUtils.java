@@ -38,7 +38,7 @@ public class AppleJwtUtils {
      * @param idToken
      * @return SignedJWT
      */
-    public SignedJWT verifyIdentityToken(String idToken) throws BadRequestException{
+    public SignedJWT verifyIdentityToken(String idToken) throws BadRequestException {
         
         try {
             SignedJWT signedJWT = SignedJWT.parse(idToken);
@@ -47,6 +47,8 @@ public class AppleJwtUtils {
             // EXP(만료기간) 검증
             Date currentTime = new Date(System.currentTimeMillis());
             if (!currentTime.before(payload.getExpirationTime())) {
+                log.info("현재 시각" +  currentTime);
+                log.info("만료 시각" + payload.getExpirationTime().toString());
                 throw new BadRequestException();
             }
             
@@ -60,7 +62,7 @@ public class AppleJwtUtils {
             return signedJWT;
             
         } catch (ParseException e) {
-            log.info(e.toString());
+            log.info(e.getMessage());
             throw new BadRequestException();
         }
     }
