@@ -2,10 +2,12 @@ package com.whh.findmuseapi.jwt.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import com.whh.findmuseapi.jwt.property.JwtProperties;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.Optional;
@@ -28,6 +30,8 @@ public class JwtService {
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
     
     public static final String CLAIM_EMAIL = "email";
+    
+    private static final String BEARER = "Bearer ";
     
     private final UserRepository userRepository;
     
@@ -72,7 +76,7 @@ public class JwtService {
                 .getClaim(claim)
                 .asString());
         } catch (Exception e) {
-            log.error("액세스 토큰이 유효하지 않습니다. : " + e.toString());
+            log.error("액세스 토큰이 유효하지 않습니다. : " + e);
             return Optional.empty();
         }
     }
@@ -103,7 +107,44 @@ public class JwtService {
             user.updateRefreshToken(refreshToken);
             userRepository.saveAndFlush(user);
         } else {
+            log.info(email + "로 가입된 유저가 없습니다.");
             throw new CustomBadRequestException(email);
         }
     }
+    
+    /**
+     * 헤더에서 RefreshToken 추출
+     * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토크만 가져오기 위해서
+     * 헤더를 가져온 후 "Bearer "를 삭제(""로 replace)
+     */
+    public Optional<String> extractRefreshToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(jwtProperties.getRefresh().getHeader()))
+            .filter(refreshToken -> refreshToken.startsWith(BEARER))
+            .map(refreshToken -> refreshToken.replace(BEARER, ""));
+    }
+    
+    /**
+     * 헤더에서 AccessToken 추출
+     * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토크만 가져오기 위해서
+     * 헤더를 가져온 후 "Bearer "를 삭제(""로 replace)
+     */
+    public Optional<String> extractAccessToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(jwtProperties.getAccess().getHeader()))
+            .filter(accessToken -> accessToken.startsWith(BEARER))
+            .map(accessToken -> accessToken.replace(BEARER, ""));
+    }
+    
+    public boolean isTokenValid(String token) {
+        try {
+            JWT.require(Algorithm.HMAC512(jwtProperties.getSecretKey())).build().verify(token);
+            return true;
+        } catch (TokenExpiredException e) {
+            log.info("유효기간이 만료된 토큰입니다. {} {}", e.getMessage(), e.getExpiredOn());
+            throw new TokenExpiredException(e.getMessage(), e.getExpiredOn());
+        } catch (Exception e) {
+            log.info("유효하지 않은 토큰입니다. {}", e.getMessage());
+            return false;
+        }
+    }
+    
 }
