@@ -2,6 +2,7 @@ package com.whh.findmuseapi.jwt.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import com.whh.findmuseapi.jwt.property.JwtProperties;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
@@ -11,7 +12,6 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
@@ -94,7 +94,7 @@ public class JwtService {
     /**
      * RefreshToken DB 저장(업데이트)
      */
-    public void updateRefreshToken(String email, String refreshToken) throws BadRequestException{
+    public void updateRefreshToken(String email, String refreshToken) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         
         if (optionalUser.isPresent()) {
@@ -103,7 +103,7 @@ public class JwtService {
             user.updateRefreshToken(refreshToken);
             userRepository.saveAndFlush(user);
         } else {
-            throw new BadRequestException();
+            throw new CustomBadRequestException(email);
         }
     }
 }
