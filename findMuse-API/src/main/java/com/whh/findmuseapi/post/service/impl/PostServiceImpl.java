@@ -16,6 +16,7 @@ import com.whh.findmuseapi.post.repository.PostTagRepository;
 import com.whh.findmuseapi.post.repository.TagRepository;
 import com.whh.findmuseapi.post.repository.VolunteerRepository;
 import com.whh.findmuseapi.post.service.PostService;
+import com.whh.findmuseapi.post.service.VolunteerService;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
 import java.util.List;
@@ -38,6 +39,7 @@ public class PostServiceImpl implements PostService {
     private final ArtRepository artRepository;
     private final TagRepository tagRepository;
     private final VolunteerRepository volunteerRepository;
+    private final VolunteerService volunteerService;
     private final PostTagRepository postTagRepository;
 
 
@@ -74,17 +76,20 @@ public class PostServiceImpl implements PostService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
-    public PostReadResponse readPost(Long postId,Long userId) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("모집글: " + postId));
+    @Transactional(timeout = 5)
+    public PostReadResponse readPost(Long postId, Long userId) {
+        Post post = postRepository.findWithPessimisticLockById(postId).orElseThrow(() -> new NotFoundException("모집글: " + postId));
         post.viewCountPlusOne();
 
         boolean isWriter = userId.equals(post.getUser().getId());
 
-        //TODO 수락된 인원 명수 가져오기
-        // 글쓴이가 아니라면 신청했는지 정보도 함께
-        // user의 닉네임, 평점, 후기 개수 회원정보도 같이 넘겨줘야함 수정사항
-        return PostReadResponse.toDto(post, 1, isWriter);
+        //TODO
+        // 모집글 조회시 내가 신청 했는지 안했는지 정보는 모집 신청 버튼 클릭시 정보 전달 (isWriter를 통해 내가 작성한 글 판단) <- 따로 API
+        // 모집글 조회시 필요한 유저의 정보 전달
+
+        int invitedCount = Math.toIntExact(volunteerService.getInvitedCount(post));
+
+        return PostReadResponse.toDto(post, invitedCount, isWriter);
     }
 
     /**
@@ -93,8 +98,10 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void updatePost(PostUpdateRequest updateRequest) {
-        User writer = userRepository.findById(updateRequest.getUserId()).orElseThrow(() -> new NotFoundException("회원: " + updateRequest.getUserId()));
-        Post post = postRepository.findById(updateRequest.getPostId()).orElseThrow(() -> new NotFoundException("게시글: " + updateRequest.getPostId()));
+        User writer = userRepository.findById(updateRequest.getUserId())
+                .orElseThrow(() -> new NotFoundException("회원: " + updateRequest.getUserId()));
+        Post post = postRepository.findById(updateRequest.getPostId())
+                .orElseThrow(() -> new NotFoundException("게시글: " + updateRequest.getPostId()));
 
         if (!post.getUser().getId().equals(writer.getId())) {
             // 예외들 일단 임시방편
