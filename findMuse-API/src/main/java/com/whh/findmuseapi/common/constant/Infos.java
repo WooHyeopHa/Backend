@@ -69,7 +69,7 @@ public class Infos {
         USER("USER", "일반 사용자");        // 추가 정보 입력 완
         
         private final String key;
-        private final String title;
+        private final String name;
     }
 
 }
