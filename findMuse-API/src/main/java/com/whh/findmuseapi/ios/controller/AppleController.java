@@ -5,7 +5,6 @@ import com.whh.findmuseapi.common.util.ApiResponse;
 import com.whh.findmuseapi.ios.dto.AppleLoginResponse;
 import com.whh.findmuseapi.ios.service.AppleService;
 import com.whh.findmuseapi.user.entity.User;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,18 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppleController {
     
     private final AppleService appleService;
-    
-    @PostMapping("/callback")
-    public ApiResponse<?> callback(HttpServletRequest request) {
-        AppleLoginResponse appleLoginResponse = AppleLoginResponse.builder()
-            .code(request.getParameter("code"))
-            .idToken(request.getParameter("id_token"))
-            .build();
-        
-        User user = appleService.login(appleLoginResponse);
-        
-        return ApiResponse.createSuccess(ResponseCode.SUCCESS, user);
-    }
     
     @PostMapping("/token")
     public ApiResponse<?> loginWithIdentityToken(HttpServletResponse response, @RequestBody AppleLoginResponse appleLoginResponse) {
