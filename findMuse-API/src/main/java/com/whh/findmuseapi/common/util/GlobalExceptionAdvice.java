@@ -67,22 +67,10 @@ public class GlobalExceptionAdvice {
         return ApiResponse.createError(ResponseCode.JSON_PROCESSING_EXCEPTION, ex.getMessage());
     }
     
-    // 500 INTERNAL_SERVER_ERROR: JSON 매핑 오류 처리
-    @ExceptionHandler(com.fasterxml.jackson.databind.JsonMappingException.class)
-    public ApiResponse<?> handleJsonMappingException(com.fasterxml.jackson.databind.JsonMappingException ex) {
-        return ApiResponse.createError(ResponseCode.JSON_MAPPING_EXCEPTION, ex.getMessage());
-    }
-    
     // 500 INTERNAL_SERVER_ERROR: 입출력 오류 처리
     @ExceptionHandler(IOException.class)
     public ApiResponse<?> handleIOException(IOException ex) {
         return ApiResponse.createError(ResponseCode.IO_EXCEPTION, ex.getMessage());
-    }
-    
-    // 500 INTERNAL_SERVER_ERROR: PEM 처리 오류 처리
-    @ExceptionHandler(PEMException.class)
-    public ApiResponse<?> handlePEMException(PEMException ex) {
-        return ApiResponse.createError(ResponseCode.PEM_EXCEPTION, ex.getMessage());
     }
     
     // 그 외의 모든 예외 처리
