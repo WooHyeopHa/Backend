@@ -29,8 +29,8 @@ public class AppleController {
     }
     
     @DeleteMapping("/revoke")
-    public ApiResponse<?> revokeAppleAccount(Long userId) {
-        appleService.deleteAppleAccount(userId);
+    public ApiResponse<?> revokeAppleAccount(String code, Long userId) {
+        appleService.deleteAppleAccount(code, userId);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 }
