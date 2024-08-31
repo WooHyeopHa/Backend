@@ -3,7 +3,8 @@ package com.whh.findmuseapi.post.service.impl;
 import com.whh.findmuseapi.common.Exception.NotFoundException;
 import com.whh.findmuseapi.common.Exception.UnAuthorizationException;
 import com.whh.findmuseapi.common.constant.Infos;
-import com.whh.findmuseapi.post.dto.response.VolunteerListResponse;
+import com.whh.findmuseapi.post.dto.response.VolunteerMyPageListResponse;
+import com.whh.findmuseapi.post.dto.response.VolunteerPostListResponse;
 import com.whh.findmuseapi.post.dto.response.VolunteerReadResponse;
 import com.whh.findmuseapi.post.entity.Post;
 import com.whh.findmuseapi.post.entity.Volunteer;
@@ -53,7 +54,7 @@ public class VolunteerServiceImpl implements VolunteerService {
      * {@inheritDoc}
      */
     @Override
-    public VolunteerListResponse getVolunteerList(Long postId,Long userId) {
+    public VolunteerPostListResponse getPostVolunteerList(Long postId, Long userId) {
         User writer = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("회원: " + userId));
         Post post = postRepository.findById(postId)
@@ -76,6 +77,36 @@ public class VolunteerServiceImpl implements VolunteerService {
                 .map(VolunteerReadResponse::toDto)
                 .collect(Collectors.toList());
 
-        return VolunteerListResponse.toDto(participationList, waitingList);
+        return VolunteerPostListResponse.toDto(participationList, waitingList);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VolunteerMyPageListResponse getMyPageVolunteerList(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("회원: " + userId);
+        }
+
+        List<Volunteer> approvalVolunteers = volunteerRepository.findByUserIdAndStatusAndActiveStatusTrue(userId,
+                Infos.InvieteStatus.Wait);
+        List<Volunteer> waitingVolunteers = volunteerRepository.findByUserIdAndStatusAndActiveStatusTrue(userId,
+                Infos.InvieteStatus.ACCESS);
+        List<Volunteer> refusalVolunteers = volunteerRepository.findByUserIdAndStatusAndActiveStatusTrue(userId,
+                Infos.InvieteStatus.DENY);
+
+        List<VolunteerReadResponse> approvalList = approvalVolunteers.stream()
+                .map(VolunteerReadResponse::toDto)
+                .collect(Collectors.toList());
+        List<VolunteerReadResponse> waitingList = waitingVolunteers.stream()
+                .map(VolunteerReadResponse::toDto)
+                .collect(Collectors.toList());
+
+        List<VolunteerReadResponse> refusalList = refusalVolunteers.stream()
+                .map(VolunteerReadResponse::toDto)
+                .collect(Collectors.toList());
+
+        return VolunteerMyPageListResponse.toDto(approvalList, waitingList, refusalList);
     }
 }
