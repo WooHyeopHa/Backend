@@ -1,6 +1,7 @@
 package com.whh.findmuseapi.post.service.impl;
 
 import com.whh.findmuseapi.common.constant.Infos;
+import com.whh.findmuseapi.post.dto.response.VolunteerListResponse;
 import com.whh.findmuseapi.post.entity.Post;
 import com.whh.findmuseapi.post.repository.VolunteerRepository;
 import com.whh.findmuseapi.post.service.VolunteerService;
@@ -36,5 +37,13 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public boolean volunteerCheck(User user, Post post) {
         return volunteerRepository.existsByUserAndPost(user, post);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VolunteerListResponse getVolunteerList(Long postId,Long userId) {
+
     }
 }
