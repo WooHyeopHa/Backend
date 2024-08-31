@@ -13,4 +13,7 @@ public interface VolunteerRepository extends JpaRepository<Volunteer, Long> {
     boolean existsByUserAndPost(User user, Post post);
 
     List<Volunteer> findByPostIdAndActiveStatusTrueAndStatus(Long postId, Infos.InvieteStatus status);
-    List<Volunteer> findByPostIdAndActiveStatusTrueAndStatusNot(Long postId, Infos.InvieteStatus status);}
+    List<Volunteer> findByPostIdAndActiveStatusTrueAndStatusNot(Long postId, Infos.InvieteStatus status);
+    List<Volunteer> findByUserIdAndStatusAndActiveStatusTrue(Long userId, Infos.InvieteStatus status);
+
+}

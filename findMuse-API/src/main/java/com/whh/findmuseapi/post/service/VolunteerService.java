@@ -1,6 +1,7 @@
 package com.whh.findmuseapi.post.service;
 
-import com.whh.findmuseapi.post.dto.response.VolunteerListResponse;
+import com.whh.findmuseapi.post.dto.response.VolunteerMyPageListResponse;
+import com.whh.findmuseapi.post.dto.response.VolunteerPostListResponse;
 import com.whh.findmuseapi.post.entity.Post;
 import com.whh.findmuseapi.user.entity.User;
 
@@ -36,5 +37,13 @@ public interface VolunteerService {
      * @param postId 해당 모집글 번호
      * @return 참여자, 대기자 리스트
      */
-    VolunteerListResponse getVolunteerList(Long postId, Long userId);
+    VolunteerPostListResponse getPostVolunteerList(Long postId, Long userId);
+
+    /**
+     * 마이페이지에서 자신의 모든 신청 내역을 확인하는 리스트.
+     *
+     * @param userId 유저 아이디
+     * @return 승인, 대기, 거절 리스트
+     */
+    VolunteerMyPageListResponse getMyPageVolunteerList(Long userId);
 }

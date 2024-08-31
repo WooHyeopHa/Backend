@@ -12,12 +12,12 @@ import lombok.Getter;
  */
 @Getter
 @Builder
-public class VolunteerListResponse {
+public class VolunteerPostListResponse {
     private List<VolunteerReadResponse> participationVolunteers;
     private List<VolunteerReadResponse> waitingVolunteers;
 
-    public static VolunteerListResponse toDto(List<VolunteerReadResponse> participationList,List<VolunteerReadResponse> waitingList) {
-        return VolunteerListResponse.builder()
+    public static VolunteerPostListResponse toDto(List<VolunteerReadResponse> participationList,List<VolunteerReadResponse> waitingList) {
+        return VolunteerPostListResponse.builder()
                 .participationVolunteers(participationList)
                 .waitingVolunteers(waitingList)
                 .build();
