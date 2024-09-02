@@ -3,6 +3,7 @@ package com.whh.findmuseapi.art.openApi.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.whh.findmuseapi.art.feign.ArtClient;
 import com.whh.findmuseapi.art.openApi.ArtApiProperties;
+import com.whh.findmuseapi.art.openApi.dto.ArtInfoDetailResponse;
 import com.whh.findmuseapi.art.openApi.dto.ArtInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.whh.findmuseapi.art.openApi.dto.ArtInfoResponse.*;
 
 
 @RequiredArgsConstructor
@@ -22,31 +24,45 @@ import java.util.stream.Collectors;
 public class ArtOpenApiService {
 
     private final ArtClient artClient;
-    private final ObjectMapper ob;
     private final ArtApiProperties artProperties;
 
-    //공연 목록 가져오기
+    /**
+     * 공연ID 목록 가져와서 List 저장
+     * 이후 공연ID별로 상세 정보 가져오기
+     */
     public void getOpenApiArtList() {
-        //1. 현재날짜 불러와서 -> String으로 변환
         LocalDate fromDate = LocalDate.now();
         LocalDate toDate = LocalDate.of(2024, 12, 31);
 
-        List<String> musicalIds = getIdList(fromDate, toDate, artProperties.getMusical());
-        List<String> darmaIds = getIdList(fromDate, toDate, artProperties.getDrama());
-        List<String> danceIds = getIdList(fromDate, toDate, artProperties.getDance());
-        danceIds.addAll(getIdList(fromDate, toDate, artProperties.getDanceBasic()));
-        List<String> classicIds = getIdList(fromDate, toDate, artProperties.getClassic());
-        List<String> concertIds = getIdList(fromDate, toDate, artProperties.getConcert());
+        List<Db> musicalIdList = getIdList(fromDate, toDate, artProperties.getMusical());
+        List<Db> dramaIdList = getIdList(fromDate, toDate, artProperties.getDrama());
+        List<Db> danceIdList = getIdList(fromDate, toDate, artProperties.getDance());
+        danceIdList.addAll(getIdList(fromDate, toDate, artProperties.getDanceBasic()));
+        List<Db> classicIdList = getIdList(fromDate, toDate, artProperties.getClassic());
+        List<Db> concertIds = getIdList(fromDate, toDate, artProperties.getConcert());
         concertIds.addAll(getIdList(fromDate, toDate, artProperties.getConcertMagic()));
+
+        // 업데이트 예정
+        getArtDetail(musicalIdList);
+        getArtDetail(dramaIdList);
+        getArtDetail(danceIdList);
+        getArtDetail(classicIdList);
+        getArtDetail(concertIds);
     }
 
-    // 2. Feign Clinet 이용 데이터 불러옴 -> Obkect -> Pojo 전환 -> Id 추출
-    private List<String> getIdList(LocalDate fromDate, LocalDate toDate, String genreCode) {
-        Object response = artClient.getArtInfoList(artProperties.getServiceKey(), fromDate, toDate, "1", "999", genreCode, "Y");
-        ArtInfoResponse artInfoResponse = ob.convertValue(response, ArtInfoResponse.class);
-        List<String> idList = artInfoResponse.getIdList().stream()
-                .map(ArtInfoResponse.Id::getArtId)
-                .collect(Collectors.toList());
-        return idList;
+    /**
+     * 공연ID로 상세정보 불러오기
+     */
+    private List<ArtInfoDetailResponse> getArtDetail(List<Db> artIdList) {
+        return artIdList.stream()
+                .map(db -> artClient.getArtInfoDetail(db.getId(), artProperties.getServiceKey(), "Y")).toList();
+    }
+
+    /**
+     * 카테고리별로 ID목록 가져오기
+     */
+    private List<Db> getIdList(LocalDate fromDate, LocalDate toDate, String genreCode) {
+        ArtInfoResponse idList = artClient.getArtInfoList(artProperties.getServiceKey(), fromDate, toDate, "1", "20", genreCode, "Y");
+        return idList.getDbList();
     }
 }
