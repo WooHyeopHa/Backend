@@ -47,6 +47,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'   // AWS S3
 
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.0' // OpenFeign
+    implementation 'io.github.openfeign:feign-jaxb' // OpenFeign
+
 
     // JWT
     implementation 'com.auth0:java-jwt:4.0.0'
