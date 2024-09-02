@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@Getter
 @XmlRootElement(name = "dbs")
 @NoArgsConstructor
 public class ArtInfoDetailResponse {
