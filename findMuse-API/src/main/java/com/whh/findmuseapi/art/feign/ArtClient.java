@@ -1,24 +1,25 @@
 package com.whh.findmuseapi.art.feign;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import feign.Util;
+import com.whh.findmuseapi.art.openApi.dto.ArtInfoDetailResponse;
+import com.whh.findmuseapi.art.openApi.dto.ArtInfoResponse;
 import feign.codec.Decoder;
+import feign.jaxb.JAXBContextFactory;
+import feign.jaxb.JAXBDecoder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 
-@FeignClient(name = "artClient", url = "http://kopis.or.kr/openApi/restful/pblprfr", configuration = ArtClient.Configuration.class)
+@FeignClient(name = "artClient", url = "http://kopis.or.kr/openApi/restful/pblprfr" ,configuration = ArtClient.Configuration.class)
 public interface ArtClient {
 
-    // 공연 목록
+    // 공연ID 목록 API
     @GetMapping()
-    Object getArtInfoList(
+    ArtInfoResponse getArtInfoList(
             @RequestParam(name = "service") String service,
             @RequestParam(name = "stdate") @DateTimeFormat(pattern = "yyyyMMdd")LocalDate startDate,
             @RequestParam(name = "eddate") @DateTimeFormat(pattern = "yyyyMMdd") LocalDate edDate,
@@ -27,20 +28,25 @@ public interface ArtClient {
             @RequestParam(name = "shcate") String genreCode,
             @RequestParam(name = "newsql") String newApiOption);
 
-//    // 공연 상세
-//    @PostMapping(value = "/token", consumes = "application/x-www-form-urlencoded")
-//
-//
-//    //공연 시설 상서
-//    @PostMapping(value = "/revoke", consumes = "application/x-www-form-urlencoded")
+    // 공연 상세 API
+    @GetMapping("/{mt20id}")
+    ArtInfoDetailResponse getArtInfoDetail(
+            @PathVariable(name = "mt20id") String artId,
+            @RequestParam(name = "service") String service,
+            @RequestParam(name = "newsql") String newApiOption);
+
+
+    //공연 시설 상세 API
+
+    /**
+     * XML를 위한 디코더
+     */
     class Configuration {
         @Bean
-        public Decoder feignDecoder() {
-            return (response, type) -> {
-                String bodyStr = Util.toString(response.body().asReader(Util.UTF_8));
-                JavaType javaType = TypeFactory.defaultInstance().constructType(type);
-                return new XmlMapper().readValue(bodyStr, javaType);
-            };
+        public Decoder xmlDecoder() {
+            return new JAXBDecoder(new JAXBContextFactory.Builder()
+                    .withMarshallerJAXBEncoding("UTF-8")
+                    .build());
         }
     }
 }
