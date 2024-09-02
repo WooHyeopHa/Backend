@@ -34,6 +34,7 @@ public class ArtInfoDetailResponse {
         private String price;
         private String state;
         private List<String> photos;
+        private String place;
         private String placeId;
         private String startTime;
         private List<Ticket> tickets;
@@ -110,6 +111,15 @@ public class ArtInfoDetailResponse {
 
         public void setPhotos(List<String> photos) {
             this.photos = photos;
+        }
+
+        @XmlElement(name = "fcltynm")
+        public String getPlace() {
+            return place;
+        }
+
+        public void setPlace(String place) {
+            this.place = place;
         }
 
         @XmlElement(name = "mt10id")
