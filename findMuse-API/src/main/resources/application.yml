@@ -34,3 +34,13 @@ jwt:
   refresh:
     expiration: 604800
     header: "X-Refresh-Token"
+
+art:
+  service-key: ${ART_SERVICE_KEY}
+  musical: ${ART_MUSICAL}
+  drama: ${ART_DRAMA}
+  concert: ${ART_CONCERT}
+  concert-magic: ${ART_CONCERT_MAGIC}
+  dance: ${ART_DANCE}
+  dance-basic: ${ART_DANCE_BASIC}
+  classic: ${ART_CLASSIC}
