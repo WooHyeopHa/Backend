@@ -11,10 +11,9 @@ import org.springframework.http.MediaType;
 
 @Slf4j
 public class Utils {
+    private static final ObjectMapper mapper = new ObjectMapper();
     
     public static void sendErrorResponse(HttpServletResponse response, int status, ResponseCode responseCode) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setStatus(status);

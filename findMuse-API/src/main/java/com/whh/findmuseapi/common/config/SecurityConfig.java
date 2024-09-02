@@ -1,18 +1,15 @@
 package com.whh.findmuseapi.common.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.whh.findmuseapi.common.constant.ResponseCode;
-import com.whh.findmuseapi.common.util.ApiResponse;
 import com.whh.findmuseapi.jwt.filter.JwtAuthenticationFilter;
 import com.whh.findmuseapi.jwt.filter.JwtExceptionFilter;
 import com.whh.findmuseapi.jwt.service.JwtService;
+import com.whh.findmuseapi.jwt.util.Utils;
 import com.whh.findmuseapi.user.repository.UserRepository;
-import java.io.PrintWriter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -40,28 +37,15 @@ public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         
         AuthenticationEntryPoint unauthorizedEntryPoint =
             (request, response, authException) -> {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                String json = mapper.writeValueAsString(ApiResponse.createError(ResponseCode.UNAUTHORIZED_REQUEST‎));
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding("UTF-8");
-                PrintWriter writer = response.getWriter();
-                writer.write(json);
-                writer.flush();
+                Utils.sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(), ResponseCode.UNAUTHORIZED_REQUEST‎);
             };
         
         AccessDeniedHandler accessDeniedHandler =
             (request, response, authException) -> {
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-                String json = mapper.writeValueAsString(ApiResponse.createError(ResponseCode.INVALID_REQUEST‎));
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding("UTF-8");
-                PrintWriter writer = response.getWriter();
-                writer.write(json);
-                writer.flush();
+                Utils.sendErrorResponse(response, HttpStatus.FORBIDDEN.value(), ResponseCode.INVALID_REQUEST‎);
             };
         
         http
