@@ -38,8 +38,6 @@ import static com.whh.findmuseapi.jwt.service.JwtService.CLAIM_EMAIL;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
-    private static final String LOGIN_URL = "/oauth/apple/token";
-    
     private final JwtService jwtService;
     private final UserRepository userRepository;
     
@@ -48,14 +46,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain) throws ServletException, IOException {
         
-        if (request.getRequestURI().equals(LOGIN_URL)) {
-            filterChain.doFilter(request, response); // 로그인 요청은 다음 필터를 호출
-            return; // 현재 필터 진행 막기
-        }
-        
         // 사용자 요청 헤더에서 RefreshToken 추출
         // -> RefreshToken이 없거나 유효하지 않다면(DB에 저장된 RefreshToken과 다르다면 null 반환
-        // 사용자아ㅢ 요청 헤더에 RefreshToken이 있는 경우는, AccessToken이 만료된 경우 밖에 없다.
+        // 사용자의 요청 헤더에 RefreshToken이 있는 경우는, AccessToken이 만료된 경우 밖에 없다.
         // 따라서, 위의 경우를 제외하면 추출한 refreshToken은 모두 null
         String refreshToken = jwtService.extractRefreshToken(request)
             .filter(jwtService::isTokenValid)
@@ -67,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 만약 일치한다면 AccessToken과 RefreshToken을 재발급해준다.
         if (refreshToken != null) {
             log.info("refresh token 재발급 진행 중...");
-            checkRefreshTokenAndReIssueAccessToken(response, refreshToken);
+            reIssueAccessToken(response, refreshToken);
             return; // 토큰 재발급 후 인증 처리가 진행되지 않도록 막기
         }
         
@@ -86,29 +79,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @param refreshToken
      * @throws IOException
      */
-    public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) throws IOException {
-        if (jwtService.isTokenValid(refreshToken)) {
-            userRepository.findByRefreshToken(refreshToken).ifPresent(
-                user -> jwtService.sendAccessAndRefreshToken(response,
-                    jwtService.createAccessToken(user.getEmail()),
-                    reIssueRefreshToken(user))
-            );
-            log.info("토큰 재발급이 완료되었습니다.");
-        } else {
-            Utils.sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(), ResponseCode.TOKEN_INVALID);
-        }
-    }
-    
-    /**
-     * [리프레시 토큰 재발급 & DB에 리프레시 토큰 업데이트 메소드]
-     * @param user
-     * @return reIssuedRefreshToken
-     */
-    private String reIssueRefreshToken(User user) {
-        String reIssuedRefreshToken = jwtService.createRefreshToken();
-        user.updateRefreshToken(reIssuedRefreshToken);
-        userRepository.saveAndFlush(user);
-        return reIssuedRefreshToken;
+    public void reIssueAccessToken(HttpServletResponse response, String refreshToken) {
+        userRepository.findByRefreshToken(refreshToken).ifPresent(
+            user -> jwtService.sendAccessAndRefreshToken(response,
+                jwtService.createAccessToken(user.getEmail()),
+                jwtService.reIssueRefreshToken(user))
+        );
+        log.info("토큰 재발급이 완료되었습니다.");
     }
     
     /**

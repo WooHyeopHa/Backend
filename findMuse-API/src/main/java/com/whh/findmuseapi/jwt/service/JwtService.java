@@ -147,4 +147,15 @@ public class JwtService {
         }
     }
     
+    /**
+     * [리프레시 토큰 재발급 & DB에 리프레시 토큰 업데이트 메소드]
+     * @param user
+     * @return reIssuedRefreshToken
+     */
+    public String reIssueRefreshToken(User user) {
+        String reIssuedRefreshToken = createRefreshToken();
+        user.updateRefreshToken(reIssuedRefreshToken);
+        userRepository.saveAndFlush(user);
+        return reIssuedRefreshToken;
+    }
 }
