@@ -4,6 +4,7 @@ import com.whh.findmuseapi.file.entity.File;
 import com.whh.findmuseapi.review.entity.ArtReview;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +23,6 @@ public class Art {
     @Column(name = "art_id")
     private Long id;
     private String title;
-    private String content;
     @Enumerated(EnumType.STRING)
     private ArtType artType;
     private String location;
@@ -30,7 +30,11 @@ public class Art {
     private String startDate;
     private String endDate;
     private String callNum;
+    @Column(length = 500)
     private String price;
+    private String latitude;    //위도
+    private String longitude;   //경도
+    private String park;        //주차장 여부
     private int likeCount;
 
     @OneToOne
@@ -40,6 +44,32 @@ public class Art {
     @OneToMany(mappedBy = "art", fetch = FetchType.LAZY)
     private List<ArtReview> artReviews = new ArrayList<>();
 
-    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<File> files = new ArrayList<>();
+
+    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private List<Ticket> tickets = new ArrayList<>();
+
+    @Builder
+    public Art(String title, ArtType artType, String place, String startDate, String endDate, String price) {
+        this.title = title;
+        this.artType = artType;
+        this.place = place;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.price = price;
+    }
+
+    public void setFilesAndTickets(List<File> files, List<Ticket> tickets) {
+        this.files = files;
+        this.tickets = tickets;
+    }
+
+    public void setPlaceDetailInfo(String location, String callNum, String latitude, String longitude, String park) {
+        this.location = location;
+        this.callNum = callNum;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.park = park;
+    }
 }
