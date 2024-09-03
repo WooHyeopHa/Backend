@@ -1,11 +1,14 @@
 package com.whh.findmuseapi.art.openApi.dto;
 
-import lombok.Getter;
+import com.whh.findmuseapi.art.entity.Art;
+import com.whh.findmuseapi.common.constant.Infos;
+import com.whh.findmuseapi.file.entity.File;
 import lombok.NoArgsConstructor;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "dbs")
@@ -23,6 +26,31 @@ public class ArtInfoDetailResponse {
         this.detail = detail;
     }
 
+    public Art toEntity(Infos.ArtType type) {
+
+        Art newArt = Art.builder()
+                .title(detail.title)
+                .artType(type)
+                .place(detail.place)
+                .startDate(detail.startDate)
+                .endDate(detail.endDate)
+                .price(detail.price).build();
+
+        List<File> photos = detail.getPhotos().stream()
+                .map(s -> new File(s, newArt)).toList();
+
+
+        List<com.whh.findmuseapi.art.entity.Ticket> tickets = detail.getTickets().stream()
+                .map(t ->
+                    com.whh.findmuseapi.art.entity.Ticket.builder()
+                            .name(t.platform)
+                            .url(t.platformUrl)
+                            .art(newArt).build()).toList();
+
+        newArt.setFilesAndTickets(photos, tickets);
+        return newArt;
+    }
+
     @NoArgsConstructor
     public static class Details {
 
@@ -30,10 +58,9 @@ public class ArtInfoDetailResponse {
         private String title;
         private String startDate;
         private String endDate;
-        private String runTime;
         private String price;
         private String state;
-        private List<String> photos;
+        private List<String> photos = new ArrayList<>();
         private String place;
         private String placeId;
         private String startTime;
@@ -73,15 +100,6 @@ public class ArtInfoDetailResponse {
 
         public void setEndDate(String endDate) {
             this.endDate = endDate;
-        }
-
-        @XmlElement(name = "prfruntime")
-        public String getRunTime() {
-            return runTime;
-        }
-
-        public void setRunTime(String runTime) {
-            this.runTime = runTime;
         }
 
         @XmlElement(name = "pcseguidance")
