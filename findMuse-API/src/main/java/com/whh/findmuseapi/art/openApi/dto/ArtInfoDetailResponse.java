@@ -33,7 +33,8 @@ public class ArtInfoDetailResponse {
                 .artType(type)
                 .place(detail.place)
                 .startDate(detail.startDate)
-                .endDate(detail.endDate).build();
+                .endDate(detail.endDate)
+                .age(detail.age).build();
 
         List<File> photos = detail.getPhotos().stream()
                 .map(s -> new File(s, newArt)).toList();
@@ -60,6 +61,7 @@ public class ArtInfoDetailResponse {
         private String place;
         private String placeId;
         private String startTime;
+        private String age;
         private List<Ticket> tickets;
 
 
@@ -126,6 +128,15 @@ public class ArtInfoDetailResponse {
 
         public void setStartTime(String startTime) {
             this.startTime = startTime;
+        }
+
+        @XmlElement(name = "prfage")
+        public String getAge() {
+            return age;
+        }
+
+        public void setAge(String age) {
+            this.age = age;
         }
 
         @XmlElementWrapper(name = "relates")
