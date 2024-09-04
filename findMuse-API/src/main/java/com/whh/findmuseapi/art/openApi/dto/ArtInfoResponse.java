@@ -28,7 +28,6 @@ public class ArtInfoResponse {
     @XmlRootElement(name = "db")
     public static class Db {
 
-//        @JsonProperty("mt20id")
         private String id;
 
         @XmlElement(name = "mt20id")
