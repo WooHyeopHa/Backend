@@ -33,8 +33,7 @@ public class ArtInfoDetailResponse {
                 .artType(type)
                 .place(detail.place)
                 .startDate(detail.startDate)
-                .endDate(detail.endDate)
-                .price(detail.price).build();
+                .endDate(detail.endDate).build();
 
         List<File> photos = detail.getPhotos().stream()
                 .map(s -> new File(s, newArt)).toList();
@@ -54,26 +53,15 @@ public class ArtInfoDetailResponse {
     @NoArgsConstructor
     public static class Details {
 
-        private String artId;
         private String title;
         private String startDate;
         private String endDate;
-        private String price;
-        private String state;
         private List<String> photos = new ArrayList<>();
         private String place;
         private String placeId;
         private String startTime;
         private List<Ticket> tickets;
 
-        @XmlElement(name = "mt20id")
-        public String getArtId() {
-            return artId;
-        }
-
-        public void setArtId(String artId) {
-            this.artId = artId;
-        }
 
         @XmlElement(name = "prfnm")
         public String getTitle() {
@@ -102,24 +90,6 @@ public class ArtInfoDetailResponse {
             this.endDate = endDate;
         }
 
-        @XmlElement(name = "pcseguidance")
-        public String getPrice() {
-            return price;
-        }
-
-
-        public void setPrice(String price) {
-            this.price = price;
-        }
-
-        @XmlElement(name = "prfstate")
-        public String getState() {
-            return state;
-        }
-
-        public void setState(String state) {
-            this.state = state;
-        }
 
         @XmlElementWrapper(name = "styurls")
         @XmlElement(name = "styurl")
