@@ -30,8 +30,6 @@ public class Art {
     private String startDate;
     private String endDate;
     private String callNum;
-    @Column(length = 500)
-    private String price;
     private String latitude;    //위도
     private String longitude;   //경도
     private String park;        //주차장 여부
@@ -51,13 +49,12 @@ public class Art {
     private List<Ticket> tickets = new ArrayList<>();
 
     @Builder
-    public Art(String title, ArtType artType, String place, String startDate, String endDate, String price) {
+    public Art(String title, ArtType artType, String place, String startDate, String endDate) {
         this.title = title;
         this.artType = artType;
         this.place = place;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.price = price;
     }
 
     public void setFilesAndTickets(List<File> files, List<Ticket> tickets) {
