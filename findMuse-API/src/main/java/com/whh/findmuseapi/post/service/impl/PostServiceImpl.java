@@ -6,7 +6,9 @@ import com.whh.findmuseapi.common.Exception.NotFoundException;
 import com.whh.findmuseapi.common.Exception.UnAuthorizationException;
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
 import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
-import com.whh.findmuseapi.post.dto.response.PostReadResponse;
+import com.whh.findmuseapi.post.dto.response.PostListReadResponse;
+import com.whh.findmuseapi.post.dto.response.PostListResponse;
+import com.whh.findmuseapi.post.dto.response.PostOneReadResponse;
 import com.whh.findmuseapi.post.entity.Post;
 import com.whh.findmuseapi.post.entity.PostTag;
 import com.whh.findmuseapi.post.entity.Tag;
@@ -20,6 +22,7 @@ import com.whh.findmuseapi.post.service.VolunteerService;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,11 +68,11 @@ public class PostServiceImpl implements PostService {
 
         Post post = Post.toEntity(createRequest, art, user);
 
-        postRepository.save(post);
-
         List<PostTag> postTagList = tagList.stream().map(tag -> PostTag.builder().post(post).tag(tag).build()).toList();
 
         post.getTagList().addAll(postTagList);
+
+        postRepository.save(post);
     }
 
     /**
@@ -77,7 +80,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional(timeout = 5)
-    public PostReadResponse readPost(Long postId, Long userId) {
+    public PostOneReadResponse readPost(Long postId, Long userId) {
         Post post = postRepository.findWithPessimisticLockById(postId).orElseThrow(() -> new NotFoundException("모집글: " + postId));
         post.viewCountPlusOne();
 
@@ -89,7 +92,7 @@ public class PostServiceImpl implements PostService {
 
         int invitedCount = Math.toIntExact(volunteerService.getInvitedCount(post));
 
-        return PostReadResponse.toDto(post, invitedCount, isWriter);
+        return PostOneReadResponse.toDto(post, invitedCount, isWriter);
     }
 
     /**
@@ -103,10 +106,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(updateRequest.getPostId())
                 .orElseThrow(() -> new NotFoundException("게시글: " + updateRequest.getPostId()));
 
-        if (!post.getUser().getId().equals(writer.getId())) {
-            // 예외들 일단 임시방편
-            throw new UnAuthorizationException("게시글");
-        }
+        checkWriter(writer, post);
 
         Art art = artRepository.findById(updateRequest.getArtId())
                 .orElseThrow(() -> new NotFoundException("전시회: " + updateRequest.getArtId()));
@@ -128,14 +128,12 @@ public class PostServiceImpl implements PostService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void deletePost(Long userId, Long postId) {
         User writer = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("회원: " + userId));
         Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("게시글: " + postId));
 
-        if (!post.getUser().getId().equals(writer.getId())) {
-            // 예외들 일단 임시방편
-            throw new UnAuthorizationException("게시글");
-        }
+        checkWriter(writer, post);
 
         List<Volunteer> volunteers = post.getVolunteeredList();
         volunteerRepository.deleteAll(volunteers);
@@ -144,6 +142,29 @@ public class PostServiceImpl implements PostService {
         postTagRepository.deleteAll(tags);
 
         postRepository.delete(post);
+    }
+
+    @Transactional
+    @Override
+    public void checkWriter(User user, Post post) {
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new UnAuthorizationException("게시글");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PostListResponse getPostList() {
+        List<Post> list = postRepository.findAllByOrderByCreateDateDesc();
+
+        List<PostListReadResponse> postList = list.stream()
+                .map(PostListReadResponse::toDto)
+                .collect(Collectors.toList());
+
+        return PostListResponse.toDto(postList);
+
     }
 
 }
