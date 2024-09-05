@@ -46,4 +46,36 @@ public interface VolunteerService {
      * @return 승인, 대기, 거절 리스트
      */
     VolunteerMyPageListResponse getMyPageVolunteerList(Long userId);
+
+    /**
+     * 지원자를 수락합니다.
+     *
+     * @param postId 모집글 아이디
+     * @param writer 글쓴이 아이디
+     * @param targetId 대상 아이디
+     */
+    void acceptVolunteer(Long postId, Long writer, Long targetId);
+
+    /**
+     * 지원자를 거절합니다.
+     *
+     * @param postId 모집글 아이디
+     * @param writer 글쓴이 아이디
+     * @param targetId 대상 아이디
+     */
+    void refusalVolunteer(Long postId, Long writer, Long targetId);
+
+    /**
+     * 모집글에 지원합니다.
+     *
+     * @param postId 모집글
+     * @param volunteer 지원자 아이디
+     */
+    void applyVolunteer(Long postId, Long volunteer);
+
+    /**
+     * 모집글에 지원을 취소합니다.
+     *
+     */
+    void cancelVolunteer(Long volunteerId, Long userId);
 }

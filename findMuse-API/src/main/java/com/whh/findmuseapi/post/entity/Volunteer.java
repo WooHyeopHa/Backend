@@ -4,6 +4,7 @@ import com.whh.findmuseapi.common.constant.Infos.InvieteStatus;
 import com.whh.findmuseapi.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,4 +31,30 @@ public class Volunteer {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    public void updateStatus(InvieteStatus status) {
+        this.status = status;
+    }
+    public void updateActiveStatus(boolean flag) {
+        this.activeStatus = flag;
+    }
+
+    public static Volunteer toEntity(Post post, User user) {
+        return Volunteer.builder()
+                .status(InvieteStatus.Wait)
+                .activeStatus(true)
+                .createDate(LocalDate.now())
+                .user(user)
+                .post(post)
+                .build();
+    }
+
+    @Builder
+    public Volunteer(InvieteStatus status, boolean activeStatus, LocalDate createDate, User user, Post post) {
+        this.status = status;
+        this.activeStatus = activeStatus;
+        this.createDate = createDate;
+        this.user = user;
+        this.post = post;
+    }
 }
