@@ -29,9 +29,10 @@ public class Art {
     private String place;
     private String startDate;
     private String endDate;
-    private String callNum;
+    private String age;
     private String latitude;    //위도
     private String longitude;   //경도
+    private String sPark;       //장애인 주차장 여부
     private String park;        //주차장 여부
     private int likeCount;
 
@@ -49,12 +50,13 @@ public class Art {
     private List<Ticket> tickets = new ArrayList<>();
 
     @Builder
-    public Art(String title, ArtType artType, String place, String startDate, String endDate) {
+    public Art(String title, ArtType artType, String place, String startDate, String endDate, String age) {
         this.title = title;
         this.artType = artType;
         this.place = place;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.age = age;
     }
 
     public void setFilesAndTickets(List<File> files, List<Ticket> tickets) {
@@ -62,11 +64,11 @@ public class Art {
         this.tickets = tickets;
     }
 
-    public void setPlaceDetailInfo(String location, String callNum, String latitude, String longitude, String park) {
+    public void setPlaceDetailInfo(String location, String latitude, String longitude, String sPark, String park) {
         this.location = location;
-        this.callNum = callNum;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.sPark = sPark;
         this.park = park;
     }
 }
