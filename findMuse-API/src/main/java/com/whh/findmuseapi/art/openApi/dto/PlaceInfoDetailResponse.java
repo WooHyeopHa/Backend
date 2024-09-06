@@ -25,29 +25,21 @@ public class PlaceInfoDetailResponse {
     public void toEntity(Art art) {
          art.setPlaceDetailInfo(
                 detail.getAddress(),
-                detail.callNum,
                 detail.latitude,
                 detail.longitude,
+                detail.sPark,
                 detail.park
         );
     }
 
     @NoArgsConstructor
     public static class Details {
-        private String callNum;     //전화번호
         private String address;     //주소
         private String latitude;    //위도
         private String longitude;   //경도
+        private String sPark;       //장애인 주차장 여부
         private String park;        //주차장 여부
 
-        @XmlElement(name = "telno")
-        public String getCallNum() {
-            return callNum;
-        }
-
-        public void setCallNum(String callNum) {
-            this.callNum = callNum;
-        }
 
         @XmlElement(name = "adres")
         public String getAddress() {
@@ -74,6 +66,15 @@ public class PlaceInfoDetailResponse {
 
         public void setLongitude(String longitude) {
             this.longitude = longitude;
+        }
+
+        @XmlElement(name = "parkbarrier")
+        public String getsPark() {
+            return sPark;
+        }
+
+        public void setsPark(String sPark) {
+            this.sPark = sPark;
         }
 
         @XmlElement(name = "parkinglot")
