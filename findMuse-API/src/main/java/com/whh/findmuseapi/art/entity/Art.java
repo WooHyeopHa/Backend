@@ -29,6 +29,7 @@ public class Art {
     private String place;
     private String startDate;
     private String endDate;
+    private String startTime;
     private String age;
     private String latitude;    //위도
     private String longitude;   //경도
@@ -50,12 +51,13 @@ public class Art {
     private List<Ticket> tickets = new ArrayList<>();
 
     @Builder
-    public Art(String title, ArtType artType, String place, String startDate, String endDate, String age) {
+    public Art(String title, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
         this.title = title;
         this.artType = artType;
         this.place = place;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.startTime = startTime;
         this.age = age;
     }
 

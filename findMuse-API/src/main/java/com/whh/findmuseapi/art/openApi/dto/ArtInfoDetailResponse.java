@@ -34,6 +34,7 @@ public class ArtInfoDetailResponse {
                 .place(detail.place)
                 .startDate(detail.startDate)
                 .endDate(detail.endDate)
+                .startTime(detail.startTime)
                 .age(detail.age).build();
 
         List<File> photos = detail.getPhotos().stream()
