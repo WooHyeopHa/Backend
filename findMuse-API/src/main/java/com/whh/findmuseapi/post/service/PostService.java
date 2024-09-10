@@ -28,7 +28,7 @@ public interface PostService {
      * @param postId 게시글 아이디
      * @return 게시글
      */
-    PostReadResponse readPost(Long postId);
+    PostReadResponse readPost(Long postId, Long userId);
 
     /**
      * 게시물 수정 로직입니다.
