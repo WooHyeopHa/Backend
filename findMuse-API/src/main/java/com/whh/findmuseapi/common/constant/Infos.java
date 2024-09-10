@@ -45,9 +45,9 @@ public class Infos {
 
     @RequiredArgsConstructor
     public enum ArtType {
-        MUSICAL("뮤지컬"),
+        MUSICAL_DRAMA("뮤지컬/연극"),
         EXHIBITION("전시회"),
-        FILM_FESTIVAL("영화제"),
+        DANCE_CLASSIC("무용/클래식"),
         CONCERT("콘서트");
 
         private final String info;
