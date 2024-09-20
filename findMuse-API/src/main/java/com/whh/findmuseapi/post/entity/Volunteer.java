@@ -35,8 +35,8 @@ public class Volunteer {
     public void updateStatus(InvieteStatus status) {
         this.status = status;
     }
-    public void updateActiveStatus(boolean flag) {
-        this.activeStatus = flag;
+    public void updateActiveStatus() {
+        this.activeStatus = !this.activeStatus;
     }
 
     public static Volunteer toEntity(Post post, User user) {
