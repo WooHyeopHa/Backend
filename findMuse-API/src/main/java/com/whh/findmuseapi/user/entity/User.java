@@ -93,6 +93,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<ComplaintUser> complaintList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserTaste> tasteList = new ArrayList<>();
     
     @Builder
     public User(String accountId, String email, Role role, String refreshToken) {
