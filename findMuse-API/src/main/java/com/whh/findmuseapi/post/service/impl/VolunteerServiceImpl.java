@@ -186,6 +186,6 @@ public class VolunteerServiceImpl implements VolunteerService {
             throw new UnAuthorizationException("지원자");
         }
 
-        volunteer.updateActiveStatus(false);
+        volunteer.updateActiveStatus();
     }
 }
