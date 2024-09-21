@@ -1,10 +1,57 @@
 -- 취향 목록 --
-insert into taste (name, parent_id) values ('전시회', null) , ('콘서트', null), ('뮤지컬', null) , ('영화제', null), ('관람 목적', null);
-insert into taste (name, parent_id) values ('팝업 전시', 1) , ('사진 전시', 1), ('현대미술', 1) , ('설치미술', 1),('디지털 전시', 1) , ('건축 전시', 1), ('장식미술', 1) , ('문화전시', 1), ('과학 전시', 1) , ('역사 전시', 1);
-insert into taste (name, parent_id) values ('클래식', 2) , ('팝', 2), ('락/메탈', 2) , ('재즈', 2), ('랩/힙합', 2) , ('K팝', 2), ('팬미팅', 2) , ('트로트', 2), ('인디', 2) , ('토크/강연', 2), ('페스티벌', 2);
-insert into taste (name, parent_id) values ('드라마', 3) , ('코미디', 3), ('로맨스', 3) , ('오페라', 3), ('판타지', 3) , ('스릴러', 3), ('실험극', 3) , ('역사극', 3), ('오리지널', 3) , ('창작', 3), ('라이선스', 3);
-insert into taste (name, parent_id) values ('독립영화', 4) , ('다큐멘터리', 4), ('애니메이션', 4) , ('고전', 4), ('판타지', 4) , ('호러', 4), ('로맨스', 4) , ('코미디', 4), ('여성', 4) , ('음악', 4), ('유아', 4);
-insert into taste (name, parent_id) values ('지식 습득', 5) , ('휴식 및 힐링', 5), ('사회적 활동', 5) , ('영감 및 창의성', 5), ('기타', 5);
+INSERT INTO taste (name, parent_id) VALUES
+                                        ('전시회', NULL),
+                                        ('콘서트', NULL),
+                                        ('뮤지컬/연극', NULL),
+                                        ('클래식/무용', NULL);
+
+-- 전시회 하위 항목
+INSERT INTO taste (name, parent_id)
+SELECT '팝업 전시', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '사진 전시', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '현대미술', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '설치미술', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '디지털 아트', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '건축 전시', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '장식미술', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '문화 전시', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '과학 전시', id FROM taste WHERE name = '전시회'
+UNION ALL SELECT '역사 전시', id FROM taste WHERE name = '전시회';
+
+-- 콘서트 하위 항목
+INSERT INTO taste (name, parent_id)
+SELECT '팝', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '랩/힙합', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '락/메탈', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '케이팝', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '팬미팅', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '페스티벌', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '트로트', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '발라드', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '인디', id FROM taste WHERE name = '콘서트'
+UNION ALL SELECT '토크/강연', id FROM taste WHERE name = '콘서트';
+
+-- 뮤지컬/연극 하위 항목
+INSERT INTO taste (name, parent_id)
+SELECT '드라마', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '코미디', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '로맨스', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '판타지', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '스릴러', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '실험극', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '역사극', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '오리지널/내한', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '창작', id FROM taste WHERE name = '뮤지컬/연극'
+UNION ALL SELECT '라이선스', id FROM taste WHERE name = '뮤지컬/연극';
+
+-- 클래식/무용 하위 항목
+INSERT INTO taste (name, parent_id)
+SELECT '오케스트라', id FROM taste WHERE name = '클래식/무용'
+UNION ALL SELECT '오페라', id FROM taste WHERE name = '클래식/무용'
+UNION ALL SELECT '발레', id FROM taste WHERE name = '클래식/무용'
+UNION ALL SELECT '현대무용', id FROM taste WHERE name = '클래식/무용'
+UNION ALL SELECT '전통무용', id FROM taste WHERE name = '클래식/무용'
+UNION ALL SELECT '국악', id FROM taste WHERE name = '클래식/무용';
 
 -- 태그 목록 --
 insert into tag (name) values ('전시회') , ('콘서트'), ('뮤지컬') , ('영화제');
