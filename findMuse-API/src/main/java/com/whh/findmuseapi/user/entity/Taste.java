@@ -24,5 +24,4 @@ public class Taste {
     @ManyToOne()
     @JoinColumn(referencedColumnName = "taste_id", name = "parent_id")
     private Taste parent;
-
 }
