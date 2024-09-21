@@ -1,0 +1,22 @@
+name: Trigger Jenkins Job for finMuse-Chat
+
+on:
+  push:
+    branches:
+      - 'dev-chat'
+    paths:
+      - 'findMuse-chatting/**'
+
+jobs:
+  trigger-jenkins-finMuse-Chat:
+    name: Trigger Jenkins Job for finMuse-Chat
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Jenkins Job for finMuse-Chat
+        uses: appleboy/jenkins-action@master
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          user: ${{ secrets.JENKINS_USERNAME }}
+          token: ${{ secrets.JENKINS_API_TOKEN }}
+          job: "findMuse-chatting-server"
