@@ -2,6 +2,7 @@ package com.whh.findmuseapi.user.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -20,4 +21,10 @@ public class UserTaste {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taste_id")
     private Taste taste;
+
+    @Builder
+    public UserTaste(User user, Taste taste) {
+        this.user = user;
+        this.taste = taste;
+    }
 }
