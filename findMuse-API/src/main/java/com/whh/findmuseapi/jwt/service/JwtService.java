@@ -9,6 +9,8 @@ import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 import lombok.Getter;
@@ -146,7 +148,25 @@ public class JwtService {
             return false;
         }
     }
-    
+
+    /**
+     * [리프레시 토큰으로 유저 정보 찾기 & 액세스토큰/리프레시 토큰 재발급 메소드]
+     * 파라미터로 들어온 헤더에서 추출한 리프레시 토큰으로 DB에서 유저를 찾고, 해당 유저가 있다면
+     * AccessToken 생성 & 리프레시 토큰 재발급 & DB 리프레시 토큰 업데이트
+     * 그 후 헤더에 토큰 추가
+     * @param response
+     * @param refreshToken
+     * @throws IOException
+     */
+    public void reIssueAccessToken(HttpServletResponse response, String refreshToken) {
+        userRepository.findByRefreshToken(refreshToken).ifPresent(
+                user -> sendAccessAndRefreshToken(response,
+                        createAccessToken(user.getEmail()),
+                        refreshToken)
+        );
+        log.info("AccessToken 재발급이 완료되었습니다.");
+    }
+
     /**
      * [리프레시 토큰 재발급 & DB에 리프레시 토큰 업데이트 메소드]
      * @param user
