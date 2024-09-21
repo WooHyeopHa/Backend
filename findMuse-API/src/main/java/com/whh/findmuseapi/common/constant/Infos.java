@@ -1,16 +1,26 @@
 package com.whh.findmuseapi.common.constant;
 
+import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
 
 public class Infos {
     @RequiredArgsConstructor
     public enum Gender {
-        MEN("남자"),
-        WOMEN("여자");
+        MEN("남성"),
+        WOMEN("여성");
         private final String info;
 
+        public static Gender convertStringToGender(String info) {
+            return Arrays.stream(Gender.values())
+                    .filter(gender -> gender.info.equals(info))
+                    .findFirst()
+                    .orElseThrow(() -> new CustomBadRequestException("유효하지 않은 성별 값이 입력되었습니다."));
+        }
     }
+
     @RequiredArgsConstructor
     public enum LoginType {
         APPLE("애플 로그인");
