@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/oauth/apple")
+@RequestMapping("/auth/apple")
 public class AppleController {
     
     private final AppleService appleService;
