@@ -43,7 +43,7 @@ public class JwtService {
         Date now = new Date();
         return JWT.create()
             .withSubject(REFRESH_TOKEN_SUBJECT)
-            .withExpiresAt(new Date(now.getTime() + jwtProperties.getRefresh().getExpiration()))
+            .withExpiresAt(new Date(now.getTime() + jwtProperties.getRefresh().getExpiration() * 1000))
             .sign(Algorithm.HMAC512(jwtProperties.getSecretKey()));
     }
     
@@ -54,7 +54,7 @@ public class JwtService {
         Date now = new Date();
         return JWT.create()
             .withSubject(ACCESS_TOKEN_SUBJECT)
-            .withExpiresAt(new Date(now.getTime() + jwtProperties.getAccess().getExpiration()))
+            .withExpiresAt(new Date(now.getTime() + jwtProperties.getAccess().getExpiration() * 1000))
             
             // claim으로 email 사용
             .withClaim(CLAIM_EMAIL, email)
