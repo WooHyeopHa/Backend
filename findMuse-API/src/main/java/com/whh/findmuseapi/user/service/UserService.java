@@ -24,6 +24,7 @@ public class UserService {
 
     public void registerProfileInformation(User user, UserProfileInformationRequest userProfileInformationRequest) {
         UserMapper.INSTANCE.updateUserFromProfileInformation(userProfileInformationRequest, user);
+        user.authorizeUser();
         userRepository.save(user);
     }
 
