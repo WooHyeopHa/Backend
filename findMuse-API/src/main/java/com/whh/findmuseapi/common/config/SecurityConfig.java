@@ -72,8 +72,12 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth ->
                 auth
                     // 로그인 요청은 Fillter 검사에서 제외됨
-                    .requestMatchers("/oauth/apple/token").permitAll()
-                    .requestMatchers("").permitAll()
+                    .requestMatchers(
+                            "/oauth/apple/token",
+                            "/swagger-ui/**",
+                            "/v3/api-docs/**",
+                            "/swagger-resources/**"
+                    ).permitAll()
                     // 그 외 요청은 보안 처리
                     .anyRequest().authenticated()
             );
