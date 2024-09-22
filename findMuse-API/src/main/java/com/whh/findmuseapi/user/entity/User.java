@@ -13,10 +13,7 @@ import com.whh.findmuseapi.review.entity.ArtReview;
 import com.whh.findmuseapi.review.entity.ArtReviewLike;
 import com.whh.findmuseapi.review.entity.UserReview;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +31,18 @@ public class User {
     private Long id;
     private String accountId;
     private String email;
-    
+
+    @Setter(AccessLevel.PUBLIC)
     private String nickname;
-    private String birthYear;
+
+    @Setter(AccessLevel.PUBLIC)
+    private int birthYear;
+
+    @Setter(AccessLevel.PUBLIC)
     @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    @Setter(AccessLevel.PUBLIC)
     private String location;
     private String comment;
     private int artCount;  //참여한 전시 횟수
