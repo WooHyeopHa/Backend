@@ -8,11 +8,12 @@ import com.whh.findmuseapi.jwt.service.JwtService;
 import com.whh.findmuseapi.user.entity.User;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/oauth/apple")
+@RequestMapping("/auth/apple")
 public class AppleController {
     
     private final AppleService appleService;
@@ -27,8 +28,9 @@ public class AppleController {
     }
     
     @DeleteMapping("/revoke")
-    public ApiResponse<?> revokeAppleAccount(Long userId) {
-        appleService.deleteAppleAccount(userId);
+    public ApiResponse<?> revokeAppleAccount(@AuthenticationPrincipal User user,
+                                             @RequestParam String code) {
+        appleService.deleteAppleAccount(user, code);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 
