@@ -11,10 +11,14 @@ import com.whh.findmuseapi.user.repository.TasteRepository;
 import com.whh.findmuseapi.user.repository.UserRepository;
 import com.whh.findmuseapi.user.repository.UserTasteRepository;
 import com.whh.findmuseapi.user.util.UserMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
