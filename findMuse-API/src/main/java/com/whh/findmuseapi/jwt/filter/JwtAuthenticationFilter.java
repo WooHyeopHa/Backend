@@ -57,6 +57,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("access token 재발급 진행 중...");
             jwtService.reIssueAccessToken(response, refreshToken);
         }
+
+        filterChain.doFilter(request, response);
     }
     
     /**
