@@ -16,6 +16,8 @@ public class Taste {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "taste_id")
     private Long id;
+
+    @Column(unique = true)
     private String name;
 
     @OneToMany(mappedBy ="parent")
