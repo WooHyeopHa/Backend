@@ -1,57 +1,57 @@
--- 취향 목록 --
+-- 취향 목록
 INSERT INTO taste (name, parent_id) VALUES
-                                        ('전시회', NULL),
-                                        ('콘서트', NULL),
-                                        ('뮤지컬/연극', NULL),
-                                        ('클래식/무용', NULL);
+                                        ('전시회', NULL),   -- id = 1
+                                        ('콘서트', NULL),   -- id = 2
+                                        ('뮤지컬/연극', NULL), -- id = 3
+                                        ('클래식/무용', NULL); -- id = 4
 
 -- 전시회 하위 항목
-INSERT INTO taste (name, parent_id)
-SELECT '팝업 전시', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '사진 전시', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '현대미술', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '설치미술', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '디지털 아트', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '건축 전시', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '장식미술', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '문화 전시', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '과학 전시', id FROM taste WHERE name = '전시회'
-UNION ALL SELECT '역사 전시', id FROM taste WHERE name = '전시회';
+INSERT INTO taste (name, parent_id) VALUES
+                                        ('팝업 전시', 1),
+                                        ('사진 전시', 1),
+                                        ('현대미술', 1),
+                                        ('설치미술', 1),
+                                        ('디지털 아트', 1),
+                                        ('건축 전시', 1),
+                                        ('장식미술', 1),
+                                        ('문화 전시', 1),
+                                        ('과학 전시', 1),
+                                        ('역사 전시', 1);
 
 -- 콘서트 하위 항목
-INSERT INTO taste (name, parent_id)
-SELECT '팝', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '랩/힙합', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '락/메탈', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '케이팝', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '팬미팅', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '페스티벌', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '트로트', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '발라드', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '인디', id FROM taste WHERE name = '콘서트'
-UNION ALL SELECT '토크/강연', id FROM taste WHERE name = '콘서트';
+INSERT INTO taste (name, parent_id) VALUES
+                                        ('팝', 2),
+                                        ('랩/힙합', 2),
+                                        ('락/메탈', 2),
+                                        ('케이팝', 2),
+                                        ('팬미팅', 2),
+                                        ('페스티벌', 2),
+                                        ('트로트', 2),
+                                        ('발라드', 2),
+                                        ('인디', 2),
+                                        ('토크/강연', 2);
 
 -- 뮤지컬/연극 하위 항목
-INSERT INTO taste (name, parent_id)
-SELECT '드라마', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '코미디', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '로맨스', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '판타지', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '스릴러', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '실험극', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '역사극', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '오리지널/내한', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '창작', id FROM taste WHERE name = '뮤지컬/연극'
-UNION ALL SELECT '라이선스', id FROM taste WHERE name = '뮤지컬/연극';
+INSERT INTO taste (name, parent_id) VALUES
+                                        ('드라마', 3),
+                                        ('코미디', 3),
+                                        ('로맨스', 3),
+                                        ('판타지', 3),
+                                        ('스릴러', 3),
+                                        ('실험극', 3),
+                                        ('역사극', 3),
+                                        ('오리지널/내한', 3),
+                                        ('창작', 3),
+                                        ('라이선스', 3);
 
 -- 클래식/무용 하위 항목
-INSERT INTO taste (name, parent_id)
-SELECT '오케스트라', id FROM taste WHERE name = '클래식/무용'
-UNION ALL SELECT '오페라', id FROM taste WHERE name = '클래식/무용'
-UNION ALL SELECT '발레', id FROM taste WHERE name = '클래식/무용'
-UNION ALL SELECT '현대무용', id FROM taste WHERE name = '클래식/무용'
-UNION ALL SELECT '전통무용', id FROM taste WHERE name = '클래식/무용'
-UNION ALL SELECT '국악', id FROM taste WHERE name = '클래식/무용';
+INSERT INTO taste (name, parent_id) VALUES
+                                        ('오케스트라', 4),
+                                        ('오페라', 4),
+                                        ('발레', 4),
+                                        ('현대무용', 4),
+                                        ('전통무용', 4),
+                                        ('국악', 4);
 
 -- 태그 목록 --
 insert into tag (name) values ('전시회') , ('콘서트'), ('뮤지컬') , ('영화제');
