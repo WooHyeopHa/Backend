@@ -39,7 +39,7 @@ public class AppleController {
      */
     @GetMapping("/test")
     public ApiResponse<?> testLogin(HttpServletResponse response) {
-        String acessToekn = jwtService.createAccessToken("eee@email.com");
+        String acessToekn = jwtService.createAccessToken("test@email.com");
         String refreshToken = jwtService.createRefreshToken();
         jwtService.sendAccessAndRefreshToken(response, acessToekn, refreshToken);
 
