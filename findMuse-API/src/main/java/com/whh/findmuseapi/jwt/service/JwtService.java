@@ -2,11 +2,15 @@ package com.whh.findmuseapi.jwt.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import com.whh.findmuseapi.jwt.property.JwtProperties;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 import lombok.Getter;
@@ -29,6 +33,8 @@ public class JwtService {
     
     public static final String CLAIM_EMAIL = "email";
     
+    private static final String BEARER = "Bearer ";
+    
     private final UserRepository userRepository;
     
     /**
@@ -39,7 +45,7 @@ public class JwtService {
         Date now = new Date();
         return JWT.create()
             .withSubject(REFRESH_TOKEN_SUBJECT)
-            .withExpiresAt(new Date(now.getTime() + jwtProperties.getRefresh().getExpiration()))
+            .withExpiresAt(new Date(now.getTime() + jwtProperties.getRefresh().getExpiration() * 1000))
             .sign(Algorithm.HMAC512(jwtProperties.getSecretKey()));
     }
     
@@ -50,7 +56,7 @@ public class JwtService {
         Date now = new Date();
         return JWT.create()
             .withSubject(ACCESS_TOKEN_SUBJECT)
-            .withExpiresAt(new Date(now.getTime() + jwtProperties.getAccess().getExpiration()))
+            .withExpiresAt(new Date(now.getTime() + jwtProperties.getAccess().getExpiration() * 1000))
             
             // claim으로 email 사용
             .withClaim(CLAIM_EMAIL, email)
@@ -72,7 +78,7 @@ public class JwtService {
                 .getClaim(claim)
                 .asString());
         } catch (Exception e) {
-            log.error("액세스 토큰이 유효하지 않습니다. : " + e.toString());
+            log.error("액세스 토큰이 유효하지 않습니다. : " + e);
             return Optional.empty();
         }
     }
@@ -103,7 +109,73 @@ public class JwtService {
             user.updateRefreshToken(refreshToken);
             userRepository.saveAndFlush(user);
         } else {
+            log.info(email + "로 가입된 유저가 없습니다.");
             throw new CustomBadRequestException(email);
         }
+    }
+    
+    /**
+     * 헤더에서 RefreshToken 추출
+     * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토크만 가져오기 위해서
+     * 헤더를 가져온 후 "Bearer "를 삭제(""로 replace)
+     */
+    public Optional<String> extractRefreshToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(jwtProperties.getRefresh().getHeader()))
+            .filter(refreshToken -> refreshToken.startsWith(BEARER))
+            .map(refreshToken -> refreshToken.replace(BEARER, ""));
+    }
+    
+    /**
+     * 헤더에서 AccessToken 추출
+     * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토크만 가져오기 위해서
+     * 헤더를 가져온 후 "Bearer "를 삭제(""로 replace)
+     */
+    public Optional<String> extractAccessToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(jwtProperties.getAccess().getHeader()))
+            .filter(accessToken -> accessToken.startsWith(BEARER))
+            .map(accessToken -> accessToken.replace(BEARER, ""));
+    }
+    
+    public boolean isTokenValid(String token) {
+        try {
+            JWT.require(Algorithm.HMAC512(jwtProperties.getSecretKey())).build().verify(token);
+            return true;
+        } catch (TokenExpiredException e) {
+            log.info("유효기간이 만료된 토큰입니다. {} {}", e.getMessage(), e.getExpiredOn());
+            throw new TokenExpiredException(e.getMessage(), e.getExpiredOn());
+        } catch (Exception e) {
+            log.info("유효하지 않은 토큰입니다. {}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * [리프레시 토큰으로 유저 정보 찾기 & 액세스토큰/리프레시 토큰 재발급 메소드]
+     * 파라미터로 들어온 헤더에서 추출한 리프레시 토큰으로 DB에서 유저를 찾고, 해당 유저가 있다면
+     * AccessToken 생성 & 리프레시 토큰 재발급 & DB 리프레시 토큰 업데이트
+     * 그 후 헤더에 토큰 추가
+     * @param response
+     * @param refreshToken
+     * @throws IOException
+     */
+    public void reIssueAccessToken(HttpServletResponse response, String refreshToken) {
+        userRepository.findByRefreshToken(refreshToken).ifPresent(
+                user -> sendAccessAndRefreshToken(response,
+                        createAccessToken(user.getEmail()),
+                        refreshToken)
+        );
+        log.info("AccessToken 재발급이 완료되었습니다.");
+    }
+
+    /**
+     * [리프레시 토큰 재발급 & DB에 리프레시 토큰 업데이트 메소드]
+     * @param user
+     * @return reIssuedRefreshToken
+     */
+    public String reIssueRefreshToken(User user) {
+        String reIssuedRefreshToken = createRefreshToken();
+        user.updateRefreshToken(reIssuedRefreshToken);
+        userRepository.saveAndFlush(user);
+        return reIssuedRefreshToken;
     }
 }

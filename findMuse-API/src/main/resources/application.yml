@@ -48,7 +48,7 @@ jwt:
     header: "Authorization"
   refresh:
     expiration: 604800
-    header: "X-Refresh-Token"
+    header: "Authorization-refresh"
 
 art:
   service-key: ${ART_SERVICE_KEY}

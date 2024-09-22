@@ -2,7 +2,10 @@ package com.whh.findmuseapi.post.service;
 
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
 import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
-import com.whh.findmuseapi.post.dto.response.PostReadResponse;
+import com.whh.findmuseapi.post.dto.response.PostListResponse;
+import com.whh.findmuseapi.post.dto.response.PostOneReadResponse;
+import com.whh.findmuseapi.post.entity.Post;
+import com.whh.findmuseapi.user.entity.User;
 
 /**
  * class: PostService.
@@ -28,7 +31,7 @@ public interface PostService {
      * @param postId 게시글 아이디
      * @return 게시글
      */
-    PostReadResponse readPost(Long postId, Long userId);
+    PostOneReadResponse readPost(Long postId, Long userId);
 
     /**
      * 게시물 수정 로직입니다.
@@ -46,5 +49,16 @@ public interface PostService {
      * @param postId 게시글 아이디
      */
     void deletePost(Long userId, Long postId);
+
+    /**
+     * 회원이 모집글을 쓴 사람인지 체크합니다.
+
+     */
+    void checkWriter(User user, Post post);
+
+    /**
+     * 모집글 리스트를 가져옵니다.
+     */
+    PostListResponse getPostList();
 
 }
