@@ -50,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // AceessToken이 유효하면, 인증 진행
         if (accessToken != null) {
             AuthenticateUser(request, response, filterChain);
+            return;
         }
 
         // RefreshToken이 유효하면, AccessToken 재발급
