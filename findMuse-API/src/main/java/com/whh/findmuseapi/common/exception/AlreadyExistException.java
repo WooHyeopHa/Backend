@@ -1,4 +1,4 @@
-package com.whh.findmuseapi.common.Exception;
+package com.whh.findmuseapi.common.exception;
 
 /**
  * class: NotFoundException.

@@ -3,7 +3,7 @@ package com.whh.findmuseapi.jwt.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.exception.CustomBadRequestException;
 import com.whh.findmuseapi.jwt.property.JwtProperties;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;

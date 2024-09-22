@@ -1,13 +1,12 @@
 package com.whh.findmuseapi.common.util;
 
-import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
-import com.whh.findmuseapi.common.Exception.CustomParseException;
+import com.whh.findmuseapi.common.exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.exception.CustomParseException;
 import com.whh.findmuseapi.common.constant.ResponseCode;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
-import org.bouncycastle.openssl.PEMException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
