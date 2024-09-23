@@ -2,8 +2,7 @@ package com.whh.findmuseapi.user.util;
 
 import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import com.whh.findmuseapi.common.constant.Infos;
-import com.whh.findmuseapi.user.dto.request.UserProfileInformationRequest;
-import com.whh.findmuseapi.user.dto.request.UserProfileLocationRequest;
+import com.whh.findmuseapi.user.dto.request.UserProfile;
 import com.whh.findmuseapi.user.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,9 +18,9 @@ public interface UserMapper {
 
     @Mapping(target = "gender", source = "gender", qualifiedByName = "stringToGender")
     @Mapping(target = "birthYear", source = "birthYear", qualifiedByName = "stringToInteger")
-    void updateUserFromProfileInformation(UserProfileInformationRequest userProfileInformationRequest, @MappingTarget User user);
+    void updateUserFromProfileInformation(UserProfile.InformationRequest userProfileInformationRequest, @MappingTarget User user);
 
-    void updateUserFromProfileLocation(UserProfileLocationRequest userProfileLocationRequest, @MappingTarget User user);
+    void updateUserFromProfileLocation(UserProfile.LocationRequest userProfileLocationRequest, @MappingTarget User user);
 
     @Named("stringToGender")
     default Infos.Gender stringToGender(String gender) {
@@ -38,7 +37,7 @@ public interface UserMapper {
         }
         Integer integerValue = Integer.valueOf(integer);
         if (integerValue > LocalDate.now().getYear() || integerValue < 1900) {
-            throw new CustomBadRequestException("생년월일을 정확히 입력하세요.");
+            throw new CustomBadRequestException("생년월일을 정확하게 입력해주세요.");
         }
         return integerValue;
     }

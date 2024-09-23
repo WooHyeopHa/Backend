@@ -2,8 +2,7 @@ package com.whh.findmuseapi.user.controller;
 
 import com.whh.findmuseapi.common.constant.ResponseCode;
 import com.whh.findmuseapi.common.util.ApiResponse;
-import com.whh.findmuseapi.user.dto.request.UserProfileInformationRequest;
-import com.whh.findmuseapi.user.dto.request.UserProfileLocationRequest;
+import com.whh.findmuseapi.user.dto.request.UserProfile;
 import com.whh.findmuseapi.user.dto.request.UserProfileTasteRequest;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.service.UserService;
@@ -17,18 +16,24 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
+//
+//    @PostMapping("/profile/nickname")
+//    public ApiResponse<?> registerProfileNickname(@AuthenticationPrincipal User user,
+//                                                  @RequestBody UserProfile.NicknameRequest nicknameRequest) {
+//        userService.
+//        return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
+//    }
     @PostMapping("/profile/information")
     public ApiResponse<?> registerProfileInformation(@AuthenticationPrincipal User user,
-                                                     @RequestBody UserProfileInformationRequest userProfileInformationRequest) {
-        userService.registerProfileInformation(user, userProfileInformationRequest);
+                                                     @RequestBody UserProfile.InformationRequest informationRequest) {
+        userService.registerProfileInformation(user, informationRequest);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 
     @PostMapping("/profile/location")
     public ApiResponse<?> registerProfileLocation(@AuthenticationPrincipal User user,
-                                                  @RequestBody UserProfileLocationRequest userProfileLocationRequest) {
-        userService.registerProfileLocation(user, userProfileLocationRequest);
+                                                  @RequestBody UserProfile.LocationRequest locationRequest) {
+        userService.registerProfileLocation(user, locationRequest);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 

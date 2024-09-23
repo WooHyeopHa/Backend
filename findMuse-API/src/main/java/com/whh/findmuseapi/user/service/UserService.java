@@ -1,8 +1,7 @@
 package com.whh.findmuseapi.user.service;
 
 import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
-import com.whh.findmuseapi.user.dto.request.UserProfileInformationRequest;
-import com.whh.findmuseapi.user.dto.request.UserProfileLocationRequest;
+import com.whh.findmuseapi.user.dto.request.UserProfile;
 import com.whh.findmuseapi.user.dto.request.UserProfileTasteRequest;
 import com.whh.findmuseapi.user.entity.Taste;
 import com.whh.findmuseapi.user.entity.User;
@@ -26,24 +25,24 @@ public class UserService {
     private final TasteRepository tasteRepository;
     private final UserTasteRepository userTasteRepository;
 
-    public void registerProfileInformation(User user, UserProfileInformationRequest userProfileInformationRequest) {
-        UserMapper.INSTANCE.updateUserFromProfileInformation(userProfileInformationRequest, user);
+    public void registerProfileInformation(User user, UserProfile.InformationRequest informationRequest) {
+        UserMapper.INSTANCE.updateUserFromProfileInformation(informationRequest, user);
         user.authorizeUser();
         userRepository.save(user);
     }
 
-    public void registerProfileLocation(User user, UserProfileLocationRequest userProfileLocationRequest) {
-        UserMapper.INSTANCE.updateUserFromProfileLocation(userProfileLocationRequest, user);
+    public void registerProfileLocation(User user, UserProfile.LocationRequest locationRequest) {
+        UserMapper.INSTANCE.updateUserFromProfileLocation(locationRequest, user);
         userRepository.save(user);
     }
 
     public void registerProfileTaste(User user, UserProfileTasteRequest userProfileTasteRequest) {
-        userProfileTasteRequest.getTastes().stream()
+        userProfileTasteRequest.tastes().stream()
                 .forEach(tasteSelection -> {
-                    Taste category = tasteRepository.findByName(tasteSelection.getCategory())
+                    Taste category = tasteRepository.findByName(tasteSelection.category())
                             .orElseThrow(() -> new CustomBadRequestException("카테고리를 찾을 수 없습니다."));
 
-                    tasteSelection.getSelections().stream()
+                    tasteSelection.selections().stream()
                             .map(selection -> tasteRepository.findByNameAndParent(selection, category)
                                     .orElseThrow(() -> new CustomBadRequestException("취향을 찾을 수 없습니다.")))
                             .map(taste -> {
