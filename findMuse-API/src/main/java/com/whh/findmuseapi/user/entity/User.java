@@ -31,18 +31,11 @@ public class User {
     private Long id;
     private String accountId;
     private String email;
-
-    @Setter(AccessLevel.PUBLIC)
     private String nickname;
-
-    @Setter(AccessLevel.PUBLIC)
     private int birthYear;
 
-    @Setter(AccessLevel.PUBLIC)
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
-    @Setter(AccessLevel.PUBLIC)
     private String location;
     private String comment;
     private int artCount;  //참여한 전시 횟수
@@ -104,6 +97,10 @@ public class User {
         this.email = email;
         this.role = role;
         this.refreshToken = refreshToken;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
     
     public void authorizeUser() {
