@@ -33,13 +33,13 @@ public class UserController {
     @Operation(summary = "온보딩 : 닉네임 검사")
     @GetMapping("/profile/nickname")
     public ApiResponse<?> checkNicknameDuplication(@AuthenticationPrincipal User user,
-                                                   @RequestBody UserProfile.NicknameRequest nicknameRequest) {
-        NicknameDuplicationResponse nicknameDuplicationResponse = userService.checkNicknameDuplication(user, nicknameRequest);
+                                                   @RequestParam String nickname) {
+        NicknameDuplicationResponse nicknameDuplicationResponse = userService.checkNicknameDuplication(user, nickname);
         return ApiResponse.createSuccess(ResponseCode.SUCCESS, nicknameDuplicationResponse);
     }
 
     @Operation(summary = "온보딩 : 사용자 정보 설정")
-    @PostMapping("/profile/information")
+    @PostMapping(value = "/profile/information", consumes = "multipart/form-data")
     public ApiResponse<?> registerProfileInformation(@AuthenticationPrincipal User user,
                                                      @RequestBody UserProfile.InformationRequest informationRequest,
                                                      @RequestParam MultipartFile profileImage) throws IOException {

@@ -44,9 +44,10 @@ public class UserService {
     }
 
     @Description("사용자 닉네임 중복 조회")
-    public NicknameDuplicationResponse checkNicknameDuplication(User user, UserProfile.NicknameRequest nicknameRequest) {
+    public NicknameDuplicationResponse checkNicknameDuplication(User user, String nickname) {
+        if (nickname == null || nickname.isEmpty()) throw new CustomBadRequestException("닉네임은 비어있을 수 없습니다.");
         return NicknameDuplicationResponse.builder()
-                .isDuplicated(userRepository.existsByNickname(nicknameRequest.nickname()))
+                .isDuplicated(userRepository.existsByNickname(nickname))
                 .build();
     }
 
