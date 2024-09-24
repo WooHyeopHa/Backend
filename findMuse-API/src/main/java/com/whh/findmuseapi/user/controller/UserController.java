@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @Operation(summary = "온보딩 : 닉네임 검사")
-    @PostMapping("/profile/nickname")
+    @GetMapping("/profile/nickname")
     public ApiResponse<?> checkNicknameDuplication(@AuthenticationPrincipal User user,
                                                    @RequestBody UserProfile.NicknameRequest nicknameRequest) {
         NicknameDuplicationResponse nicknameDuplicationResponse = userService.checkNicknameDuplication(user, nicknameRequest);
