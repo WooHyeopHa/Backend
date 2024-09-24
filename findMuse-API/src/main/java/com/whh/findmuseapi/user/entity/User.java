@@ -102,15 +102,24 @@ public class User {
         this.refreshToken = refreshToken;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void updateInformation(Integer birthYear, Gender gender) {
+        this.birthYear = birthYear;
+        this.gender = gender;
     }
-    
+
     public void authorizeUser() {
         this.role = Role.USER;
     }
     
     public void updateRefreshToken(String updatedRefreshToken) {
         this.refreshToken = updatedRefreshToken;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateLocation(String location) {
+        this.location = location;
     }
 }

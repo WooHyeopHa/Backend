@@ -1,6 +1,7 @@
 package com.whh.findmuseapi.user.service;
 
 import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.constant.Infos;
 import com.whh.findmuseapi.user.dto.request.UserProfile;
 import com.whh.findmuseapi.user.dto.request.UserProfileTasteRequest;
 import com.whh.findmuseapi.user.dto.response.NicknameDuplicationResponse;
@@ -10,12 +11,13 @@ import com.whh.findmuseapi.user.entity.UserTaste;
 import com.whh.findmuseapi.user.repository.TasteRepository;
 import com.whh.findmuseapi.user.repository.UserRepository;
 import com.whh.findmuseapi.user.repository.UserTasteRepository;
-import com.whh.findmuseapi.user.util.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 @Slf4j
 @Service
@@ -30,7 +32,8 @@ public class UserService {
     @Description("사용자 닉네임 설정")
     public void registerProfileNickname(User user, UserProfile.NicknameRequest nicknameRequest) {
         if (userRepository.existsByNickname(nicknameRequest.nickname())) throw new CustomBadRequestException("존재하는 닉네임입니다.");
-        user.setNickname(nicknameRequest.nickname());
+        user.updateNickname(nicknameRequest.nickname());
+        user.authorizeUser();
     }
 
     @Description("사용자 닉네임 중복 조회")
@@ -42,13 +45,15 @@ public class UserService {
 
     @Description("사용자 정보 설정")
     public void registerProfileInformation(User user, UserProfile.InformationRequest informationRequest) {
-        UserMapper.INSTANCE.updateUserFromProfileInformation(informationRequest, user);
-        user.authorizeUser();
+        user.updateInformation(
+                validateBirthYear(informationRequest.birthYear()),
+                Infos.Gender.convertStringToGender(informationRequest.gender())
+        );
     }
 
     @Description("사용자 위치 설정")
     public void registerProfileLocation(User user, UserProfile.LocationRequest locationRequest) {
-        UserMapper.INSTANCE.updateUserFromProfileLocation(locationRequest, user);
+        user.updateLocation(locationRequest.location());
     }
 
     @Description("사용자 취향 설정")
@@ -74,5 +79,19 @@ public class UserService {
     public void updateProfileTaste(User user, UserProfileTasteRequest userProfileTasteRequest) {
         user.getUserTastes().clear(); // List<UserTaste> 필드를 비워줌으로써 고아 객체 자동 삭제.
         registerProfileTaste(user, userProfileTasteRequest);
+    }
+
+    private Integer validateBirthYear(String integer) {
+        if (integer == null || integer.isEmpty()) {
+            throw new CustomBadRequestException("생년월일 값을 전달하지 않았습니다.");
+        }
+        if (!integer.matches("\\d+")) {
+            throw new CustomBadRequestException("생년월일에 문자열이 포함되어 있습니다.");
+        }
+        Integer integerValue = Integer.valueOf(integer);
+        if (integerValue > LocalDate.now().getYear() || integerValue < 1900) {
+            throw new CustomBadRequestException("생년월일을 정확하게 입력해주세요.");
+        }
+        return integerValue;
     }
 }
