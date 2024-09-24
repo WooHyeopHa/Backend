@@ -9,12 +9,14 @@ import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
@@ -27,6 +29,7 @@ public class UserController {
     public ApiResponse<?> registerProfileNickname(@AuthenticationPrincipal User user,
                                                   @RequestBody UserProfile.NicknameRequest nicknameRequest) {
         userService.registerProfileNickname(user, nicknameRequest);
+        log.info("NickName 설정 완료 : {}", user.getNickname());
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 
@@ -44,6 +47,7 @@ public class UserController {
                                                      @RequestBody UserProfile.InformationRequest informationRequest,
                                                      @RequestParam MultipartFile profileImage) throws IOException {
         userService.registerProfileInformation(user, informationRequest, profileImage);
+        log.info("사용자 정보 설정 완료 : {}, {}, {}", user.getBirthYear(), user.getGender().getInfo(), user.getProfileImageUrl());
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 
@@ -52,6 +56,7 @@ public class UserController {
     public ApiResponse<?> registerProfileLocation(@AuthenticationPrincipal User user,
                                                   @RequestBody UserProfile.LocationRequest locationRequest) {
         userService.registerProfileLocation(user, locationRequest);
+        log.info("사용자 위치 설정 완료 : {}", user.getLocation());
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 
@@ -60,6 +65,7 @@ public class UserController {
     public ApiResponse<?> registerProfileTaste(@AuthenticationPrincipal User user,
                                                @RequestBody UserProfileTasteRequest userProfileTasteRequest) {
         userService.registerProfileTaste(user, userProfileTasteRequest);
+        log.info("사용자 취향 설정 완료 : {}", user.getUserTastes().toString());
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 
@@ -68,6 +74,7 @@ public class UserController {
     public ApiResponse<?> updateProfileTaste(@AuthenticationPrincipal User user,
                                              @RequestBody UserProfileTasteRequest userProfileTasteRequest) {
         userService.updateProfileTaste(user, userProfileTasteRequest);
+        log.info("사용자 취향 설정 완료 : {}", user.getUserTastes().toString());
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
 public class Infos {
+    @Getter
     @RequiredArgsConstructor
     public enum Gender {
         MEN("남성"),
