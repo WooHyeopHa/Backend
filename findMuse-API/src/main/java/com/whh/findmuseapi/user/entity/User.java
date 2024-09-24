@@ -54,6 +54,9 @@ public class User {
     @JoinColumn(name = "file_id")
     private File photo;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserTaste> userTastes = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<ArtLike> artLikes = new ArrayList<>();
 

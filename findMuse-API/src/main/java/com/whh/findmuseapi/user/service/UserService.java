@@ -54,27 +54,25 @@ public class UserService {
     @Description("사용자 취향 설정")
     public void registerProfileTaste(User user, UserProfileTasteRequest userProfileTasteRequest) {
         userProfileTasteRequest.tastes().stream()
-                .forEach(tasteSelection -> {
+                .flatMap(tasteSelection -> {
                     Taste category = tasteRepository.findByName(tasteSelection.category())
                             .orElseThrow(() -> new CustomBadRequestException("카테고리를 찾을 수 없습니다."));
 
-                    tasteSelection.selections().stream()
+                    return tasteSelection.selections().stream()
                             .map(selection -> tasteRepository.findByNameAndParent(selection, category)
                                     .orElseThrow(() -> new CustomBadRequestException("취향을 찾을 수 없습니다.")))
-                            .map(taste -> {
-                                UserTaste userTaste = UserTaste.builder()
-                                        .user(user)
-                                        .taste(taste)
-                                        .build();
-                                return userTaste;
-                            })
-                            .forEach(userTasteRepository::save);
-                });
+                            .map(taste -> UserTaste.builder()
+                                    .user(user)
+                                    .taste(taste)
+                                    .build());
+                })
+                .forEach(userTaste -> user.getUserTastes().add(userTaste));
     }
+
 
     @Description("사용자 취향 수정")
     public void updateProfileTaste(User user, UserProfileTasteRequest userProfileTasteRequest) {
-        userTasteRepository.deleteByUser(user);
+        user.getUserTastes().clear(); // List<UserTaste> 필드를 비워줌으로써 고아 객체 자동 삭제.
         registerProfileTaste(user, userProfileTasteRequest);
     }
 }
