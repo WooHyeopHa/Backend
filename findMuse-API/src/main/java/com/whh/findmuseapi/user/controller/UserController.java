@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,8 +41,9 @@ public class UserController {
     @Operation(summary = "온보딩 : 사용자 정보 설정")
     @PostMapping("/profile/information")
     public ApiResponse<?> registerProfileInformation(@AuthenticationPrincipal User user,
-                                                     @RequestBody UserProfile.InformationRequest informationRequest) {
-        userService.registerProfileInformation(user, informationRequest);
+                                                     @RequestBody UserProfile.InformationRequest informationRequest,
+                                                     @RequestParam MultipartFile profileImage) throws IOException {
+        userService.registerProfileInformation(user, informationRequest, profileImage);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 

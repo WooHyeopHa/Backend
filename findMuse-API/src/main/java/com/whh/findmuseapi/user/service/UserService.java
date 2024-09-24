@@ -2,6 +2,7 @@ package com.whh.findmuseapi.user.service;
 
 import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import com.whh.findmuseapi.common.constant.Infos;
+import com.whh.findmuseapi.common.util.S3Uploader;
 import com.whh.findmuseapi.user.dto.request.UserProfile;
 import com.whh.findmuseapi.user.dto.request.UserProfileTasteRequest;
 import com.whh.findmuseapi.user.dto.response.NicknameDuplicationResponse;
@@ -16,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 @Slf4j
@@ -28,6 +31,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final TasteRepository tasteRepository;
     private final UserTasteRepository userTasteRepository;
+
+    private final S3Uploader s3Uploader;
+
+    final String PROFILE_URL_PREFIX = "/user/profile/";
 
     @Description("사용자 닉네임 설정")
     public void registerProfileNickname(User user, UserProfile.NicknameRequest nicknameRequest) {
@@ -44,11 +51,13 @@ public class UserService {
     }
 
     @Description("사용자 정보 설정")
-    public void registerProfileInformation(User user, UserProfile.InformationRequest informationRequest) {
+    public void registerProfileInformation(User user, UserProfile.InformationRequest informationRequest, MultipartFile profileImage) throws IOException {
         user.updateInformation(
                 validateBirthYear(informationRequest.birthYear()),
                 Infos.Gender.convertStringToGender(informationRequest.gender())
         );
+
+        user.updateProfileImageUrl(s3Uploader.upload(profileImage, PROFILE_URL_PREFIX + user.getEmail()));
     }
 
     @Description("사용자 위치 설정")

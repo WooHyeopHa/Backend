@@ -33,6 +33,7 @@ public class User {
     private String email;
     private String nickname;
     private int birthYear;
+    private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -121,5 +122,9 @@ public class User {
 
     public void updateLocation(String location) {
         this.location = location;
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }
