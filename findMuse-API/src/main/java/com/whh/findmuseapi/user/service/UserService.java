@@ -1,7 +1,7 @@
 package com.whh.findmuseapi.user.service;
 
-import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import com.whh.findmuseapi.common.constant.Infos;
+import com.whh.findmuseapi.common.exception.CustomBadRequestException;
 import com.whh.findmuseapi.common.util.S3Uploader;
 import com.whh.findmuseapi.user.dto.request.UserProfile;
 import com.whh.findmuseapi.user.dto.request.UserProfileInformationRequest;
