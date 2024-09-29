@@ -3,6 +3,7 @@ package com.whh.findmuseapi.user.controller;
 import com.whh.findmuseapi.common.constant.ResponseCode;
 import com.whh.findmuseapi.common.util.ApiResponse;
 import com.whh.findmuseapi.user.dto.request.UserProfile;
+import com.whh.findmuseapi.user.dto.request.UserProfileInformationRequest;
 import com.whh.findmuseapi.user.dto.request.UserProfileTasteRequest;
 import com.whh.findmuseapi.user.dto.response.NicknameDuplicationResponse;
 import com.whh.findmuseapi.user.entity.User;
@@ -10,6 +11,7 @@ import com.whh.findmuseapi.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,17 +37,17 @@ public class UserController {
 
     @Operation(summary = "온보딩 : 닉네임 검사")
     @GetMapping("/profile/nickname")
-    public ApiResponse<?> checkNicknameDuplication(@AuthenticationPrincipal User user,
-                                                   @RequestParam String nickname) {
-        NicknameDuplicationResponse nicknameDuplicationResponse = userService.checkNicknameDuplication(user, nickname);
+    public ApiResponse<?> checkNicknameDuplication(@RequestParam String nickname) {
+        NicknameDuplicationResponse nicknameDuplicationResponse = userService.checkNicknameDuplication(nickname);
         return ApiResponse.createSuccess(ResponseCode.SUCCESS, nicknameDuplicationResponse);
     }
 
     @Operation(summary = "온보딩 : 사용자 정보 설정")
-    @PostMapping(value = "/profile/information", consumes = "multipart/form-data")
+    @PostMapping(value = "/profile/information", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<?> registerProfileInformation(@AuthenticationPrincipal User user,
-                                                     @RequestBody UserProfile.InformationRequest informationRequest,
-                                                     @RequestParam MultipartFile profileImage) throws IOException {
+                                                     @ModelAttribute("informationRequest") UserProfileInformationRequest informationRequest,
+                                                     @RequestPart("profileImage") MultipartFile profileImage) throws IOException {
+        log.info(informationRequest.toString());
         userService.registerProfileInformation(user, informationRequest, profileImage);
         log.info("사용자 정보 설정 완료 : {}, {}, {}", user.getBirthYear(), user.getGender().getInfo(), user.getProfileImageUrl());
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
@@ -64,8 +66,7 @@ public class UserController {
     @PostMapping("/profile/taste")
     public ApiResponse<?> registerProfileTaste(@AuthenticationPrincipal User user,
                                                @RequestBody UserProfileTasteRequest userProfileTasteRequest) {
-        userService.registerProfileTaste(user, userProfileTasteRequest);
-        log.info("사용자 취향 설정 완료 : {}", user.getUserTastes().toString());
+        userService.registerProfileTaste(user.getId(), userProfileTasteRequest);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 
@@ -73,8 +74,7 @@ public class UserController {
     @PutMapping("/profile/taste")
     public ApiResponse<?> updateProfileTaste(@AuthenticationPrincipal User user,
                                              @RequestBody UserProfileTasteRequest userProfileTasteRequest) {
-        userService.updateProfileTaste(user, userProfileTasteRequest);
-        log.info("사용자 취향 설정 완료 : {}", user.getUserTastes().toString());
+        userService.updateProfileTaste(user.getId(), userProfileTasteRequest);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
 }
