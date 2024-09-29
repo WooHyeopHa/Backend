@@ -83,4 +83,12 @@ public class Infos {
         private final String name;
     }
 
+    @Getter
+    @RequiredArgsConstructor
+    public enum ResourceUrl {
+        PROFILE_IMAGE("/user/profile/");
+
+        private final String url;
+    }
+
 }
