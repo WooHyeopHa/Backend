@@ -1,6 +1,6 @@
 package com.whh.findmuseapi.common.constant;
 
-import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.exception.CustomBadRequestException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
