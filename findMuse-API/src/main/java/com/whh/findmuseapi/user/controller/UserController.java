@@ -45,8 +45,10 @@ public class UserController {
     @Operation(summary = "온보딩 : 사용자 정보 설정")
     @PostMapping(value = "/profile/information", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ApiResponse<?> registerProfileInformation(@AuthenticationPrincipal User user,
-                                                     @ModelAttribute("informationRequest") UserProfileInformationRequest informationRequest,
+                                                     @RequestParam String birthYear,
+                                                     @RequestParam String gender,
                                                      @RequestPart("profileImage") MultipartFile profileImage) throws IOException {
+        UserProfileInformationRequest informationRequest = new UserProfileInformationRequest(birthYear, gender);
         log.info(informationRequest.toString());
         userService.registerProfileInformation(user, informationRequest, profileImage);
         log.info("사용자 정보 설정 완료 : {}, {}, {}", user.getBirthYear(), user.getGender().getInfo(), user.getProfileImageUrl());
