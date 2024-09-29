@@ -137,8 +137,7 @@ public class AppleService {
             .build());
     }
     
-    public void deleteAppleAccount(String code, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+    public void deleteAppleAccount(User user,String code) {
         deleteUserAcount(user);
         
         // 회원탈퇴 요청을 위해 애플 서버로부터 refreshToken 받아오기.

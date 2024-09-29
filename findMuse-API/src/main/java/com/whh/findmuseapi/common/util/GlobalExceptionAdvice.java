@@ -75,6 +75,7 @@ public class GlobalExceptionAdvice {
     // 그 외의 모든 예외 처리
     @ExceptionHandler(Exception.class)
     public ApiResponse<?> handleAllExceptions(Exception ex) {
+        ex.printStackTrace();
         return ApiResponse.createError(ResponseCode.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 }

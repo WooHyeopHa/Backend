@@ -50,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // AceessToken이 유효하면, 인증 진행
         if (accessToken != null) {
             AuthenticateUser(request, response, filterChain);
+            return;
         }
 
         // RefreshToken이 유효하면, AccessToken 재발급
@@ -101,12 +102,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     public void saveAuthentication(User user) {
         GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-        
+
         UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-            .username(user.getEmail())
-            .roles(user.getRole().getKey())
-            .build();
-        
+                .username(user.getEmail())
+                .password(user.getRefreshToken())
+                .roles(user.getRole().getKey())
+                .build();
+
         // UserDetails의 user 객체 안에 Set<GrantedAuthority> authorites이 있어서 getter로 호출 후
         // authoritiesMapper로 매핑하기
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null,

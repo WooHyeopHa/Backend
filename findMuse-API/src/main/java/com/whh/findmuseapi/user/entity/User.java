@@ -13,10 +13,7 @@ import com.whh.findmuseapi.review.entity.ArtReview;
 import com.whh.findmuseapi.review.entity.ArtReviewLike;
 import com.whh.findmuseapi.review.entity.UserReview;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +31,10 @@ public class User {
     private Long id;
     private String accountId;
     private String email;
-    
     private String nickname;
-    private String birthYear;
+    private int birthYear;
+    private String profileImageUrl;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private String location;
@@ -56,6 +54,9 @@ public class User {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_id")
     private File photo;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserTaste> userTastes = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<ArtLike> artLikes = new ArrayList<>();
@@ -101,12 +102,29 @@ public class User {
         this.role = role;
         this.refreshToken = refreshToken;
     }
-    
+
+    public void updateInformation(Integer birthYear, Gender gender) {
+        this.birthYear = birthYear;
+        this.gender = gender;
+    }
+
     public void authorizeUser() {
         this.role = Role.USER;
     }
     
     public void updateRefreshToken(String updatedRefreshToken) {
         this.refreshToken = updatedRefreshToken;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateLocation(String location) {
+        this.location = location;
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }

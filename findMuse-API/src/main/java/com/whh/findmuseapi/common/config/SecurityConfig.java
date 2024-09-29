@@ -74,6 +74,7 @@ public class SecurityConfig {
                     // 로그인 요청은 Fillter 검사에서 제외됨
                     .requestMatchers(
                             "/auth/apple/token",
+                            "/auth/apple/test",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
                             "/swagger-resources/**"

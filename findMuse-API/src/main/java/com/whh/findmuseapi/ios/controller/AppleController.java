@@ -4,15 +4,12 @@ import com.whh.findmuseapi.common.constant.ResponseCode;
 import com.whh.findmuseapi.common.util.ApiResponse;
 import com.whh.findmuseapi.ios.dto.AppleLoginResponse;
 import com.whh.findmuseapi.ios.service.AppleService;
+import com.whh.findmuseapi.jwt.service.JwtService;
 import com.whh.findmuseapi.user.entity.User;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppleController {
     
     private final AppleService appleService;
+    private final JwtService jwtService;
     
     @PostMapping("/token")
     public ApiResponse<?> loginWithIdentityToken(HttpServletResponse response, @RequestBody AppleLoginResponse appleLoginResponse) {
@@ -30,8 +28,21 @@ public class AppleController {
     }
     
     @DeleteMapping("/revoke")
-    public ApiResponse<?> revokeAppleAccount(@RequestParam String code, @RequestParam Long userId) {
-        appleService.deleteAppleAccount(code, userId);
+    public ApiResponse<?> revokeAppleAccount(@AuthenticationPrincipal User user,
+                                             @RequestParam String code) {
+        appleService.deleteAppleAccount(user, code);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
+    }
+
+    /**
+     * Apple Login은 idToken이 없어서 못하니, test용도로 token 생성 후 반환하는 API
+     */
+    @GetMapping("/test")
+    public ApiResponse<?> testLogin(HttpServletResponse response) {
+        String acessToekn = jwtService.createAccessToken("test@email.com");
+        String refreshToken = jwtService.createRefreshToken();
+        jwtService.sendAccessAndRefreshToken(response, acessToekn, refreshToken);
+
+        return ApiResponse.createSuccessWithNoContent(ResponseCode.RESOURCE_CREATED);
     }
 }
