@@ -97,7 +97,7 @@ public class ArtOpenApiService {
      * 카테고리별로 ID목록 가져오기
      */
     private List<Db> getIdList(String genreCode) {
-        ArtInfoResponse idList = artClient.getArtInfoList(artProperties.getServiceKey(), FROM_DATE, TO_DATE, "1", "300", genreCode, "Y");
+        ArtInfoResponse idList = artClient.getArtInfoList(artProperties.getServiceKey(), FROM_DATE, TO_DATE, "1", "999", genreCode, "Y");
         return idList.getDbList();
     }
 }

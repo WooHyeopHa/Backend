@@ -22,6 +22,8 @@ public class Art {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "art_id")
     private Long id;
+    private int randomId;
+    private int viewCnt;
     private String title;
     @Enumerated(EnumType.STRING)
     private ArtType artType;
@@ -29,13 +31,14 @@ public class Art {
     private String place;
     private String startDate;
     private String endDate;
+    @Column(length = 5000)
     private String startTime;
     private String age;
     private String latitude;    //위도
     private String longitude;   //경도
     private String sPark;       //장애인 주차장 여부
     private String park;        //주차장 여부
-    private int likeCount;
+    private float star;           //평점
 
     @OneToOne
     @JoinColumn(name = "setlist_id")

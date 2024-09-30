@@ -30,6 +30,7 @@ public class ArtInfoDetailResponse {
 
         Art newArt = Art.builder()
                 .title(detail.title)
+                .randomId((int) (Math.random() * 100000000))
                 .artType(type)
                 .place(detail.place)
                 .startDate(detail.startDate)
