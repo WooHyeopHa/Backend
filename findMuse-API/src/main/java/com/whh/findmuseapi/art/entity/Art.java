@@ -57,7 +57,7 @@ public class Art {
     private List<ArtLike> artLikes = new ArrayList<>();
 
     @Builder
-    public Art(String title, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
+    public Art(String title, int randomId, int viewCnt, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
         this.title = title;
         this.randomId = randomId;
         this.viewCnt = viewCnt;
