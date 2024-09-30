@@ -53,9 +53,14 @@ public class Art {
     @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Ticket> tickets = new ArrayList<>();
 
+    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY)
+    private List<ArtLike> artLikes = new ArrayList<>();
+
     @Builder
     public Art(String title, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
         this.title = title;
+        this.randomId = randomId;
+        this.viewCnt = viewCnt;
         this.artType = artType;
         this.place = place;
         this.startDate = startDate;
@@ -75,5 +80,14 @@ public class Art {
         this.longitude = longitude;
         this.sPark = sPark;
         this.park = park;
+    }
+
+    // 메인포스터 반환 함수
+    public String getPoster() {
+        String poster = "Empty";
+        if (!this.files.isEmpty()) {
+            poster = files.get(0).getUrl();
+        }
+        return poster;
     }
 }
