@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
 import com.whh.findmuseapi.common.constant.Infos.Role;
 import com.whh.findmuseapi.ios.dto.AppleRevokeRequest;
 import com.whh.findmuseapi.ios.dto.key.ApplePublicKeys;
@@ -30,7 +31,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.apache.coyote.BadRequestException;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -50,22 +50,15 @@ public class AppleService {
     private final AppleAuthClient appleAuthClient;
     private final AppleJwtUtils appleJwtUtils;
     
-    public ReadOnlyJWTClaimsSet getTokenClaims(String identityToken) throws BadRequestException {
-        log.info("사용자 id_token" + identityToken);
-        
+    public ReadOnlyJWTClaimsSet getTokenClaims(String identityToken) {
         SignedJWT signedJWT = appleJwtUtils.verifyIdentityToken(identityToken);
-        log.info("signedJwt : " + signedJWT);
-        
         ApplePublicKeys applePublicKeys = appleAuthClient.getAppleAuthPublicKey();
-        log.info("appleKeys" + applePublicKeys.toString());
-        
         PublicKey publicKey = appleJwtUtils.generatePublicKey(signedJWT, applePublicKeys);
         
         return appleJwtUtils.getTokenClaims(signedJWT, publicKey);
     }
-    public User login(AppleLoginResponse appleLoginResponse) throws BadRequestException{
+    public User login(AppleLoginResponse appleLoginResponse) {
         try {
-            //
             ReadOnlyJWTClaimsSet jwtClaimsSet = getTokenClaims(appleLoginResponse.getIdToken());
             
             ObjectMapper objectMapper = new ObjectMapper();
@@ -75,7 +68,7 @@ public class AppleService {
             String accountId = String.valueOf(payload.get("sub"));
             log.info("accountId" + accountId);
             String email = String.valueOf(payload.get("email"));
-          
+            
             User findUser = userRepository.findByAccountId(accountId).orElse(null);
             
             if (findUser == null) {
@@ -85,23 +78,19 @@ public class AppleService {
                         .accountId(accountId)
                         .email(email)
                         .role(Role.GUEST)
-//                        .accessToken(accessToken)
                         .refreshToken(jwtService.createRefreshToken())
                         .build()
                 );
             }
-            // 기존 회원 경우 Acess Token 업데이트를 위해 DB에 저장
-//            findUser.setAccessToken(accessToken);
-            userRepository.save(findUser);
-            log.info("로그인 성공");
+            
             return findUser;
+            
         } catch (JsonProcessingException e) {
-            log.info(e.toString());
-            throw new BadRequestException();
+            throw new CustomBadRequestException(appleLoginResponse.getIdToken());
         }
     }
     
-    private String createClientSecretKey(String clientId) throws BadRequestException{
+    private String createClientSecretKey(String clientId) {
         // headersParams 적재
         Map<String, Object> headerParamsMap = new HashMap<>();
         headerParamsMap.put("kid", appleProperties.getLoginKey());
@@ -120,8 +109,7 @@ public class AppleService {
                 .signWith(SignatureAlgorithm.ES256, getPrivateKey())
                 .compact();
         } catch (IOException e) {
-            log.info(e.toString());
-            throw new BadRequestException();
+            throw new CustomBadRequestException("Apple 키 파일이 인식되지 않음 : " + appleProperties.getKeyPath());
         }
     }
     
@@ -137,7 +125,7 @@ public class AppleService {
         return converter.getPrivateKey(privateKeyInfo);
     }
     
-    private AppleToken.Response generateAuthToken(String code) throws BadRequestException{
+    private AppleToken.Response generateAuthToken(String code) {
         if (code == null) throw new IllegalArgumentException();
         
         String clientId = appleProperties.getClientId();
@@ -150,7 +138,7 @@ public class AppleService {
             .build());
     }
     
-    public void deleteAppleAccount(Long userId) throws BadRequestException{
+    public void deleteAppleAccount(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         deleteUserAcount(user);
         
@@ -170,25 +158,25 @@ public class AppleService {
         userRepository.delete(user);
     }
 
-    public User extractUserFromAccessToken(String accessToken) throws BadRequestException{
+    public User extractUserFromAccessToken(String accessToken) {
         Optional<String> email = jwtService.extractClaimFromJWT(JwtService.CLAIM_EMAIL, accessToken);
         if (email.isEmpty()) {
-            throw new BadRequestException();
+            throw new CustomBadRequestException("토큰에서 이메일을 추출할 수 없습니다. 제공된 액세스 토큰: " + accessToken);
         }
         
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isEmpty()) {
-            throw new BadRequestException();
+            throw new CustomBadRequestException("이메일로 사용자를 찾을 수 없습니다. 제공된 이메일: " + email.get());
         }
         
         return user.get();
     }
     
-    public User loginWithToken(AppleLoginResponse appleLoginResponse) throws BadRequestException{
+    public User loginWithToken(AppleLoginResponse appleLoginResponse) {
         return login(appleLoginResponse);
     }
     
-    public void loginSuccess(User user, HttpServletResponse response) throws BadRequestException {
+    public void loginSuccess(User user, HttpServletResponse response) {
         String accessToken = jwtService.createAccessToken(user.getEmail());
         String refreshToken = jwtService.createRefreshToken();
         
