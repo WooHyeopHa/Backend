@@ -33,14 +33,16 @@ public class User {
     private String email;
     private String nickname;
     private int birthYear;
+    @Column(length = 512)
     private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private String location;
     private String comment;
-    private int artCount;  //참여한 전시 횟수
-    private boolean showStatus;
+    private int artCount = 0; //참여한 전시 횟수
+    private int findMuseCount = 0; // 뮤즈 찾기 횟수
+    private boolean showStatus = false;
     private boolean alarmStatus;
     private boolean activateStatus;
     private LoginType loginType;
@@ -126,5 +128,10 @@ public class User {
 
     public void updateProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateProfile(String comment, boolean showStatus) {
+        this.comment = comment;
+        this.showStatus = showStatus;
     }
 }
