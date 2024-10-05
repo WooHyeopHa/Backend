@@ -1,0 +1,19 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: findMuse-chatting
+
+  profiles:
+    active: env
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+
+  rsocket:
+    server:
+      port: 7000
+      transport: websocket
+      mapping-path: /rs
