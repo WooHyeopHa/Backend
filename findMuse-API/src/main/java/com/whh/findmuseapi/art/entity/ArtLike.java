@@ -22,4 +22,20 @@ public class ArtLike {
     @ManyToOne
     @JoinColumn(name = "art_id")
     private Art art;
+
+    public ArtLike(User user, Art art) {
+        this.activeStatus = false;
+        this.user = user;
+        this.art = art;
+        setEntity(user, art);
+    }
+
+    private void setEntity(User user, Art art) {
+        user.getArtLikes().add(this);
+        art.getArtLikes().add(this);
+    }
+
+    public void changeStatus() {
+        this.activeStatus = !this.activeStatus;
+    }
 }

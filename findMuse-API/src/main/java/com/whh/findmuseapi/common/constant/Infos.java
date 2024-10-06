@@ -55,6 +55,7 @@ public class Infos {
     }
 
     @RequiredArgsConstructor
+    @Getter
     public enum ArtType {
         MUSICAL_DRAMA("뮤지컬/연극"),
         EXHIBITION("전시회"),
@@ -62,6 +63,14 @@ public class Infos {
         CONCERT("콘서트");
 
         private final String info;
+        public static ArtType convert(String info) {
+            for (ArtType value : ArtType.values()) {
+                if(value.getInfo().equals(info)) {
+                    return value;
+                }
+            }
+            throw new RuntimeException();
+        }
 
     }
 

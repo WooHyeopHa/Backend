@@ -22,6 +22,8 @@ public class Art {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "art_id")
     private Long id;
+    private int randomId;
+    private int viewCnt;
     private String title;
     @Enumerated(EnumType.STRING)
     private ArtType artType;
@@ -29,13 +31,14 @@ public class Art {
     private String place;
     private String startDate;
     private String endDate;
+    @Column(length = 5000)
     private String startTime;
     private String age;
     private String latitude;    //위도
     private String longitude;   //경도
     private String sPark;       //장애인 주차장 여부
     private String park;        //주차장 여부
-    private int likeCount;
+    private float star;           //평점
 
     @OneToOne
     @JoinColumn(name = "setlist_id")
@@ -50,9 +53,14 @@ public class Art {
     @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Ticket> tickets = new ArrayList<>();
 
+    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY)
+    private List<ArtLike> artLikes = new ArrayList<>();
+
     @Builder
-    public Art(String title, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
+    public Art(String title, int randomId, int viewCnt, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
         this.title = title;
+        this.randomId = randomId;
+        this.viewCnt = viewCnt;
         this.artType = artType;
         this.place = place;
         this.startDate = startDate;
@@ -72,5 +80,14 @@ public class Art {
         this.longitude = longitude;
         this.sPark = sPark;
         this.park = park;
+    }
+
+    // 메인포스터 반환 함수
+    public String getPoster() {
+        String poster = "Empty";
+        if (!this.files.isEmpty()) {
+            poster = files.get(0).getUrl();
+        }
+        return poster;
     }
 }
