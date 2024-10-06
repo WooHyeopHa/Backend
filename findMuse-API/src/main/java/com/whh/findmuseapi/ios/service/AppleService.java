@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.whh.findmuseapi.common.Exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.exception.CustomBadRequestException;
 import com.whh.findmuseapi.common.constant.Infos.Role;
 import com.whh.findmuseapi.ios.dto.AppleRevokeRequest;
 import com.whh.findmuseapi.ios.dto.key.ApplePublicKeys;
@@ -27,7 +27,6 @@ import java.security.PublicKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -138,14 +137,16 @@ public class AppleService {
             .build());
     }
     
-    public void deleteAppleAccount(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+    public void deleteAppleAccount(User user,String code) {
         deleteUserAcount(user);
+        
+        // 회원탈퇴 요청을 위해 애플 서버로부터 refreshToken 받아오기.
+        AppleToken.Response tokenResponse = generateAuthToken(code);
         
         AppleRevokeRequest appleRevokeRequest = AppleRevokeRequest.builder()
             .client_id(appleProperties.getClientId())
             .client_secret(createClientSecretKey(appleProperties.getClientId()))
-            .token(user.getRefreshToken())
+            .token(tokenResponse.getRefreshToken())
             .token_type_hint("refresh_token")
             .build();
         
@@ -156,20 +157,6 @@ public class AppleService {
     
     public void deleteUserAcount(User user) {
         userRepository.delete(user);
-    }
-
-    public User extractUserFromAccessToken(String accessToken) {
-        Optional<String> email = jwtService.extractClaimFromJWT(JwtService.CLAIM_EMAIL, accessToken);
-        if (email.isEmpty()) {
-            throw new CustomBadRequestException("토큰에서 이메일을 추출할 수 없습니다. 제공된 액세스 토큰: " + accessToken);
-        }
-        
-        Optional<User> user = userRepository.findByEmail(email);
-        if (user.isEmpty()) {
-            throw new CustomBadRequestException("이메일로 사용자를 찾을 수 없습니다. 제공된 이메일: " + email.get());
-        }
-        
-        return user.get();
     }
     
     public User loginWithToken(AppleLoginResponse appleLoginResponse) {
