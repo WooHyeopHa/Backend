@@ -31,10 +31,10 @@ public interface ArtRepository extends JpaRepository<Art, Long> {
     List<Art> findArtByDate(Long userId);
 
     // 취향 별 랜덤 추출 5개
-    @Query(value = "select a from Art a where a.artType = :type and a.randomId >= floor(rand() * 100000000) limit 5")
+    @Query(value = "select a from Art a where a.artType = :type and a.randomId >= floor(rand() * 100000000) limit 5", nativeQuery = true)
     List<Art> findArtByGenre(ArtType type);
 
     // 취향 정보가 없을 때 랜덤 추출 5개
-    @Query(value = "select a from Art a where a.randomId >= floor(rand() * 100000000) limit 5")
+    @Query(value = "select a from Art a where a.randomId >= floor(rand() * 100000000) limit 5", nativeQuery = true)
     List<Art> findArtByNoGenre();
 }
