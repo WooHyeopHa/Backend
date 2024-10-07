@@ -33,6 +33,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(responseCode.getStatus(), null, errorMessage);
     }
     
+    public static ApiResponse<?> createError(ResponseCode responseCode) {
+        return new ApiResponse<>(responseCode.getStatus(), null, responseCode.getMessage());
+    }
+    
     private ApiResponse(HttpStatus status, T data, String message) {
         this.status = status;
         this.data = data;

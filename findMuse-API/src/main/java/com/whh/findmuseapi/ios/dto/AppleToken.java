@@ -23,8 +23,8 @@ public class AppleToken {
         private String token_type;
         private String error;
         
-        public String getAccessToken() {
-            return access_token;
+        public String getRefreshToken() {
+            return refresh_token;
         }
         
         public String getIdToken() {
