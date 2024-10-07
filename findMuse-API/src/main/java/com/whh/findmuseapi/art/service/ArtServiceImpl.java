@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +60,16 @@ public class ArtServiceImpl implements ArtService{
     @Override
     public ArtHomeResponse getArtByHome(Long userId) {
         User findUser = userRepository.findById(userId).orElseThrow();
-        return ArtHomeResponse.toDto(getArtByRandAndGenre(findUser));
+        return ArtHomeResponse.toDto(getArtByRandAndGenre(findUser), getArtByTodayRandom());
 
+    }
+
+    /**
+     * 오늘의 문화예술 추천
+     */
+    private Art getArtByTodayRandom() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return artRepository.findArtByTodayAndRandom(today);
     }
 
     /**

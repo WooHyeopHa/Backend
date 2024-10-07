@@ -24,4 +24,7 @@ public interface ArtRepository extends JpaRepository<Art, Long> {
     // 취향 정보가 없을 때 랜덤 추출 5개
     @Query(value = "select a from Art a where a.randomId >= floor(rand() * 100000000) limit 5")
     List<Art> findArtByNoGenre();
+
+    @Query(value = "select a from Art a where a.startDate >= :today and a.randomId >= floor(rand() * 100000000) limit 1")
+    Art findArtByTodayAndRandom(String today);
 }
