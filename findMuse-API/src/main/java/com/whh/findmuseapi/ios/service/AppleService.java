@@ -36,6 +36,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @EnableConfigurationProperties({ AppleProperties.class })
@@ -56,6 +57,8 @@ public class AppleService {
         
         return appleJwtUtils.getTokenClaims(signedJWT, publicKey);
     }
+
+    @Transactional
     public User login(AppleLoginResponse appleLoginResponse) {
         try {
             ReadOnlyJWTClaimsSet jwtClaimsSet = getTokenClaims(appleLoginResponse.getIdToken());
@@ -136,7 +139,8 @@ public class AppleService {
             .refresh_token(null)
             .build());
     }
-    
+
+    @Transactional
     public void deleteAppleAccount(User user,String code) {
         deleteUserAcount(user);
         
