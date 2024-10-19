@@ -73,15 +73,15 @@ pipeline {
 
         stage('Deploy to Server') {
             steps {
-                sshagent(credentials: ['SSH-Credential']) {
-                    sh """
-                        ssh ubuntu@3.39.187.251 '
-                        docker pull \$DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
-                        docker stop ${env.IMAGE_NAME} || true
-                        docker rm ${env.IMAGE_NAME} || true
-                        docker run -d --name ${env.IMAGE_NAME} -p 8081:8080 \$DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
-                        '
-                    """
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'Docker-Credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                            docker pull ${DOCKER_USERNAME}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                            docker stop ${env.IMAGE_NAME} || true
+                            docker rm ${env.IMAGE_NAME} || true
+                            docker run -d --name ${env.IMAGE_NAME} -p 8081:8080 ${DOCKER_USERNAME}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                        """
+                    }
                 }
             }
         }
