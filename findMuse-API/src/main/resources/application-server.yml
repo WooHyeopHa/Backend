@@ -1,10 +1,10 @@
-spring:
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${RDS_DB_NAME}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
+#spring:
+#
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${RDS_DB_NAME}
+#    username: ${RDS_USERNAME}
+#    password: ${RDS_PASSWORD}
 
 logging:
   level:
