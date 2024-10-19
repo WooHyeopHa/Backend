@@ -1,0 +1,7 @@
+server:
+  forward-headers-strategy: FRAMEWORK
+  port: 8088
+
+spring:
+  application:
+    name: findMuse-chatting
