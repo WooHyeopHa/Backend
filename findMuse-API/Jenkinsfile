@@ -29,7 +29,7 @@ pipeline {
 
         stage('Download Secret File') {
             steps {
-                withCredentials([file(credentialsId: 'ENV-PROPERTIES', variable: 'ConfigFile')]) {
+                withCredentials([file(credentialsId: 'API-ENV-PROPERTIES', variable: 'ConfigFile')]) {
                     script {
                         sh "chmod -R 755 ${env.PROJECT_DIRECTORY}/src/main/resources/"
                         sh "cp \$ConfigFile ${env.PROJECT_DIRECTORY}/src/main/resources/application-env.properties"
@@ -46,87 +46,87 @@ pipeline {
             }
         }
 
-        stage('Build JAR') {
-            steps {
-                dir("${env.PROJECT_DIRECTORY}") {
-                    sh './gradlew clean build'
-                }
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                dir("${env.PROJECT_DIRECTORY}") {
-                    script {
-                        def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-                        docker.build(imageTag)
-                    }
-                }
-            }
-        }
-
-        stage('Cleanup Old Containers') {
-            steps {
-                script {
-                    sh """
-                    docker ps -q -f name=${env.IMAGE_NAME} | xargs -r docker stop
-                    docker ps -a -q -f name=${env.IMAGE_NAME} | xargs -r docker rm
-                    """
-                }
-            }
-        }
-
-        stage('Deploy Docker Container') {
-            steps {
-                script {
-                    sh """
-                    docker run -d -p 8080:8080 --name ${env.IMAGE_NAME} ${env.IMAGE_NAME}:${env.BUILD_NUMBER}
-                    """
-                }
-            }
-        }
+//         stage('Build JAR') {
+//             steps {
+//                 dir("${env.PROJECT_DIRECTORY}") {
+//                     sh './gradlew clean build'
+//                 }
+//             }
+//         }
+//
+//         stage('Build Docker Image') {
+//             steps {
+//                 dir("${env.PROJECT_DIRECTORY}") {
+//                     script {
+//                         def imageTag = "${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+//                         docker.build(imageTag)
+//                     }
+//                 }
+//             }
+//         }
+//
+//         stage('Cleanup Old Containers') {
+//             steps {
+//                 script {
+//                     sh """
+//                     docker ps -q -f name=${env.IMAGE_NAME} | xargs -r docker stop
+//                     docker ps -a -q -f name=${env.IMAGE_NAME} | xargs -r docker rm
+//                     """
+//                 }
+//             }
+//         }
+//
+//         stage('Deploy Docker Container') {
+//             steps {
+//                 script {
+//                     sh """
+//                     docker run -d -p 8080:8080 --name ${env.IMAGE_NAME} ${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+//                     """
+//                 }
+//             }
+//         }
     }
 
-    post {
-        success {
-            withCredentials([string(credentialsId: 'Discord-Build-Channel-Webhook', variable: 'DISCORD')]) {
-                discordSend description: """
-                제목 : ${currentBuild.displayName}
-                결과 : ${currentBuild.result}
-                실행 시간 : ${currentBuild.duration / 1000}s
-                """,
-                link: env.BUILD_URL, result: currentBuild.currentResult,
-                title: "${env.JOB_NAME} : ${currentBuild.displayName} 성공",
-                webhookURL: "$DISCORD"
-            }
-            echo '빌드 및 배포가 성공적으로 완료되었습니다!'
-        }
-        failure {
-            withCredentials([string(credentialsId: 'Discord-Build-Channel-Webhook', variable: 'DISCORD')]) {
-                 discordSend description: """
-                  제목 : ${currentBuild.displayName}
-                  결과 : ${currentBuild.result}
-                  실행 시간 : ${currentBuild.duration / 1000}s
-                  """,
-                  link: env.BUILD_URL, result: currentBuild.currentResult,
-                  title: "${env.JOB_NAME} : ${currentBuild.displayName} 실패",
-                  webhookURL: "$DISCORD"
-            }
-            echo '빌드 또는 배포에 실패했습니다.'
-        }
-        cleanup {
-            script {
-                def imageIds = sh(script: "docker images -q ${env.IMAGE_NAME}", returnStdout: true).trim().split('\n')
-
-                if (imageIds.size() > 0) {
-                    echo "다음 이미지를 삭제합니다: ${imageIds.join(', ')}"
-
-                    sh "docker rmi ${imageIds.join(' ')} || true"
-                    echo "동일한 이미지 이름을 가진 모든 Docker 이미지가 삭제되었습니다."
-                } else {
-                    echo "동일한 이미지 이름을 가진 Docker 이미지가 발견되지 않았습니다."
-                }
-            }
-        }
+//     post {
+//         success {
+//             withCredentials([string(credentialsId: 'Discord-Build-Channel-Webhook', variable: 'DISCORD')]) {
+//                 discordSend description: """
+//                 제목 : ${currentBuild.displayName}
+//                 결과 : ${currentBuild.result}
+//                 실행 시간 : ${currentBuild.duration / 1000}s
+//                 """,
+//                 link: env.BUILD_URL, result: currentBuild.currentResult,
+//                 title: "${env.JOB_NAME} : ${currentBuild.displayName} 성공",
+//                 webhookURL: "$DISCORD"
+//             }
+//             echo '빌드 및 배포가 성공적으로 완료되었습니다!'
+//         }
+//         failure {
+//             withCredentials([string(credentialsId: 'Discord-Build-Channel-Webhook', variable: 'DISCORD')]) {
+//                  discordSend description: """
+//                   제목 : ${currentBuild.displayName}
+//                   결과 : ${currentBuild.result}
+//                   실행 시간 : ${currentBuild.duration / 1000}s
+//                   """,
+//                   link: env.BUILD_URL, result: currentBuild.currentResult,
+//                   title: "${env.JOB_NAME} : ${currentBuild.displayName} 실패",
+//                   webhookURL: "$DISCORD"
+//             }
+//             echo '빌드 또는 배포에 실패했습니다.'
+//         }
+//         cleanup {
+//             script {
+//                 def imageIds = sh(script: "docker images -q ${env.IMAGE_NAME}", returnStdout: true).trim().split('\n')
+//
+//                 if (imageIds.size() > 0) {
+//                     echo "다음 이미지를 삭제합니다: ${imageIds.join(', ')}"
+//
+//                     sh "docker rmi ${imageIds.join(' ')} || true"
+//                     echo "동일한 이미지 이름을 가진 모든 Docker 이미지가 삭제되었습니다."
+//                 } else {
+//                     echo "동일한 이미지 이름을 가진 Docker 이미지가 발견되지 않았습니다."
+//                 }
+//             }
+//         }
     }
 }
