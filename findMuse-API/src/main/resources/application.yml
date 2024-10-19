@@ -4,7 +4,7 @@ server:
 spring:
 
   profiles:
-    active: local, env
+    active: db, env
 
   jpa:
     properties:
