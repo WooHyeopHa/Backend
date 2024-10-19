@@ -49,7 +49,7 @@ pipeline {
                             docker pull ${DOCKER_USERNAME}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
                             docker stop ${env.IMAGE_NAME} || true
                             docker rm ${env.IMAGE_NAME} || true
-                            docker run -d --name ${env.IMAGE_NAME} --restart always -p 8088:8080 ${DOCKER_USERNAME}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                            docker run -d --name ${env.IMAGE_NAME} --restart always -p 8088:8088 ${DOCKER_USERNAME}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
                         """
                     }
                 }
