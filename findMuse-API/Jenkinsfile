@@ -22,10 +22,10 @@ pipeline {
                 dir("${env.PROJECT_DIRECTORY}") {
                     script {
                         sh "sed -i 's/active: local/active: server/' src/main/resources/application.yml"
-                        }
                     }
                 }
             }
+        }
 
         stage('Download Secret File') {
             steps {
@@ -58,13 +58,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'Docker-Credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                        sh "echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin"
 
                         dir("${env.PROJECT_DIRECTORY}") {
-                            sh "docker build -t $DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER} ."
-                            sh "docker push $DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
-                            sh "docker tag $DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER} $DOCKER_USERNAME/${env.IMAGE_NAME}:latest"
-                            sh "docker push $DOCKER_USERNAME/${env.IMAGE_NAME}:latest"
+                            sh "docker build -t \$DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                            sh "docker push \$DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+                            sh "docker tag \$DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER} \$DOCKER_USERNAME/${env.IMAGE_NAME}:latest"
+                            sh "docker push \$DOCKER_USERNAME/${env.IMAGE_NAME}:latest"
                         }
                     }
                 }
@@ -76,16 +76,18 @@ pipeline {
                 sshagent(credentials: ['SSH-Credential']) {
                     sh """
                         ssh ubuntu@3.39.187.251 '
-                        docker pull $DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                        docker pull \$DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
                         docker stop ${env.IMAGE_NAME} || true
                         docker rm ${env.IMAGE_NAME} || true
-                        docker run -d --name ${env.IMAGE_NAME} -p 8080:8080 $DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                        docker run -d --name ${env.IMAGE_NAME} -p 8080:8080 \$DOCKER_USERNAME/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
                         '
                     """
                 }
             }
         }
     }
+}
+
 
 //         stage('Build JAR') {
 //             steps {
@@ -126,13 +128,13 @@ pipeline {
 //                 }
 //             }
 //         }
-    }
-        post {
-            always {
-                sh "docker logout"
-                cleanWs()
-            }
-        }
+//     }
+//         post {
+//             always {
+//                 sh "docker logout"
+//                 cleanWs()
+//             }
+//         }
 //     post {
 //         success {
 //             withCredentials([string(credentialsId: 'Discord-Build-Channel-Webhook', variable: 'DISCORD')]) {
