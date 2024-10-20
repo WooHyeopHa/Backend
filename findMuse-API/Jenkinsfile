@@ -95,7 +95,6 @@ pipeline {
 
         success {
             withCredentials([string(credentialsId: 'Discord-Build-Channel-Webhook', variable: 'DISCORD')]) {
-                echo "$DISCORD"
                 discordSend description: """
                 제목 : ${currentBuild.displayName}
                 결과 : ${currentBuild.result}
@@ -110,7 +109,6 @@ pipeline {
 
         failure {
             withCredentials([string(credentialsId: 'Discord-Build-Channel-Webhook', variable: 'DISCORD')]) {
-                echo "$DISCORD"
                 discordSend description: """
                 제목 : ${currentBuild.displayName}
                 결과 : ${currentBuild.result}
