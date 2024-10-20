@@ -53,13 +53,13 @@ public class ChatMessageController  {
                     CLIENT.remove(payload);
                 }).subscribe();
     }
+
     @MessageExceptionHandler(MethodArgumentResolutionException.class)
     public Mono<String> coonectError(MethodArgumentResolutionException ex, RSocketRequester requester) {
         requester.rsocket().dispose();
         log.error("An error occurred while processing the message: {}", ex.getMessage());
         return Mono.error(new RejectedSetupException("An error occurred while processing the message"));
     }
-
 
     /**
      * RequestRespnse
@@ -130,7 +130,7 @@ public class ChatMessageController  {
     //접속 상태 확인
     @GetMapping("/connect/{username}")
     public Mono<Boolean> connectByUsername(@PathVariable("username") String username){
-        return Mono.just( CLIENT.containsKey(username) );
+        return Mono.just(CLIENT.containsKey(username) );
     }
 
     @GetMapping("/connectAll")

@@ -7,7 +7,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ChatMessageRepository extends ReactiveMongoRepository<ChatMessage, String> {
-
     Mono<Long> countBySenderIdAndReceiverIdAndStatus(String senderId, String receiverId, MessageStatus status);
     Flux<ChatMessage> findByChatId(String chatId);
 }
