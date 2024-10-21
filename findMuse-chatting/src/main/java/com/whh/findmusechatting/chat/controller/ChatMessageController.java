@@ -36,7 +36,6 @@ public class ChatMessageController  {
 
     private Map<Object, Sinks.Many<ChatNotification>> notificationSinks = new ConcurrentHashMap<>();
 
-
     @ConnectMapping
     public void connect(RSocketRequester requester, @Payload Object payload){
         log.info("dataMimeType {}", requester.dataMimeType());
@@ -45,7 +44,7 @@ public class ChatMessageController  {
         requester.rsocket()
                 .onClose()
                 .doFirst(() -> {
-                    System.out.println("*******  ConnectMapping ******* ::: " +payload );
+                    System.out.println("*******  ConnectMapping ******* ::: " + payload);
                     CLIENT.put(payload, requester);
                 })
                 .doFinally(consumer -> {
@@ -67,45 +66,63 @@ public class ChatMessageController  {
      * @return 추후 API Result로 Client에 전달
      */
     @MessageMapping("chat.sendMessage")
-    public Mono<ChatMessage> sendMessage(@Payload ChatMessage chatMessage)  {
-        if(chatMessage.getSenderId() == null)
+    public Mono<ChatMessage> sendMessage(@Payload ChatMessage chatMessage) {
+        if (chatMessage.getSenderId() == null) {
             return Mono.error(new Exception("SenderId null"));
-        if(chatMessage.getReceiverId() == null)
+        }
+        if (chatMessage.getReceiverId() == null) {
             return Mono.error(new Exception("receiverID null"));
+        }
 
-        log.info("sendMessage  진입함  sender : {}   recevier : {}",  chatMessage.getSenderId(), chatMessage.getReceiverId());
+        log.info("sendMessage  진입함  sender : {}   receiver : {}", chatMessage.getSenderId(), chatMessage.getReceiverId());
+
+        // 채팅방 ID를 가져오기
         Mono<String> chatId = chatRoomService.getChatId(chatMessage.getSenderId(), chatMessage.getReceiverId(), true);
-        return chatId.flatMap(id->{
+        return chatId.flatMap(id -> {
             chatMessage.setChatId(id);
+
+            // 메시지를 데이터베이스에 저장
             return chatMessageService.save(chatMessage)
-                    .doOnNext(save->{
-                        if(notificationSinks.get(save.getReceiverId()) == null){
-                            log.info("save Sinks null  RecevierID : {}", save.getReceiverId());
-                            return;
+                    .doOnNext(savedMessage -> {
+                        // 수신자에게 알림 보내기
+                        Sinks.Many<ChatNotification> sinks = notificationSinks.get(savedMessage.getReceiverId());
+                        if (sinks != null) {
+                            log.info("Sinks for ReceiverID {}: {}", savedMessage.getReceiverId(), sinks);
+                            // 알림을 생성하여 Sinks에 전송
+                            ChatNotification notification = ChatNotification.builder()
+                                    .senderName(chatMessage.getSenderName())
+                                    .senderId(chatMessage.getSenderId())
+                                    .id(savedMessage.getId())
+                                    .build();
+                            sinks.tryEmitNext(notification);
+                        } else {
+                            log.info("save Sinks null  ReceiverID : {}", savedMessage.getReceiverId());
                         }
-                        Sinks.Many<ChatNotification> sinks = notificationSinks.get(save.getReceiverId());
-                        sinks.tryEmitNext(
-                                new ChatNotification(save.getId(), save.getSenderId(), save.getSenderName())
-                        );
                     });
         });
     }
 
+    // 알림 스트림 (RequestStream)
     @MessageMapping("chat.message")
-    public Flux<ChatNotification> notificationStream(@Payload Object payload){
-        if(payload == null)
+    public Flux<ChatNotification> notificationStream(@Payload Object payload) {
+        log.info("알림 접속 완료: 수신자 ID: {}", payload);
+        if (payload == null) {
             return Flux.empty();
-        if(notificationSinks.get(payload) == null){
-            log.info(" RequestStream  접속 ");
-            notificationSinks.put(payload, Sinks.many().multicast().onBackpressureBuffer());
         }
+
+        // 알림 Sink가 없으면 새로 생성
+        notificationSinks.computeIfAbsent(payload, key -> {
+            log.info("RequestStream connected for key: {}", key);
+            return Sinks.many().multicast().onBackpressureBuffer();
+        });
+
         Sinks.Many<ChatNotification> sinks = notificationSinks.get(payload);
+
+        // Flux를 반환하여 구독자가 메시지를 받을 수 있도록 함
         return sinks.asFlux()
-                .doOnNext(next->{
-                    System.out.println("stream next -> " + next);
-                })
-                .doOnCancel(()->{
-                    System.out.println("Stream 취소");
+                .doOnNext(next -> log.info("Stream next -> {}", next))
+                .doOnCancel(() -> {
+                    log.info("Stream canceled for payload: {}", payload);
                     notificationSinks.remove(payload);
                 });
     }
@@ -136,7 +153,6 @@ public class ChatMessageController  {
     @GetMapping("/connectAll")
     public Flux<Object> connectByAll(){
         return Flux.fromIterable(CLIENT.keySet());
-
     }
 
 }

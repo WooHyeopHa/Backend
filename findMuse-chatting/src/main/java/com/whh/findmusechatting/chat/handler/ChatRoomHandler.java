@@ -14,8 +14,6 @@ import reactor.core.publisher.Mono;
 @Component
 public class ChatRoomHandler implements RSocket {
 
-
-
     @Override
     public Mono<Payload> requestResponse(Payload payload) {
         System.out.println("Received request-response request with payload: " + payload.getDataUtf8());
