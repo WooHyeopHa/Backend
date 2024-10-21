@@ -1,4 +1,4 @@
-package com.whh.findmusechatting;
+package com.whh.findmusechatting.common.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
