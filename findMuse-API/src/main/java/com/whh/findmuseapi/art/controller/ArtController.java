@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class ArtController {
 
     private final ArtService artService;
@@ -25,15 +26,6 @@ public class ArtController {
     @GetMapping("/art/list/condition/{userId}")
     public ApiResponse<ArtListResponse> getArtByCondition(@PathVariable Long userId, @RequestParam String date, @RequestParam List<String> genre, @RequestParam String sort) {
         ArtListResponse response = artService.getArtByCondition(userId, date, genre, sort);
-        return ApiResponse.createSuccess(ResponseCode.SUCCESS, response);
-    }
-
-    /**
-     * 장르별 문화예술 랭킹 불러오기
-     */
-    @GetMapping("/art/list/rank/{userId}")
-    public ApiResponse<ArtListResponse> getArtByRank(@PathVariable Long userId, @RequestParam @Nullable String genre) {
-        ArtListResponse response = artService.getArtByRank(userId, genre);
         return ApiResponse.createSuccess(ResponseCode.SUCCESS, response);
     }
 
