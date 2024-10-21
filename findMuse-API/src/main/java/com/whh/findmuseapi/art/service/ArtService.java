@@ -1,9 +1,6 @@
 package com.whh.findmuseapi.art.service;
 
-import com.whh.findmuseapi.art.dto.ArtHomeResponse;
-import com.whh.findmuseapi.art.dto.ArtLikeRequest;
-import com.whh.findmuseapi.art.dto.ArtListResponse;
-import com.whh.findmuseapi.art.dto.ArtOneResponse;
+import com.whh.findmuseapi.art.dto.*;
 
 import java.util.List;
 
@@ -17,4 +14,6 @@ public interface ArtService {
     void markLike(ArtLikeRequest artLikeRequest);
 
     ArtHomeResponse getArtByHome(Long userId);
+
+    MapResponse getMapInfo();
 }

@@ -107,4 +107,15 @@ public class ArtServiceImpl implements ArtService{
         liked.changeStatus();
         artLikeRepository.save(liked);
     }
+
+    /**
+     * 지도 정보 반환
+     */
+    @Override
+    public MapResponse getMapInfo() {
+        // 필요한 정보
+        // 좌표, 장르, 포스터, 장소, 시작날짜, 끝나는 날짜
+        List<Art> allArtList = artRepository.findAll();
+        return MapResponse.toDto(allArtList);
+    }
 }
