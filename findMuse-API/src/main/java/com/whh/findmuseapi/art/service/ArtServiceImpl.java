@@ -1,7 +1,6 @@
 package com.whh.findmuseapi.art.service;
 
 import com.whh.findmuseapi.art.dto.*;
-import com.whh.findmuseapi.art.dto.ArtHomeResponse.ArtRankResponse;
 import com.whh.findmuseapi.art.entity.Art;
 import com.whh.findmuseapi.art.entity.ArtLike;
 import com.whh.findmuseapi.art.repository.ArtLikeRepository;
@@ -14,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,43 +55,21 @@ public class ArtServiceImpl implements ArtService{
     }
 
     /**
-     * 장르별 문화예술 랭킹 불러오기
-     */
-    @Override
-    public ArtListResponse getArtByRank(Long userId, String genre) {
-        if (genre != null) {
-            ArtType artType = ArtType.convert(genre);
-            return ArtListResponse.toDto(artRepository.findArtByRankAndGenre(userId, artType));
-        }
-        return ArtListResponse.toDto(artRepository.findArtByRankAll(userId));
-    }
-
-    /**
      * 홈화면
      */
     @Override
     public ArtHomeResponse getArtByHome(Long userId) {
         User findUser = userRepository.findById(userId).orElseThrow();
-        return ArtHomeResponse.toDto(getArtByRandAndGenre(findUser), getArtByRankAndGenre(findUser), getArtByNewOpen(userId));
+        return ArtHomeResponse.toDto(getArtByRandAndGenre(findUser), getArtByTodayRandom());
 
     }
 
     /**
-     * 새로 오픈한 문화예술 불러오기
+     * 오늘의 문화예술 추천
      */
-    private List<Art> getArtByNewOpen(Long userid) {
-        return artRepository.findArtByDate(userid);
-    }
-
-    /**
-     * 장르별 랭킹 홈화면
-     */
-    private List<ArtRankResponse> getArtByRankAndGenre(User user) {
-        List<ArtRankResponse> artByRank = new ArrayList<>();
-        for (ArtType value : ArtType.values()) {
-            artByRank.add(ArtRankResponse.toDto(value.getInfo(), artRepository.findArtByRankAndGenreSimple(user.getId(), value)));
-        }
-        return artByRank;
+    private Art getArtByTodayRandom() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        return artRepository.findArtByTodayAndRandom(today);
     }
 
     /**

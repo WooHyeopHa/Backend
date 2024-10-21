@@ -16,7 +16,5 @@ public interface ArtService {
 
     void markLike(ArtLikeRequest artLikeRequest);
 
-    ArtListResponse getArtByRank(Long userId, String genre);
-
     ArtHomeResponse getArtByHome(Long userId);
 }
