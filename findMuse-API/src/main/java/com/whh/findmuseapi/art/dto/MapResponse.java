@@ -2,11 +2,13 @@ package com.whh.findmuseapi.art.dto;
 
 import com.whh.findmuseapi.art.entity.Art;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Builder
+@Getter
 public class MapResponse {
     List<MapByArtResponse> artMapList;
 
@@ -17,6 +19,7 @@ public class MapResponse {
     }
 
     @Builder
+    @Getter
     private static class MapByArtResponse {
         private String latitude;
         private String longitude;
