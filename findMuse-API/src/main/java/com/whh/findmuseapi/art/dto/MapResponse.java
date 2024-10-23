@@ -25,6 +25,7 @@ public class MapResponse {
         private String longitude;
         private String poster;
         private String title;
+        private Long artId;
         private String genre;
         private String place;
         private String startDate;
@@ -35,6 +36,7 @@ public class MapResponse {
                     .latitude(art.getLatitude())
                     .longitude(art.getLongitude())
                     .title(art.getTitle())
+                    .artId(art.getId())
                     .genre(art.getArtType().getInfo())
                     .poster(art.getPoster())
                     .startDate(art.getStartDate())
