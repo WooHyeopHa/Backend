@@ -2,8 +2,10 @@ package com.whh.findmusechatting.chat.repository;
 
 import com.whh.findmusechatting.chat.entity.ChatRoom;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import reactor.core.publisher.Mono;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 
+@Repository
 public interface ChatRoomRepository extends ReactiveMongoRepository<ChatRoom, String> {
-    Mono<ChatRoom> findBySenderIdAndReceiverId(String senderId, String receiverId);
+    Flux<ChatRoom> findByParticipantsContaining(String userId);
 }
