@@ -5,21 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Document
+@Document(collection = "chatrooms")
 public class ChatRoom {
     @Id
     private String id;
-    @Indexed
-    private String chatId;
-
-    private String senderId;
-
-    private String receiverId;
+    private String name;
+    private String owner;
+    private List<String> participants;
+    private LocalDateTime createdAt;
 }
