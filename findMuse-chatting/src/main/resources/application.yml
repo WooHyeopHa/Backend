@@ -11,10 +11,28 @@ spring:
 
   data:
     mongodb:
-      uri: ${MONGODB_URI}
+        uri: ${MONGODB_URI}
 
   rsocket:
     server:
       port: 6565
       transport: websocket
       mapping-path: /rs
+
+  kafka:
+    producer:
+      bootstrap-servers: ${KAFKA_URL}
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      bootstrap-servers: ${KAFKA_URL}
+      group-id: chat-group
+      auto-offset-reset: earliest
+    topic:
+      message: chat.messages
+      notification: chat.notifications
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.kafka: INFO
