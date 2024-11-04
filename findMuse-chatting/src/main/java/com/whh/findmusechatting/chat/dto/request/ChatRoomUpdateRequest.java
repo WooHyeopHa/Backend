@@ -1,4 +1,4 @@
-package com.whh.findmusechatting.chat.dto;
+package com.whh.findmusechatting.chat.dto.request;
 
 import lombok.Data;
 

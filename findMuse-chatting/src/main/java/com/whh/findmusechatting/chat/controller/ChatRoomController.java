@@ -1,7 +1,7 @@
 package com.whh.findmusechatting.chat.controller;
 
-import com.whh.findmusechatting.chat.dto.ChatRoomResponse;
-import com.whh.findmusechatting.chat.dto.ChatRoomUpdateRequest;
+import com.whh.findmusechatting.chat.dto.response.ChatRoomResponse;
+import com.whh.findmusechatting.chat.dto.request.ChatRoomUpdateRequest;
 import com.whh.findmusechatting.chat.entity.ChatRoom;
 import com.whh.findmusechatting.chat.service.ChatRoomService;
 import io.swagger.v3.oas.annotations.Operation;

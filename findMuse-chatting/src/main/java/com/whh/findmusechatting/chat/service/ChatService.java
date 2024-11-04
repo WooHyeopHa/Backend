@@ -1,6 +1,7 @@
 package com.whh.findmusechatting.chat.service;
 
 import com.whh.findmusechatting.chat.entity.*;
+import com.whh.findmusechatting.chat.entity.constant.MessageType;
 import com.whh.findmusechatting.chat.repository.ChatMessageRepository;
 import com.whh.findmusechatting.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;

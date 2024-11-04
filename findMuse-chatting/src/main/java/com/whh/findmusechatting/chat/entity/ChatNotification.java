@@ -1,5 +1,6 @@
 package com.whh.findmusechatting.chat.entity;
 
+import com.whh.findmusechatting.chat.entity.constant.NotificationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

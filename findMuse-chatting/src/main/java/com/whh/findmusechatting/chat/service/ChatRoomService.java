@@ -1,8 +1,10 @@
 package com.whh.findmusechatting.chat.service;
 
-import com.whh.findmusechatting.chat.dto.ChatRoomResponse;
-import com.whh.findmusechatting.chat.dto.ChatRoomUpdateRequest;
+import com.whh.findmusechatting.chat.dto.response.ChatRoomResponse;
+import com.whh.findmusechatting.chat.dto.request.ChatRoomUpdateRequest;
 import com.whh.findmusechatting.chat.entity.*;
+import com.whh.findmusechatting.chat.entity.constant.MessageType;
+import com.whh.findmusechatting.chat.entity.constant.NotificationType;
 import com.whh.findmusechatting.chat.repository.ChatMessageRepository;
 import com.whh.findmusechatting.chat.repository.ChatRoomRepository;
 import lombok.RequiredArgsConstructor;

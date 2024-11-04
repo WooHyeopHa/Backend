@@ -1,6 +1,6 @@
 package com.whh.findmusechatting.chat.entity;
 
-import com.whh.findmusechatting.chat.dto.ChatRoomUpdateRequest;
+import com.whh.findmusechatting.chat.dto.request.ChatRoomUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
