@@ -13,6 +13,11 @@ spring:
     mongodb:
         uri: ${MONGODB_URI}
 
+  r2dbc:
+    url: r2dbc:mysql://${RDS_ENDPOINT}:${RDS_PORT}/${RDS_DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+
   rsocket:
     server:
       port: 6565

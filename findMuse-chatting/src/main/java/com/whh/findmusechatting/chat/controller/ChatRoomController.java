@@ -1,7 +1,7 @@
 package com.whh.findmusechatting.chat.controller;
 
 import com.whh.findmusechatting.chat.dto.response.ChatRoomResponse;
-import com.whh.findmusechatting.chat.dto.request.ChatRoomUpdateRequest;
+import com.whh.findmusechatting.chat.dto.request.UpdateChatRoomRequest;
 import com.whh.findmusechatting.chat.entity.ChatRoom;
 import com.whh.findmusechatting.chat.service.ChatRoomService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,7 +45,7 @@ public class ChatRoomController {
     @Operation(summary = "채팅방 수정하기")
     @PatchMapping("/{roomId}/update")
     public Mono<ChatRoom> updateRoom(@PathVariable String roomId,
-                                     @RequestBody ChatRoomUpdateRequest request) {
+                                     @RequestBody UpdateChatRoomRequest request) {
         return chatRoomService.updateChatRoom(roomId, request)
                 .doOnSuccess(room -> log.info("채팅방이 업데이트 되었습니다. : {}", room))
                 .doOnError(error -> log.error("채팅방 업데이트에 실패했습니다 : {}", error.getMessage()));

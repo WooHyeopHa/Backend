@@ -1,5 +1,7 @@
 package com.whh.findmusechatting.chat.service;
 
+import com.whh.findmusechatting.chat.dto.request.CreateChatMessageRequest;
+import com.whh.findmusechatting.chat.dto.response.ChatMessageResponse;
 import com.whh.findmusechatting.chat.entity.*;
 import com.whh.findmusechatting.chat.entity.constant.MessageType;
 import com.whh.findmusechatting.chat.repository.ChatMessageRepository;
@@ -34,6 +36,7 @@ public class ChatService {
     private final KafkaTemplate<String, ChatMessage> messageKafkaTemplate;
     private final KafkaTemplate<String, ChatNotification> notificationKafkaTemplate;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
+    private final MysqlUserService mysqlUserService;
 
     private final Map<String, Sinks.Many<ChatMessage>> messagesSinks;
     private final Map<String, Sinks.Many<ChatNotification>> notificationSinks;
@@ -44,23 +47,48 @@ public class ChatService {
     @Value("${spring.kafka.topic.notification}")
     private String notificationTopic;
 
-    @Description("메시지 보내기")
-    public Mono<ChatMessage> sendMessage(ChatMessage message) {
-        message.setTimestamp(LocalDateTime.now());
-        message.setMessageType(MessageType.CHAT);
+    @Description("메시지 전송")
+    public Mono<ChatMessage> sendMessage(CreateChatMessageRequest message) {
+        Mono<ChatMessage> chatMessage = messageRepository.save(ChatMessage.of(message));
+        Mono<ChatMessageResponse.UserInfo> userInfo = mysqlUserService.findUserInfoById(message.senderId());
 
-        return Mono.fromSupplier(() -> {
-            messageKafkaTemplate.send(messageTopic, message.getRoomId(), message);
-            return message;
+        return Mono.zip(chatMessage, userInfo)
+                .flatMap(tuple -> {
+                    ChatMessage savedMessage = tuple.getT1();
+                    ChatMessageResponse.UserInfo senderInfo = tuple.getT2();
+
+                    // ChatMessageResponse 생성
+                    ChatMessageResponse response = ChatMessageResponse.from(savedMessage, senderInfo);
+
+                    // Kafka에 메시지 전송
+                    return Mono.fromSupplier(() -> {
+                        messageKafkaTemplate.send(messageTopic, response.roomId(), response);
+                        return savedMessage;
+                    });
+                });
+    }
+
+    @Description("시스템 메시지 전송")
+    public Mono<ChatMessage> sendSystemMessage(ChatMessage message) {
+        Mono<ChatMessage> chatMessage = messageRepository.save(message);
+
+        return chatMessage.flatMap(savedMessage -> {
+            ChatMessageResponse response = ChatMessageResponse.from(savedMessage, ChatMessageResponse.UserInfo.getSystemInfo());
+
+            return Mono.fromSupplier(() -> {
+                messageKafkaTemplate.send(messageTopic, response.roomId(), response);
+                return savedMessage;
+            });
         });
     }
 
+
     @Description("채팅방 참여자에게 메시지 알림 보내기")
-    public Mono<Void> sendNotification(ChatMessage message) {
-        return chatRoomRepository.findById(message.getSenderId())
+    public Mono<Void> sendNotification(CreateChatMessageRequest message) {
+        return chatRoomRepository.findById(message.senderId())
                 .flatMap(room -> {
                     List<Mono<Void>> notifications = room.getParticipants().stream()
-                            .filter(participantId -> !participantId.equals(message.getSenderId()))
+                            .filter(participantId -> !participantId.equals(message.senderId()))
                             .map(receiverId -> createAndSendNotification(message, receiverId))
                             .collect(Collectors.toList());
 
@@ -69,14 +97,13 @@ public class ChatService {
     }
 
     @Description("Kafka에 알린 전송")
-    private Mono<Void> createAndSendNotification(ChatMessage message, String receiverId) {
+    private Mono<Void> createAndSendNotification(CreateChatMessageRequest message, String receiverId) {
         return Mono.fromRunnable(() -> {
             ChatNotification notification = ChatNotification.builder()
-                    .senderId(message.getSenderId())
-                    .senderName(message.getSenderName())
+                    .senderId(message.senderId())
                     .receiverId(receiverId)
-                    .content(message.getContent())
-                    .roomId(message.getRoomId())
+                    .content(message.content())
+                    .roomId(message.roomId())
                     .timestamp(LocalDateTime.now())
                     .build();
 
@@ -93,29 +120,33 @@ public class ChatService {
     }
 
     @Description("page에 해당하는 채팅방 메시지 목록 가져오기")
-    public Flux<ChatMessage> getPaginatedChatMessages(String roomId, int page, int size) {
+    public Flux<ChatMessageResponse> getPaginatedChatMessages(String roomId, int page, int size) {
         Query query = new Query(Criteria.where("roomId").is(roomId))
                 .with(Sort.by(Sort.Direction.ASC, "timestamp"))
                 .with(PageRequest.of(page, size));
 
-        return reactiveMongoTemplate.find(query, ChatMessage.class);
+        return reactiveMongoTemplate.find(query, ChatMessage.class)
+                .flatMap(message -> mysqlUserService.findUserInfoById(message.getSenderId())
+                        .map(userInfo -> ChatMessageResponse.from(message, userInfo)));
     }
 
     @Description("채팅방 조회")
-    public Flux<ChatMessage> getChatMessagesWithStreaming(String roomId, int page, int size) {
-        Flux<ChatMessage> paginatedMessages = getPaginatedChatMessages(roomId, page, size);
+    public Flux<ChatMessageResponse> getChatMessagesWithStreaming(String roomId, int page, int size) {
+        Flux<ChatMessageResponse> paginatedMessages = getPaginatedChatMessages(roomId, page, size);
 
         // paginatedMessages의 마지막 타임스탬프 얻기
         Mono<LocalDateTime> lastTimestamp = paginatedMessages
                 .last()
-                .map(ChatMessage::getTimestamp)
+                .map(ChatMessageResponse::timestamp)
                 .defaultIfEmpty(LocalDateTime.MIN);
 
         // lastTimestamp 이후의 새로운 메시지만 구독
-        Flux<ChatMessage> newMessages = lastTimestamp.flatMapMany(timestamp ->
+        Flux<ChatMessageResponse> newMessages = lastTimestamp.flatMapMany(timestamp ->
                 messagesSinks.computeIfAbsent(roomId, id -> Sinks.many().multicast().onBackpressureBuffer())
                         .asFlux()
                         .filter(message -> message.getTimestamp().isAfter(timestamp))
+                        .flatMap(message -> mysqlUserService.findUserInfoById(message.getSenderId())
+                                .map(userInfo -> ChatMessageResponse.from(message, userInfo)))
         );
 
         return paginatedMessages.concatWith(newMessages);

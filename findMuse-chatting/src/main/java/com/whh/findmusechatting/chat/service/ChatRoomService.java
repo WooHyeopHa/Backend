@@ -1,7 +1,7 @@
 package com.whh.findmusechatting.chat.service;
 
 import com.whh.findmusechatting.chat.dto.response.ChatRoomResponse;
-import com.whh.findmusechatting.chat.dto.request.ChatRoomUpdateRequest;
+import com.whh.findmusechatting.chat.dto.request.UpdateChatRoomRequest;
 import com.whh.findmusechatting.chat.entity.*;
 import com.whh.findmusechatting.chat.entity.constant.MessageType;
 import com.whh.findmusechatting.chat.entity.constant.NotificationType;
@@ -63,8 +63,6 @@ public class ChatRoomService {
                     // 시스템 메시지 생성
                     ChatMessage systemMessage = ChatMessage.builder()
                             .roomId(roomId)
-                            .senderId("SYSTEM")
-                            .senderName("SYSTEM")
                             .content(userId + "님이 입장하셨습니다.")
                             .timestamp(LocalDateTime.now())
                             .messageType(MessageType.SYSTEM)
@@ -72,7 +70,7 @@ public class ChatRoomService {
 
                     return chatRoomRepository.save(chatRoom)
                             .flatMap(savedRoom ->
-                                    chatService.sendMessage(systemMessage)
+                                    chatService.sendSystemMessage(systemMessage)
                                             .thenReturn(savedRoom));
                 });
     }
@@ -111,7 +109,7 @@ public class ChatRoomService {
     }
 
     @Description("채팅방 수정")
-    public Mono<ChatRoom> updateChatRoom(String roomId, ChatRoomUpdateRequest request) {
+    public Mono<ChatRoom> updateChatRoom(String roomId, UpdateChatRoomRequest request) {
         return chatRoomRepository.findById(roomId)
                 .flatMap(chaRoom -> {
                     chaRoom.updateChatRoom(request);
@@ -134,8 +132,6 @@ public class ChatRoomService {
                     // 시스템 메시지 생성
                     ChatMessage systemMessage = ChatMessage.builder()
                             .roomId(roomId)
-                            .senderId("SYSTEM")
-                            .senderName("SYSTEM")
                             .content(userId + "님이 퇴장하셨습니다.")
                             .timestamp(LocalDateTime.now())
                             .messageType(MessageType.SYSTEM)
@@ -143,7 +139,7 @@ public class ChatRoomService {
 
                     return chatRoomRepository.save(chatRoom)
                             .flatMap(savedRoom ->
-                                    chatService.sendMessage(systemMessage)
+                                    chatService.sendSystemMessage(systemMessage)
                                             .thenReturn(savedRoom));
                 });
     }

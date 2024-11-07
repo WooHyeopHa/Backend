@@ -1,6 +1,6 @@
 package com.whh.findmusechatting.chat.entity;
 
-import com.whh.findmusechatting.chat.dto.request.ChatRoomUpdateRequest;
+import com.whh.findmusechatting.chat.dto.request.UpdateChatRoomRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,12 +25,12 @@ public class ChatRoom {
     private List<String> participants;
     private LocalDateTime createdAt;
 
-    public void updateChatRoom(ChatRoomUpdateRequest chatRoomUpdateRequest) {
-        if (chatRoomUpdateRequest.getName() != null) {
-            this.name = chatRoomUpdateRequest.getName();
+    public void updateChatRoom(UpdateChatRoomRequest updateChatRoomRequest) {
+        if (updateChatRoomRequest.name() != null) {
+            this.name = updateChatRoomRequest.name();
         }
-        if (chatRoomUpdateRequest.getThumbnail() != null) {
-            this.thumbnail = chatRoomUpdateRequest.getThumbnail();
+        if (updateChatRoomRequest.thumbnail() != null) {
+            this.thumbnail = updateChatRoomRequest.thumbnail();
         }
     }
 }

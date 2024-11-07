@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 public class ChatNotification {
     private String id;
     private String senderId;
-    private String senderName;
     private String receiverId;
     private String content;
     private String roomId;
