@@ -44,11 +44,20 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 수정하기")
     @PatchMapping("/{roomId}/update")
-    public Mono<ChatRoom> updateRoom(@PathVariable String roomId,
-                                     @RequestBody UpdateChatRoomRequest request) {
+    public Mono<ChatRoom> updateRoom(@PathVariable String roomId, @RequestBody UpdateChatRoomRequest request) {
         return chatRoomService.updateChatRoom(roomId, request)
                 .doOnSuccess(room -> log.info("채팅방이 업데이트 되었습니다. : {}", room))
                 .doOnError(error -> log.error("채팅방 업데이트에 실패했습니다 : {}", error.getMessage()));
+    }
+
+    @Operation(summary = "채팅방 참여자 알림 설정")
+    @PatchMapping("/{roomId}/participants/{participantId}/notifications")
+    public Mono<ChatRoom> updateNotificationSetting(@PathVariable String roomId,
+                                                    @PathVariable String participantId,
+                                                    @RequestParam boolean enable) {
+        return chatRoomService.updateNotificationSetting(roomId, participantId, enable)
+                .doOnSuccess(unused -> log.info("알림 설정이 {}로 변경되었습니다: 채팅방 {}, 참여자 {}", enable, roomId, participantId))
+                .doOnError(error -> log.error("알림 설정 변경 실패: {}", error.getMessage()));
     }
 
     @Operation(summary = "채팅방 나가기")
@@ -66,4 +75,6 @@ public class ChatRoomController {
                 .doOnSuccess(unused -> log.info("채팅방 {} 이 삭제되었습니다", roomId))
                 .doOnError(error -> log.error("채팅방 삭제 실패: {}", error.getMessage()));
     }
+
+
 }

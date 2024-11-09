@@ -170,8 +170,20 @@ public class ChatRoomService {
 
                                 chatRoom.getParticipants().forEach(participant ->
                                         notificationKafkaTemplate.send(notificationTopic,
-                                                participant.id(), deleteNotification));
+                                                participant.getId(), deleteNotification));
                             }));
+                });
+    }
+
+    @Description("채팅방 참여자 알림 설정")
+    public Mono<ChatRoom> updateNotificationSetting(String chatRoomId, String participantId, boolean enableNotification) {
+        return chatRoomRepository.findById(chatRoomId)
+                .flatMap(chatRoom -> {
+                    chatRoom.getParticipants().stream()
+                            .filter(participant -> participant.getId().equals(participantId))
+                            .findFirst()
+                            .ifPresent(participant -> participant.setNotificationEnabled(enableNotification));
+                    return chatRoomRepository.save(chatRoom);
                 });
     }
 }

@@ -88,8 +88,8 @@ public class ChatService {
         return chatRoomRepository.findById(message.senderId())
                 .flatMap(room -> {
                     List<Mono<Void>> notifications = room.getParticipants().stream()
-                            .filter(participant -> !participant.id().equals(message.senderId()))
-                            .map(participant -> createAndSendNotification(message, participant.id()))
+                            .filter(participant -> !participant.getId().equals(message.senderId()))
+                            .map(participant -> createAndSendNotification(message, participant.getId()))
                             .collect(Collectors.toList());
 
                     return Mono.when(notifications);
