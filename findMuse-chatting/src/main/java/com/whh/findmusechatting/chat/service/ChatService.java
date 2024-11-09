@@ -6,6 +6,7 @@ import com.whh.findmusechatting.chat.entity.*;
 import com.whh.findmusechatting.chat.entity.constant.MessageType;
 import com.whh.findmusechatting.chat.repository.ChatMessageRepository;
 import com.whh.findmusechatting.chat.repository.ChatRoomRepository;
+import com.whh.findmusechatting.common.util.S3Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -37,6 +39,7 @@ public class ChatService {
     private final KafkaTemplate<String, ChatNotification> notificationKafkaTemplate;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
     private final MysqlUserService mysqlUserService;
+    private final S3Util s3Util;
 
     private final Map<String, Sinks.Many<ChatMessage>> messagesSinks;
     private final Map<String, Sinks.Many<ChatNotification>> notificationSinks;
@@ -65,6 +68,26 @@ public class ChatService {
                         messageKafkaTemplate.send(messageTopic, response.roomId(), response);
                         return savedMessage;
                     });
+                });
+    }
+
+    public Mono<ChatMessage> sendImageMessage(FilePart filePart, String roomId, String senderId) {
+        return s3Util.uploadFile(filePart, "image")
+                .flatMap(file -> {
+                    CreateChatMessageRequest imageMessage = CreateChatMessageRequest.builder()
+                            .roomId(roomId)
+                            .senderId(senderId)
+                            .content(file.getFileDetail().getUrl())
+                            .messageType(MessageType.IMAGE)
+                            .imageDetails(ChatMessage.ImageDetails.builder()
+                                    .originalFileName(file.getName())
+                                    .contentType(file.getContentType())
+                                    .fileSize(filePart.headers().getContentLength())
+                                    .thumbnailUrl(file.getFileDetail().getUrl())
+                                    .build())
+                            .build();
+
+                    return sendMessage(imageMessage);
                 });
     }
 

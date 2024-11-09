@@ -25,6 +25,22 @@ public class ChatMessage {
     private MessageType messageType;
     private LocalDateTime timestamp;
 
+    @Builder.Default
+    private ImageDetails imageDetails = null;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ImageDetails {
+        private String originalFileName;
+        private String contentType;
+        private long fileSize;
+        private int width;
+        private int height;
+        private String thumbnailUrl;
+    }
+
     public static ChatMessage of(CreateChatMessageRequest request) {
         return ChatMessage.builder()
                 .roomId(request.roomId())
