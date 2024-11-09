@@ -1,8 +1,8 @@
 package com.whh.findmusechatting.kafka.consumer;
 
-import com.whh.findmusechatting.chat.entity.ChatMessage;
+import com.whh.findmusechatting.chat.dto.response.ChatMessageResponse;
 import com.whh.findmusechatting.chat.entity.ChatNotification;
-import com.whh.findmusechatting.chat.repository.ChatMessageRepository;
+import com.whh.findmusechatting.common.config.SinkConfiguration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,50 +17,49 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ChatKafkaConsumer {
-
-    private final ChatMessageRepository messageRepository;
-    private final Map<String, Sinks.Many<ChatMessage>> messagesSinks;
+    private final KafkaReceiver<String, ChatMessageResponse> messageKafkaReceiver;
+    private final KafkaReceiver<String, ChatNotification> notificationKafkaReceiver;
+    private final SinkConfiguration sinkConfiguration;
+    private final Map<String, Sinks.Many<ChatMessageResponse>> messagesSinks;
     private final Map<String, Sinks.Many<ChatNotification>> notificationSinks;
 
-    private final KafkaReceiver<String, ChatMessage> messageKafkaReceiver;
-    private final KafkaReceiver<String, ChatNotification> notificationKafkaReceiver;
-
     @PostConstruct
-    public void consume() {
-        // 메시지 컨슈머
+    public void init() {
+        consumeMessages();
+        consumeNotifications();
+    }
+
+    private void consumeMessages() {
         messageKafkaReceiver.receive()
                 .doOnNext(record -> log.info("Received message: {}", record.value()))
                 .flatMap(record -> {
-                    ChatMessage chatMessage = record.value();
-                    return messageRepository.save(chatMessage)
-                            .doOnSuccess(savedMessage -> {
-                                Sinks.Many<ChatMessage> sink = messagesSinks.computeIfAbsent(savedMessage.getRoomId(),
-                                        id -> Sinks.many().multicast().onBackpressureBuffer());
-                                sink.tryEmitNext(chatMessage);
-                            })
-                            .then(Mono.fromRunnable(() -> record.receiverOffset().acknowledge()));
+                    ChatMessageResponse response = record.value();
+
+                    Sinks.Many<ChatMessageResponse> sink = sinkConfiguration
+                            .getOrCreateMessageSink(messagesSinks, response.roomId());
+                    sink.tryEmitNext(response);
+
+                    return Mono.fromRunnable(() -> record.receiverOffset().acknowledge());
                 })
-                .doOnError(error -> {
-                    log.error("Error processing message: ", error);
-                })
+                .doOnError(error -> log.error("Error processing message: ", error))
                 .retry()
                 .subscribe();
+    }
 
-        // 알림 컨슈머
+    private void consumeNotifications() {
         notificationKafkaReceiver.receive()
                 .doOnNext(record -> log.info("Received notification: {}", record.value()))
-                .doOnNext(record -> {
+                .flatMap(record -> Mono.fromRunnable(() -> {
                     ChatNotification notification = record.value();
-                    Sinks.Many<ChatNotification> sink = notificationSinks.get(notification.getReceiverId());
-                    if (sink != null) {
-                        sink.tryEmitNext(notification);
-                    }
+
+                    Sinks.Many<ChatNotification> sink = sinkConfiguration
+                            .getOrCreateNotificationSink(notificationSinks, notification.getReceiverId());
+
+                    sink.tryEmitNext(notification);
                     record.receiverOffset().acknowledge();
-                })
-                .doOnError(error -> {
-                    log.error("Error processing notification: ", error);
-                })
-                .retry() // 에러 발생 시 재시도
+                }))
+                .doOnError(error -> log.error("Error processing notification: ", error))
+                .retry()
                 .subscribe();
     }
 }

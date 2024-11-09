@@ -1,5 +1,6 @@
 package com.whh.findmusechatting.common.config;
 
+import com.whh.findmusechatting.chat.dto.response.ChatMessageResponse;
 import com.whh.findmusechatting.chat.entity.ChatMessage;
 import com.whh.findmusechatting.chat.entity.ChatNotification;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,7 @@ import java.util.Map;
 public class SinkConfiguration {
 
     @Bean
-    public Map<String, Sinks.Many<ChatMessage>> messagesSinks() {
+    public Map<String, Sinks.Many<ChatMessageResponse>> messagesSinks() {
         return new HashMap<>(); // ChatMessage sink를 저장할 Map
     }
 
@@ -23,7 +24,7 @@ public class SinkConfiguration {
     }
 
     // 특정 방의 메시지 sink를 가져오거나 생성하는 메서드
-    public Sinks.Many<ChatMessage> getOrCreateMessageSink(Map<String, Sinks.Many<ChatMessage>> sinks, String roomId) {
+    public Sinks.Many<ChatMessageResponse> getOrCreateMessageSink(Map<String, Sinks.Many<ChatMessageResponse>> sinks, String roomId) {
         return sinks.computeIfAbsent(roomId, id -> Sinks.many().multicast().onBackpressureBuffer());
     }
 
