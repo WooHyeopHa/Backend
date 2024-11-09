@@ -58,12 +58,12 @@ public class ChatRoomService {
                     }
 
                     // 참여자 목록에 추가
-                    chatRoom.getParticipants().add(userId);
+                    chatRoom.getParticipants().add(Participant.getNewParticipant(userId));
 
                     // 시스템 메시지 생성
                     ChatMessage systemMessage = ChatMessage.builder()
                             .roomId(roomId)
-                            .content(userId + "님이 입장하셨습니다.")
+                            .content(userId + "님이 입장했습니다.")
                             .timestamp(LocalDateTime.now())
                             .messageType(MessageType.SYSTEM)
                             .build();
@@ -168,9 +168,9 @@ public class ChatRoomService {
                                         .timestamp(LocalDateTime.now())
                                         .build();
 
-                                chatRoom.getParticipants().forEach(participantId ->
+                                chatRoom.getParticipants().forEach(participant ->
                                         notificationKafkaTemplate.send(notificationTopic,
-                                                participantId, deleteNotification));
+                                                participant.id(), deleteNotification));
                             }));
                 });
     }

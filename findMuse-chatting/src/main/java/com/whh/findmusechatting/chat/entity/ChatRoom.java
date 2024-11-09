@@ -22,7 +22,7 @@ public class ChatRoom {
     private String name;
     private String owner;
     private String thumbnail;
-    private List<String> participants;
+    private List<Participant> participants;
     private LocalDateTime createdAt;
 
     public void updateChatRoom(UpdateChatRoomRequest updateChatRoomRequest) {

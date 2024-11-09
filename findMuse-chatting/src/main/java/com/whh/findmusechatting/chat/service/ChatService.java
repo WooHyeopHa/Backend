@@ -33,7 +33,7 @@ public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository messageRepository;
-    private final KafkaTemplate<String, ChatMessage> messageKafkaTemplate;
+    private final KafkaTemplate<String, ChatMessageResponse> messageKafkaTemplate;
     private final KafkaTemplate<String, ChatNotification> notificationKafkaTemplate;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
     private final MysqlUserService mysqlUserService;
@@ -88,8 +88,8 @@ public class ChatService {
         return chatRoomRepository.findById(message.senderId())
                 .flatMap(room -> {
                     List<Mono<Void>> notifications = room.getParticipants().stream()
-                            .filter(participantId -> !participantId.equals(message.senderId()))
-                            .map(receiverId -> createAndSendNotification(message, receiverId))
+                            .filter(participant -> !participant.id().equals(message.senderId()))
+                            .map(participant -> createAndSendNotification(message, participant.id()))
                             .collect(Collectors.toList());
 
                     return Mono.when(notifications);
@@ -130,7 +130,7 @@ public class ChatService {
                         .map(userInfo -> ChatMessageResponse.from(message, userInfo)));
     }
 
-    @Description("채팅방 조회")
+    @Description("채팅 조회")
     public Flux<ChatMessageResponse> getChatMessagesWithStreaming(String roomId, int page, int size) {
         Flux<ChatMessageResponse> paginatedMessages = getPaginatedChatMessages(roomId, page, size);
 
