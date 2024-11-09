@@ -1,5 +1,6 @@
 package com.whh.findmusechatting.chat.service;
 
+import com.whh.findmusechatting.chat.dto.response.ChatMessageResponse;
 import com.whh.findmusechatting.chat.dto.response.ChatRoomResponse;
 import com.whh.findmusechatting.chat.dto.request.UpdateChatRoomRequest;
 import com.whh.findmusechatting.chat.entity.*;
@@ -30,7 +31,7 @@ public class ChatRoomService {
     private final ChatService chatService;
 
     private final KafkaTemplate<String, ChatNotification> notificationKafkaTemplate;
-    private final Map<String, Sinks.Many<ChatMessage>> messagesSinks;
+    private final Map<String, Sinks.Many<ChatMessageResponse>> messagesSinks;
 
     @Value("${spring.kafka.topic.notification}")
     private String notificationTopic;
@@ -75,7 +76,7 @@ public class ChatRoomService {
                 });
     }
 
-    @Description("채팅방 목록 조회")
+    @Description("채팅방 목록 조회 -- 수정 필요")
     public Flux<ChatRoomResponse> getUserChatRooms(String userId) {
         return chatRoomRepository.findByParticipantsContaining(userId)
                 .flatMap(chatRoom -> {

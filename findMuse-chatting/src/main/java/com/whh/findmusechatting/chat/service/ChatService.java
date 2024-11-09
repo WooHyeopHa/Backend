@@ -41,7 +41,7 @@ public class ChatService {
     private final MysqlUserService mysqlUserService;
     private final S3Util s3Util;
 
-    private final Map<String, Sinks.Many<ChatMessage>> messagesSinks;
+    private final Map<String, Sinks.Many<ChatMessageResponse>> messagesSinks;
     private final Map<String, Sinks.Many<ChatNotification>> notificationSinks;
 
     @Value("${spring.kafka.topic.message}")
@@ -135,13 +135,6 @@ public class ChatService {
         });
     }
 
-    @Description("채팅방 메시지 스트림 구독")
-    public Flux<ChatMessage> getChatMessages(String roomId) {
-        return messageRepository.findByRoomIdOrderByTimestampAsc(roomId)
-                .mergeWith(messagesSinks.computeIfAbsent(roomId,
-                        id -> Sinks.many().multicast().onBackpressureBuffer()).asFlux());
-    }
-
     @Description("page에 해당하는 채팅방 메시지 목록 가져오기")
     public Flux<ChatMessageResponse> getPaginatedChatMessages(String roomId, int page, int size) {
         Query query = new Query(Criteria.where("roomId").is(roomId))
@@ -167,9 +160,6 @@ public class ChatService {
         Flux<ChatMessageResponse> newMessages = lastTimestamp.flatMapMany(timestamp ->
                 messagesSinks.computeIfAbsent(roomId, id -> Sinks.many().multicast().onBackpressureBuffer())
                         .asFlux()
-                        .filter(message -> message.getTimestamp().isAfter(timestamp))
-                        .flatMap(message -> mysqlUserService.findUserInfoById(message.getSenderId())
-                                .map(userInfo -> ChatMessageResponse.from(message, userInfo)))
         );
 
         return paginatedMessages.concatWith(newMessages);

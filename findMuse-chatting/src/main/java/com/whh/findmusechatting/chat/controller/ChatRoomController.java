@@ -76,5 +76,4 @@ public class ChatRoomController {
                 .doOnError(error -> log.error("채팅방 삭제 실패: {}", error.getMessage()));
     }
 
-
 }

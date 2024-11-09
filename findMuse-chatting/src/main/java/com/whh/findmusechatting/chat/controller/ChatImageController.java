@@ -26,8 +26,8 @@ public class ChatImageController {
         return chatImageService.getChatRoomImages(roomId, page, size);
     }
 
-    @GetMapping("/download/{messageId}")
     @Operation(summary = "이미지 메시지 다운로드")
+    @GetMapping("/download/{messageId}")
     public Mono<Void> downloadImage(
             @PathVariable String messageId,
             ServerHttpResponse response
@@ -35,14 +35,14 @@ public class ChatImageController {
         return chatImageService.downloadChatImage(messageId, response);
     }
 
-    @DeleteMapping("/{messageId}")
     @Operation(summary = "단일 이미지 메시지 삭제")
+    @DeleteMapping("/{messageId}")
     public Mono<Void> deleteImage(@PathVariable String messageId) {
         return chatImageService.deleteImageMessage(messageId);
     }
 
-    @DeleteMapping("/room/{roomId}")
     @Operation(summary = "채팅방의 모든 이미지 메시지 삭제")
+    @DeleteMapping("/room/{roomId}")
     public Mono<Void> deleteAllRoomImages(@PathVariable String roomId) {
         return chatImageService.deleteAllRoomImages(roomId);
     }
