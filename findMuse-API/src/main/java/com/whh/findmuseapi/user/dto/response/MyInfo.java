@@ -12,6 +12,7 @@ public record MyInfo(
 ) {
     @Builder
     public record UserSimpleResponse(
+            String profileImageUrl,
             String nickname,
             int birthYear,
             String location,
@@ -29,6 +30,8 @@ public record MyInfo(
     public record UserLevelResponse(
             double percentage,
             int level,
+            int artCount,
+            int museCount,
             String description
     ) {}
 

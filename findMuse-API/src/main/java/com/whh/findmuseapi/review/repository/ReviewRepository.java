@@ -25,4 +25,12 @@ public interface ReviewRepository extends JpaRepository<ArtReview, Long> {
 
     @Query("select ar, arl from ArtReview ar left join ArtReviewLike arl on ar.id = arl.artReview.id where ar.art.id = :artId and arl.user.id = :userId order by ar.likeCount desc")
     Optional<List<Object[]>> findAllByArtOrderByLikeCountDesc(Long artId, Long userId);
+
+    // 최신순 리뷰 목록 조회
+    @Query("select ar, arl from ArtReview ar left join ArtReviewLike arl on ar.id = arl.artReview.id where ar.user.id = :userId order by ar.createDate desc")
+    List<Object[]> findAllByUserOrderByCreateDateDesc(Long userId);
+
+    // 인기순 리뷰 목록 조회
+    @Query("select ar, arl from ArtReview ar left join ArtReviewLike arl on ar.id = arl.artReview.id where ar.user.id = :userId order by ar.likeCount desc")
+    List<Object[]> findAllByUserOrderByLikeCountDesc(Long userId);
 }

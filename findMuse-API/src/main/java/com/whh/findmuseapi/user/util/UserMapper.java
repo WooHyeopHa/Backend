@@ -23,6 +23,7 @@ public class UserMapper {
 
     public static MyInfo.UserSimpleResponse toUserSimpleResponse(User user) {
         return MyInfo.UserSimpleResponse.builder()
+                .profileImageUrl(user.getProfileImageUrl())
                 .nickname(user.getNickname())
                 .location(user.getLocation())
                 .birthYear(user.getBirthYear())
@@ -32,7 +33,7 @@ public class UserMapper {
 
     public static MyInfo.UserActivityResponse toUserActivityResponse(User user, List<ArtLike> artLikes, List<ArtHistory> histories) {
         return MyInfo.UserActivityResponse.builder()
-                .eventReview(user.getUserReviews().size())
+                .eventReview(user.getArtReviews().size())
                 .hasViewed(histories.size()) // histories의 크기를 사용
                 .wantToSee(artLikes.size())   // artLikes의 크기를 사용
                 .build();
@@ -47,6 +48,8 @@ public class UserMapper {
         double percentage = ((double) numerator / denominator) * 100;
 
         return MyInfo.UserLevelResponse.builder()
+                .artCount(user.getArtCount())
+                .museCount(user.getFindMuseCount())
                 .level(museLevel.getLevel())
                 .description(museLevel.getDescription())
                 .percentage(percentage)
