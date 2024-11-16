@@ -71,6 +71,7 @@ public class ChatService {
                 });
     }
 
+    @Description("이미지 메시지 전송")
     public Mono<ChatMessage> sendImageMessage(FilePart filePart, String roomId, String senderId) {
         return s3Util.uploadFile(filePart, "image")
                 .flatMap(file -> {
@@ -89,6 +90,18 @@ public class ChatService {
 
                     return sendMessage(imageMessage);
                 });
+    }
+
+    @Description("약속 메시지 전송")
+    public void sendAppointmentMessage(Appointment appointment) {
+        ChatMessage appointmentMessage = ChatMessage.builder()
+                .roomId(appointment.getRoomId())
+                .messageType(MessageType.APPOINTMENT)
+                .appointmentDetails(ChatMessage.AppointmentDetails.from(appointment))
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        sendSystemMessage(appointmentMessage).subscribe();
     }
 
     @Description("시스템 메시지 전송")

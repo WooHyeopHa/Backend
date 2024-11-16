@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -28,6 +29,10 @@ public class ChatMessage {
     @Builder.Default
     private ImageDetails imageDetails = null;
 
+    @Builder.Default
+    private AppointmentDetails appointmentDetails = null;
+
+
     @Data
     @Builder
     @AllArgsConstructor
@@ -39,6 +44,26 @@ public class ChatMessage {
         private int width;
         private int height;
         private String thumbnailUrl;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class AppointmentDetails {  // 추가
+        private String id;
+        private String location;
+        private LocalDateTime appointmentTime;
+        private List<Appointment.NotificationSetting> notificationSettings;
+
+        public static AppointmentDetails from(Appointment appointment) {
+            return AppointmentDetails.builder()
+                    .id(appointment.getId())
+                    .location(appointment.getLocation())
+                    .appointmentTime(appointment.getAppointmentTime())
+                    .notificationSettings(appointment.getNotificationSettings())
+                    .build();
+        }
     }
 
     public static ChatMessage of(CreateChatMessageRequest request) {

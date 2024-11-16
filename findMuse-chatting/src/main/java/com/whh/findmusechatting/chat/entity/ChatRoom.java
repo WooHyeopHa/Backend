@@ -20,7 +20,8 @@ public class ChatRoom {
     @Id
     private String id;
     private String name;
-    private String owner;
+    private String ownerId;
+    private String artId;
     private String thumbnail;
     private List<Participant> participants;
     private LocalDateTime createdAt;

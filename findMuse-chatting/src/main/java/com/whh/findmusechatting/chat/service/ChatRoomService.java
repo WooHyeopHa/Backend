@@ -150,7 +150,7 @@ public class ChatRoomService {
         return chatRoomRepository.findById(roomId)
                 .flatMap(chatRoom -> {
                     // 방장이 아닌 경우
-                    if (!chatRoom.getOwner().equals(userId)) {
+                    if (!chatRoom.getOwnerId().equals(userId)) {
                         return Mono.error(new IllegalStateException("방장만 채팅방을 삭제할 수 있습니다."));
                     }
 

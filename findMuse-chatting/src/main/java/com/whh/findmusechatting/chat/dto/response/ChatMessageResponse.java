@@ -1,10 +1,8 @@
 package com.whh.findmusechatting.chat.dto.response;
 
-import com.whh.findmusechatting.chat.dto.request.CreateChatMessageRequest;
 import com.whh.findmusechatting.chat.entity.ChatMessage;
 import com.whh.findmusechatting.chat.entity.constant.MessageType;
 import lombok.Builder;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
@@ -16,10 +14,11 @@ public record ChatMessageResponse(
         String content,
         MessageType messageType,
         LocalDateTime timestamp,
-        UserInfo userInfo
+        UserInfo userInfo,
+        ChatMessage.ImageDetails imageDetails,
+        ChatMessage.AppointmentDetails appointmentDetails
 ) {
     public record UserInfo(String ninkname, String profileImageUrl) {
-
         public static UserInfo getSystemInfo() {
             return new UserInfo(null, null);
         }
@@ -34,6 +33,8 @@ public record ChatMessageResponse(
                 .messageType(message.getMessageType())
                 .timestamp(message.getTimestamp())
                 .userInfo(userInfo)
+                .imageDetails(message.getImageDetails())
+                .appointmentDetails(message.getAppointmentDetails())
                 .build();
     }
 }
