@@ -53,7 +53,7 @@ public class Art {
     @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Ticket> tickets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArtLike> artLikes = new ArrayList<>();
 
     @Builder
