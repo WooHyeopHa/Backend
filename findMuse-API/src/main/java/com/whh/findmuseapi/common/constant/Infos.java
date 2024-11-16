@@ -74,6 +74,24 @@ public class Infos {
 
     }
 
+    @Getter
+    @RequiredArgsConstructor
+    public enum ReviewSortType {
+        LATEST("최신순"),
+        POPULAR("인기순");
+
+        private final String description;
+
+        public static ReviewSortType fromString(String value) {
+            for (ReviewSortType type : ReviewSortType.values()) {
+                if (type.getDescription().equals(value)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("Invalid ReviewSortType: " + value);
+        }
+    }
+
     @RequiredArgsConstructor
     public enum AlarmType {
         ACTIVITY("활동"),
