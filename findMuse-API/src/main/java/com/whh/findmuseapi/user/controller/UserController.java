@@ -93,12 +93,4 @@ public class UserController {
         userService.updateProfile(user, userProfileChangeRequest, profileImage);
         return ApiResponse.createSuccessWithNoContent(ResponseCode.SUCCESS);
     }
-
-    @Operation(summary = "마이페이지 : 메인 화면")
-    @GetMapping("/main")
-    public ApiResponse<MyInfo> getMyInfo(@AuthenticationPrincipal User user) {
-        return ApiResponse.createSuccess(ResponseCode.SUCCESS, userInfoService.getMyInfo(user));
-    }
-
-
 }

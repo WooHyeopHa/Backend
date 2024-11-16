@@ -1,6 +1,6 @@
 package com.whh.findmuseapi.art.controller;
 
-import com.whh.findmuseapi.art.dto.MapResponse;
+import com.whh.findmuseapi.art.dto.response.MapResponse;
 import com.whh.findmuseapi.art.service.ArtService;
 import com.whh.findmuseapi.common.constant.ResponseCode;
 import com.whh.findmuseapi.common.util.ApiResponse;

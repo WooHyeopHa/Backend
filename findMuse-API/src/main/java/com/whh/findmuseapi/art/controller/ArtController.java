@@ -1,9 +1,9 @@
 package com.whh.findmuseapi.art.controller;
 
-import com.whh.findmuseapi.art.dto.ArtHomeResponse;
+import com.whh.findmuseapi.art.dto.response.ArtHomeResponse;
 import com.whh.findmuseapi.art.dto.ArtLikeRequest;
-import com.whh.findmuseapi.art.dto.ArtListResponse;
-import com.whh.findmuseapi.art.dto.ArtOneResponse;
+import com.whh.findmuseapi.art.dto.response.ArtListResponse;
+import com.whh.findmuseapi.art.dto.response.ArtOneResponse;
 import com.whh.findmuseapi.art.service.ArtService;
 import com.whh.findmuseapi.common.constant.ResponseCode;
 import com.whh.findmuseapi.common.util.ApiResponse;

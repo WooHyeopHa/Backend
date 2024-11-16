@@ -1,6 +1,7 @@
 package com.whh.findmuseapi.art.service;
 
 import com.whh.findmuseapi.art.dto.*;
+import com.whh.findmuseapi.art.dto.response.*;
 import com.whh.findmuseapi.art.entity.Art;
 import com.whh.findmuseapi.art.entity.ArtLike;
 import com.whh.findmuseapi.art.repository.ArtHistoryRepository;

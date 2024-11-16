@@ -1,4 +1,4 @@
-package com.whh.findmuseapi.art.dto;
+package com.whh.findmuseapi.art.dto.response;
 
 import com.whh.findmuseapi.art.entity.Art;
 import lombok.Builder;
