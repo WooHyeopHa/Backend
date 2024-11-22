@@ -1,6 +1,5 @@
-package com.whh.findmusechatting.chat.repository;
+package com.whh.findmusechatting.appointment;
 
-import com.whh.findmusechatting.chat.entity.Appointment;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;

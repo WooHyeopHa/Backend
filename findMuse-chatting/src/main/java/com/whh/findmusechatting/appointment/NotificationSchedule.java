@@ -1,4 +1,4 @@
-package com.whh.findmusechatting.chat.entity.constant;
+package com.whh.findmusechatting.appointment;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

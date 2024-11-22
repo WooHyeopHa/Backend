@@ -1,5 +1,6 @@
 package com.whh.findmusechatting.chat.entity;
 
+import com.whh.findmusechatting.appointment.Appointment;
 import com.whh.findmusechatting.chat.dto.request.CreateChatMessageRequest;
 import com.whh.findmusechatting.chat.entity.constant.MessageType;
 import lombok.AllArgsConstructor;

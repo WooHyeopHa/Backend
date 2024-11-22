@@ -1,10 +1,8 @@
-package com.whh.findmusechatting.chat.service;
+package com.whh.findmusechatting.appointment;
 
 import com.whh.findmusechatting.chat.dto.request.CreateAppointmentRequest;
 import com.whh.findmusechatting.chat.dto.request.UpdateAppointmentRequest;
-import com.whh.findmusechatting.chat.dto.response.AppointmentResponse;
-import com.whh.findmusechatting.chat.entity.Appointment;
-import com.whh.findmusechatting.chat.repository.AppointmentRepository;
+import com.whh.findmusechatting.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Service;

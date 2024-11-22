@@ -1,7 +1,7 @@
 package com.whh.findmusechatting.chat.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.whh.findmusechatting.chat.entity.constant.NotificationSchedule;
+import com.whh.findmusechatting.appointment.NotificationSchedule;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,6 +1,5 @@
-package com.whh.findmusechatting.chat.dto.response;
+package com.whh.findmusechatting.appointment;
 
-import com.whh.findmusechatting.chat.entity.Appointment;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

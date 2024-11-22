@@ -1,6 +1,5 @@
-package com.whh.findmusechatting.chat.entity;
+package com.whh.findmusechatting.appointment;
 
-import com.whh.findmusechatting.chat.entity.constant.NotificationSchedule;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
