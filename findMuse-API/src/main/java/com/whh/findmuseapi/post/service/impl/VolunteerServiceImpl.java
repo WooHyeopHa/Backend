@@ -1,8 +1,8 @@
 package com.whh.findmuseapi.post.service.impl;
 
-import com.whh.findmuseapi.common.exception.AlreadyExistException;
-import com.whh.findmuseapi.common.exception.NotFoundException;
-import com.whh.findmuseapi.common.exception.UnAuthorizationException;
+import com.whh.findmuseapi.common.exception.CBadRequestException;
+import com.whh.findmuseapi.common.exception.CForbiddenException;
+import com.whh.findmuseapi.common.exception.CNotFoundException;
 import com.whh.findmuseapi.common.constant.Infos;
 import com.whh.findmuseapi.post.dto.response.VolunteerMyPageListResponse;
 import com.whh.findmuseapi.post.dto.response.VolunteerPostListResponse;
@@ -49,9 +49,9 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public VolunteerPostListResponse getPostVolunteerList(Long postId, Long userId) {
         User writer = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("회원: " + userId));
+                .orElseThrow(() -> new CNotFoundException(userId + "은(는) 존재하지 않는 회원입니다."));
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundException("게시글: " + postId));
+                .orElseThrow(() -> new CNotFoundException(postId + "은(는) 존재하지 않는 게시물입니다."));
 
         checkWriter(writer, post);
 
@@ -78,7 +78,7 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public VolunteerMyPageListResponse getMyPageVolunteerList(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("회원: " + userId);
+            throw new CNotFoundException(userId + "은(는) 존재하지 않는 회원입니다.");
         }
 
         List<Volunteer> approvalVolunteers = volunteerRepository.findByUserIdAndStatusAndActiveStatusTrue(userId,
@@ -110,14 +110,14 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public void acceptVolunteer(Long postId, Long writer, Long targetId) {
         User user = userRepository.findById(writer)
-                .orElseThrow(() -> new NotFoundException("회원: " + writer));
+                .orElseThrow(() -> new CNotFoundException(writer + "은(는) 존재하지 않는 회원입니다."));
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundException("게시글: " + postId));
+                .orElseThrow(() -> new CNotFoundException(postId + "은(는) 존재하지 않는 게시글입니다."));
 
         checkWriter(user, post);
 
-        Volunteer targetUser = volunteerRepository.findById(targetId).orElseThrow(()-> new NotFoundException(
-                "지원자: " + targetId));
+        Volunteer targetUser = volunteerRepository.findById(targetId).orElseThrow(()-> new CNotFoundException(
+                targetId + "은(는) 존재하지 않는 회원입니다."));
 
         targetUser.updateStatus(Infos.InvieteStatus.ACCESS);
     }
@@ -129,13 +129,13 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public void refusalVolunteer(Long postId, Long writer, Long targetId) {
         User user = userRepository.findById(writer)
-                .orElseThrow(() -> new NotFoundException("회원: " + writer));
+                .orElseThrow(() -> new CNotFoundException(writer + "은(는) 존재하지 않는 회원입니다."));
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundException("게시글: " + postId));
+                .orElseThrow(() -> new CNotFoundException(postId + "은(는) 존재하지 않는 게시글입니다."));
 
         checkWriter(user, post);
 
-        Volunteer targetUser = volunteerRepository.findById(targetId).orElseThrow(()-> new NotFoundException(
+        Volunteer targetUser = volunteerRepository.findById(targetId).orElseThrow(()-> new CNotFoundException(
                 "지원자: " + targetId));
 
         targetUser.updateStatus(Infos.InvieteStatus.DENY);
@@ -148,12 +148,13 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Override
     public void applyVolunteer(Long postId, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("회원: " + userId));
+                .orElseThrow(() -> new CNotFoundException(userId + "은(는) 존재하지 않는 회원입니다."));
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundException("게시글: " + postId));
+                .orElseThrow(() -> new CNotFoundException(postId + "은(는) 존재하지 않는 게시글입니다."));
 
         if (volunteerCheck(user, post)) {
-            throw new AlreadyExistException("지원자: " + userId);
+            // 이걸 예외라고 보는게 맞을까?
+            throw new CBadRequestException(userId + "은(는) 이미 지원한 회원입니다.");
         }
 
         Volunteer volunteer = Volunteer.toEntity(post, user);
@@ -169,19 +170,20 @@ public class VolunteerServiceImpl implements VolunteerService {
     @Transactional
     @Override
     public void cancelVolunteer(Long volunteerId, Long userId) {
-        Volunteer volunteer = volunteerRepository.findById(volunteerId).orElseThrow(()-> new NotFoundException(
+        Volunteer volunteer = volunteerRepository.findById(volunteerId).orElseThrow(()-> new CNotFoundException(
                 "지원자: " + volunteerId));
 
         if (!volunteer.getUser().getId().equals(userId)) {
-            throw new UnAuthorizationException("지원자");
+            throw new CForbiddenException();
         }
 
         volunteer.updateActiveStatus();
     }
 
-    public void checkWriter(User user, Post post) {
+    // 사용자가 글쓴이와 다른지 검사
+    private void checkWriter(User user, Post post) {
         if (!post.getUser().getId().equals(user.getId())) {
-            throw new UnAuthorizationException("게시글");
+            throw new CForbiddenException(": 게시글 작성자가 아닙니다.");
         }
     }
 }

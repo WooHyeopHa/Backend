@@ -1,7 +1,7 @@
 package com.whh.findmuseapi.user.service;
 
 import com.whh.findmuseapi.common.constant.Infos;
-import com.whh.findmuseapi.common.exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.exception.CBadRequestException;
 import com.whh.findmuseapi.common.util.S3Uploader;
 import com.whh.findmuseapi.user.dto.request.UserProfile;
 import com.whh.findmuseapi.user.dto.response.NicknameDuplicationResponse;
@@ -35,8 +35,8 @@ public class UserService {
     @Description("사용자 닉네임 설정")
     @Transactional
     public void registerProfileNickname(User user, UserProfile.NicknameRequest nicknameRequest) {
-        if (nicknameRequest.nickname().isEmpty() || nicknameRequest.nickname() == null) throw new CustomBadRequestException("닉네임을 입력해주세요.");
-        if (userRepository.existsByNickname(nicknameRequest.nickname())) throw new CustomBadRequestException("존재하는 닉네임입니다.");
+        if (nicknameRequest.nickname().isEmpty() || nicknameRequest.nickname() == null) throw new CBadRequestException("닉네임을 입력해주세요.");
+        if (userRepository.existsByNickname(nicknameRequest.nickname())) throw new CBadRequestException("존재하는 닉네임입니다.");
 
         user.updateNickname(nicknameRequest.nickname());
         user.authorizeUser();
@@ -45,7 +45,7 @@ public class UserService {
     @Description("사용자 닉네임 중복 조회")
     @Transactional(readOnly = true)
     public NicknameDuplicationResponse checkNicknameDuplication(String nickname) {
-        if (nickname == null || nickname.isEmpty()) throw new CustomBadRequestException("닉네임은 비어있을 수 없습니다.");
+        if (nickname == null || nickname.isEmpty()) throw new CBadRequestException("닉네임은 비어있을 수 없습니다.");
         return NicknameDuplicationResponse.builder()
                 .isDuplicated(userRepository.existsByNickname(nickname))
                 .build();
@@ -86,16 +86,16 @@ public class UserService {
     @Transactional
     public void registerProfileTaste(Long userId, UserProfile.TasteRequest userProfileTasteRequest) {
         User user = userRepository.findUserWithTastesById(userId)
-                .orElseThrow(() -> new CustomBadRequestException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CBadRequestException("사용자를 찾을 수 없습니다."));
 
         userProfileTasteRequest.tastes().stream()
                 .flatMap(tasteSelection -> {
                     Taste category = tasteRepository.findByName(tasteSelection.category())
-                            .orElseThrow(() -> new CustomBadRequestException("카테고리를 찾을 수 없습니다."));
+                            .orElseThrow(() -> new CBadRequestException("카테고리를 찾을 수 없습니다."));
 
                     return tasteSelection.selections().stream()
                             .map(selection -> tasteRepository.findByNameAndParent(selection, category)
-                                    .orElseThrow(() -> new CustomBadRequestException("취향을 찾을 수 없습니다.")))
+                                    .orElseThrow(() -> new CBadRequestException("취향을 찾을 수 없습니다.")))
                             .map(taste -> UserTaste.builder()
                                     .user(user)
                                     .taste(taste)
@@ -114,7 +114,7 @@ public class UserService {
     @Transactional
     public void updateProfileTaste(Long userId, UserProfile.TasteRequest userProfileTasteRequest) {
         User user = userRepository.findUserWithTastesById(userId)
-                        .orElseThrow(() -> new CustomBadRequestException("사용자를 찾을 수 없습니다."));
+                        .orElseThrow(() -> new CBadRequestException("사용자를 찾을 수 없습니다."));
         user.getUserTastes().clear();
 
         registerProfileTaste(userId, userProfileTasteRequest);
@@ -135,14 +135,14 @@ public class UserService {
 
     private Integer validateBirthYear(String integer) {
         if (integer == null || integer.isEmpty()) {
-            throw new CustomBadRequestException("생년월일 값을 전달하지 않았습니다.");
+            throw new CBadRequestException("생년월일 값을 전달하지 않았습니다.");
         }
         if (!integer.matches("\\d+")) {
-            throw new CustomBadRequestException("생년월일에 문자열이 포함되어 있습니다.");
+            throw new CBadRequestException("생년월일에 문자열이 포함되어 있습니다.");
         }
         Integer integerValue = Integer.valueOf(integer);
         if (integerValue > LocalDate.now().getYear() || integerValue < 1900) {
-            throw new CustomBadRequestException("생년월일을 정확하게 입력해주세요.");
+            throw new CBadRequestException("생년월일을 정확하게 입력해주세요.");
         }
         return integerValue;
     }

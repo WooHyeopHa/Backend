@@ -3,8 +3,8 @@ package com.whh.findmuseapi.post.service.impl;
 import com.whh.findmuseapi.art.entity.Art;
 import com.whh.findmuseapi.art.repository.ArtRepository;
 import com.whh.findmuseapi.common.constant.Infos;
-import com.whh.findmuseapi.common.exception.NotFoundException;
-import com.whh.findmuseapi.common.exception.UnAuthorizationException;
+import com.whh.findmuseapi.common.exception.CNotFoundException;
+import com.whh.findmuseapi.common.exception.CUnAuthorizationException;
 import com.whh.findmuseapi.post.dto.request.PostCreateRequest;
 import com.whh.findmuseapi.post.dto.request.PostUpdateRequest;
 import com.whh.findmuseapi.post.dto.response.PostListReadResponse;
@@ -19,7 +19,6 @@ import com.whh.findmuseapi.post.repository.PostTagRepository;
 import com.whh.findmuseapi.post.repository.TagRepository;
 import com.whh.findmuseapi.post.repository.VolunteerRepository;
 import com.whh.findmuseapi.post.service.PostService;
-import com.whh.findmuseapi.post.service.VolunteerService;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
 import java.util.List;
@@ -57,13 +56,13 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void createPost(PostCreateRequest createRequest) {
         User user = userRepository.findById(createRequest.getUserId())
-                .orElseThrow(() -> new NotFoundException("회원: " + createRequest.getUserId()));
+                .orElseThrow(() -> new CNotFoundException("회원: " + createRequest.getUserId()));
         Art art = artRepository.findById(createRequest.getArtId())
-                .orElseThrow(() -> new NotFoundException("전시회: " + createRequest.getArtId()));
+                .orElseThrow(() -> new CNotFoundException("전시회: " + createRequest.getArtId()));
 
         List<Tag> tagList = createRequest.getTagList().stream()
                 .map(tagName -> tagRepository.findByName(tagName)
-                        .orElseThrow(() -> new NotFoundException("태그: " + tagName)))
+                        .orElseThrow(() -> new CNotFoundException("태그: " + tagName)))
                 .toList();
 
         Post post = Post.toEntity(createRequest, art, user);
@@ -81,7 +80,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(timeout = 5)
     public PostOneReadResponse readPost(Long postId, Long userId) {
-        Post post = postRepository.findWithPessimisticLockById(postId).orElseThrow(() -> new NotFoundException("모집글: " + postId));
+        Post post = postRepository.findWithPessimisticLockById(postId).orElseThrow(() -> new CNotFoundException("모집글: " + postId));
         post.viewCountPlusOne();
 
         boolean isWriter = userId.equals(post.getUser().getId());
@@ -103,18 +102,18 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void updatePost(PostUpdateRequest updateRequest) {
         User writer = userRepository.findById(updateRequest.getUserId())
-                .orElseThrow(() -> new NotFoundException("회원: " + updateRequest.getUserId()));
+                .orElseThrow(() -> new CNotFoundException("회원: " + updateRequest.getUserId()));
         Post post = postRepository.findById(updateRequest.getPostId())
-                .orElseThrow(() -> new NotFoundException("게시글: " + updateRequest.getPostId()));
+                .orElseThrow(() -> new CNotFoundException("게시글: " + updateRequest.getPostId()));
 
         checkWriter(writer, post);
 
         Art art = artRepository.findById(updateRequest.getArtId())
-                .orElseThrow(() -> new NotFoundException("전시회: " + updateRequest.getArtId()));
+                .orElseThrow(() -> new CNotFoundException("전시회: " + updateRequest.getArtId()));
 
         List<Tag> tagList = updateRequest.getTagList().stream()
                 .map(tagName -> tagRepository.findByName(tagName)
-                        .orElseThrow(() -> new NotFoundException("태그: " + tagName)))
+                        .orElseThrow(() -> new CNotFoundException("태그: " + tagName)))
                 .toList();
 
         // 나중에 개선사항(아직은 태그의 수가 많지 않아서 부하가 딱히 없을 것으로 예상)
@@ -131,8 +130,8 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(Long userId, Long postId) {
-        User writer = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("회원: " + userId));
-        Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("게시글: " + postId));
+        User writer = userRepository.findById(userId).orElseThrow(() -> new CNotFoundException("회원: " + userId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new CNotFoundException("게시글: " + postId));
 
         checkWriter(writer, post);
 
@@ -149,7 +148,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void checkWriter(User user, Post post) {
         if (!post.getUser().getId().equals(user.getId())) {
-            throw new UnAuthorizationException("게시글");
+            throw new CUnAuthorizationException();
         }
     }
 

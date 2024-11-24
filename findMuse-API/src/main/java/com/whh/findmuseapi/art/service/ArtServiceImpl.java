@@ -8,6 +8,9 @@ import com.whh.findmuseapi.art.repository.ArtHistoryRepository;
 import com.whh.findmuseapi.art.repository.ArtLikeRepository;
 import com.whh.findmuseapi.art.repository.ArtRepository;
 import com.whh.findmuseapi.common.constant.Infos.ArtType;
+import com.whh.findmuseapi.common.exception.CBadRequestException;
+import com.whh.findmuseapi.common.exception.CInternalServerException;
+import com.whh.findmuseapi.common.exception.CNotFoundException;
 import com.whh.findmuseapi.review.repository.ReviewRepository;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
@@ -16,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -38,8 +42,8 @@ public class ArtServiceImpl implements ArtService{
      */
     @Override
     public ArtOneResponse getArtInfoOne(Long artId, Long userId) {
-        Art findArt = artRepository.findById(artId).orElseThrow();
-        User findUser = userRepository.findById(userId).orElseThrow();
+        Art findArt = artRepository.findById(artId).orElseThrow(() -> new CNotFoundException(artId + "은(는) 존재하지 않는 문화예술입니다."));
+        User findUser = userRepository.findById(userId).orElseThrow(() -> new CNotFoundException(userId + "은(는) 존재하지 않는 회원입니다."));
         return ArtOneResponse.toDto(findArt,
                 artLikeRepository.existsByUserAndArt(findUser, findArt),
                 artHistoryRepository.existsByUserAndArt(findUser, findArt),
@@ -51,15 +55,16 @@ public class ArtServiceImpl implements ArtService{
      */
     @Override
     public ArtListResponse getArtByCondition(Long userId, String date, List<String> genre, String sort) {
-        if (genre != null) {
-            List<ArtType> artTypes = genre.stream().map(ArtType::convert).toList();
-            if (sort.equals("최신순")) {
-                return ArtListResponse.toDto(artRepository.findArtByCondition(userId, date, artTypes));
-            }
-            return ArtListResponse.toDto(artRepository.findArtByConditionRank(userId, date, artTypes));
+        if (genre == null) {
+            throw new CBadRequestException("잘못된 요청입니다. 장르를 입력해주세요");
         }
-        //TODO : 예외처리
-        throw new RuntimeException();
+        List<ArtType> artTypes = genre.stream().map(ArtType::convert).toList();
+        userRepository.findById(userId).orElseThrow(() -> new CNotFoundException(userId + "은(는) 존재하지 않는 회원입니다."));
+
+        if (sort.equals("최신순")) {
+            return ArtListResponse.toDto(artRepository.findArtByCondition(userId, date, artTypes));
+        }
+        return ArtListResponse.toDto(artRepository.findArtByConditionRank(userId, date, artTypes));
     }
 
     /**
@@ -67,7 +72,7 @@ public class ArtServiceImpl implements ArtService{
      */
     @Override
     public ArtHomeResponse getArtByHome(Long userId) {
-        User findUser = userRepository.findById(userId).orElseThrow();
+        User findUser = userRepository.findById(userId).orElseThrow(() -> new CNotFoundException(userId + "은(는) 존재하지 않는 회원입니다."));
         return ArtHomeResponse.toDto(getArtByRandAndGenre(findUser), getArtByTodayRandom());
 
     }
@@ -76,8 +81,12 @@ public class ArtServiceImpl implements ArtService{
      * 오늘의 문화예술 추천
      */
     private Art getArtByTodayRandom() {
-        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
-        return artRepository.findArtByTodayAndRandom(today);
+        try {
+            String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+            return artRepository.findArtByTodayAndRandom(today);
+        } catch(DateTimeException ex) {
+            throw new CInternalServerException("날짜 변환에 실패하였습니다.");
+        }
     }
 
     /**
@@ -105,8 +114,8 @@ public class ArtServiceImpl implements ArtService{
     @Override
     @Transactional
     public void markLike(ArtLikeRequest artLikeRequest) {
-        User findUser = userRepository.findById(artLikeRequest.getUserId()).orElseThrow();
-        Art findArt = artRepository.findById(artLikeRequest.getArtId()).orElseThrow();
+        User findUser = userRepository.findById(artLikeRequest.getUserId()).orElseThrow(() -> new CNotFoundException(artLikeRequest.getUserId() + "은(는) 존재하지 않는 회원입니다."));
+        Art findArt = artRepository.findById(artLikeRequest.getArtId()).orElseThrow(() -> new CNotFoundException(artLikeRequest.getArtId() + "은(는) 존재하지 않는 문화예술입니다."));
 
         ArtLike liked = artLikeRepository.findArtLikeByArtAndUser(findArt, findUser)
                 .orElse(new ArtLike(findUser, findArt));

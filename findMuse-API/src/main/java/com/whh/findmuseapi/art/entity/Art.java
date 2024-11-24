@@ -23,7 +23,6 @@ public class Art {
     @Column(name = "art_id")
     private Long id;
     private int randomId;
-    private int viewCnt;
     private String title;
     @Enumerated(EnumType.STRING)
     private ArtType artType;
@@ -56,11 +55,13 @@ public class Art {
     @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ArtLike> artLikes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY)
+    private List<ArtHistory> artHistories = new ArrayList<>();
+
     @Builder
-    public Art(String title, int randomId, int viewCnt, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
+    public Art(String title, int randomId, ArtType artType, String place, String startDate, String endDate, String startTime,String age) {
         this.title = title;
         this.randomId = randomId;
-        this.viewCnt = viewCnt;
         this.artType = artType;
         this.place = place;
         this.startDate = startDate;
@@ -92,12 +93,12 @@ public class Art {
     }
 
     public void plusViewAndCalStar(float star) {
-        //TODO : 동시성 고려?
-        this.star = ((this.star * this.viewCnt) + star) / (this.viewCnt+1);
-        this.viewCnt++;
+        int viewCnt = this.artHistories.size();
+        this.star = ((this.star * viewCnt) + star) / (viewCnt+1);
     }
 
     public void updateStar(float oldStar, float newStar) {
-        this.star = ((this.star * this.viewCnt) - oldStar + newStar) / this.viewCnt;
+        int viewCnt = this.artHistories.size();
+        this.star = ((this.star * viewCnt) - oldStar + newStar) / viewCnt;
     }
 }

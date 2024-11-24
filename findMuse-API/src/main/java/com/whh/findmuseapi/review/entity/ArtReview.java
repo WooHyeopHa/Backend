@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -20,7 +22,6 @@ public class ArtReview {
     private String content;
     private String star;
     private LocalDate createDate;
-    private int likeCount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -30,10 +31,12 @@ public class ArtReview {
     @JoinColumn(name = "art_id")
     private Art art;
 
+    @OneToMany(mappedBy = "art", fetch = FetchType.LAZY, orphanRemoval = true)
+    List<ArtReviewLike> reviewLikes = new ArrayList<>();
+
     public ArtReview(String content, User user, Art art) {
         this.content = content;
         this.createDate = LocalDate.now();
-        this.likeCount = 0;
         this.createDate = LocalDate.now();
         updateRelation(user, art);
     }
@@ -51,15 +54,5 @@ public class ArtReview {
 
     public void updateReview(String newContent) {
         this.content = newContent;
-    }
-
-    public void plusLikeCount() {
-        //TODO : 동시성
-        this.likeCount++;
-    }
-
-    public void minusLikeCount() {
-        //TODO : 동시성
-        this.likeCount--;
     }
 }

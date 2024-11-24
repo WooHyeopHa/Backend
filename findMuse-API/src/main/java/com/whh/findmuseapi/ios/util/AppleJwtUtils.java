@@ -6,8 +6,9 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.whh.findmuseapi.common.exception.CustomBadRequestException;
-import com.whh.findmuseapi.common.exception.CustomParseException;
+import com.whh.findmuseapi.common.constant.ResponseCode;
+import com.whh.findmuseapi.common.exception.CBadRequestException;
+import com.whh.findmuseapi.common.exception.CTokenException;
 import com.whh.findmuseapi.ios.config.AppleProperties;
 import com.whh.findmuseapi.ios.dto.key.ApplePublicKey;
 import com.whh.findmuseapi.ios.dto.key.ApplePublicKeys;
@@ -45,19 +46,19 @@ public class AppleJwtUtils {
             // EXP(만료기간) 검증
             Date currentTime = new Date(System.currentTimeMillis());
             if (!currentTime.before(payload.getExpirationTime())) {
-                throw new CustomBadRequestException(idToken);
+                throw new CBadRequestException("잘못된 요청입니다. id_token을 다시 요청해주세요 : " + idToken);
             }
             
             // ISS, AUD 검증
             String AUD = appleProperties.getClientId();
             String AUTH_URL = appleProperties.getAuthUrl();
             if (!AUTH_URL.equals(payload.getIssuer()) | !AUD.equals(payload.getAudience().get(0))) {
-                throw new CustomBadRequestException(idToken);
+                throw new CBadRequestException("잘못된 요청입니다. id_token을 다시 요청해주세요 : " + idToken);
             }
             
             return signedJWT;
         } catch (ParseException e) {
-            throw new CustomParseException("id_token : " + idToken);
+            throw new CTokenException(ResponseCode.PARSE_EXCEPTION, "Token(id_token) : " + idToken);
         }
     }
     
@@ -83,9 +84,9 @@ public class AppleJwtUtils {
             
             return keyFactory.generatePublic(publicKeySpec);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(keys.getKeys().toString() + "에 해당하는 알고리즘이 업습니다.\n" + e.getMessage());
+            throw new CTokenException(ResponseCode.NO_SUCH_ALGORITHM, e.getMessage());
         } catch (InvalidKeySpecException e) {
-            throw new RuntimeException("키 스펙이 잘못되었습니다: " + e.getMessage());
+            throw new CTokenException(ResponseCode.INVALID_KEY_SPEC, e.getMessage());
         }
     }
     public ReadOnlyJWTClaimsSet getTokenClaims(SignedJWT signedJWT, PublicKey publicKey) {
@@ -93,15 +94,14 @@ public class AppleJwtUtils {
             JWSVerifier verifier = new RSASSAVerifier((RSAPublicKey) publicKey);
             
             if (!signedJWT.verify(verifier)) {
-                throw new RuntimeException();
+                throw new CTokenException(ResponseCode.TOKEN_INVALID);
             }
             
             return signedJWT.getJWTClaimsSet();
         } catch (ParseException e) {
-            throw new CustomParseException(signedJWT.toString());
+            throw new CTokenException(ResponseCode.PARSE_EXCEPTION, "Token : " + signedJWT.toString());
         } catch (JOSEException e) {
-            throw new RuntimeException("JOSE 처리 중 오류 발생: " + e.getMessage());
+            throw new CTokenException(ResponseCode.JOSE_EXCEPTION, e.getMessage());
         }
     }
-    
 }

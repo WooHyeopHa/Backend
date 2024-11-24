@@ -32,5 +32,6 @@ public class ArtReviewLike {
         this.user = user;
         this.artReview = artReview;
         user.getReviewLikes().add(this);
+        artReview.getReviewLikes().add(this);
     }
 }

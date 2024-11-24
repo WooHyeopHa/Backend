@@ -1,8 +1,9 @@
 package com.whh.findmuseapi.common.constant;
 
-import com.whh.findmuseapi.common.exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.exception.CBadRequestException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Arrays;
 
@@ -18,7 +19,7 @@ public class Infos {
             return Arrays.stream(Gender.values())
                     .filter(gender -> gender.info.equals(info))
                     .findFirst()
-                    .orElseThrow(() -> new CustomBadRequestException("유효하지 않은 성별 값이 입력되었습니다."));
+                    .orElseThrow(() -> new CBadRequestException("유효하지 않은 성별 값이 입력되었습니다."));
         }
     }
 
@@ -63,13 +64,13 @@ public class Infos {
         CONCERT("콘서트");
 
         private final String info;
-        public static ArtType convert(String info) {
+        public static ArtType convert(String info){
             for (ArtType value : ArtType.values()) {
-                if(value.getInfo().equals(info)) {
+                if (value.getInfo().equals(info)) {
                     return value;
                 }
             }
-            throw new RuntimeException();
+            throw new CBadRequestException("일치하는 장르가 없습니다. 다시 요청해주세요");
         }
 
     }

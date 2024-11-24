@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ReviewUpdateRequest {
-    private Long userId;
-    private Long reviewId;
+    private long userId;
+    private long reviewId;
     private String content;
 }

@@ -2,8 +2,11 @@ package com.whh.findmuseapi.jwt.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.whh.findmuseapi.common.exception.CustomBadRequestException;
+import com.whh.findmuseapi.common.constant.ResponseCode;
+import com.whh.findmuseapi.common.exception.CBadRequestException;
+import com.whh.findmuseapi.common.exception.CUnAuthorizationException;
 import com.whh.findmuseapi.jwt.property.JwtProperties;
 import com.whh.findmuseapi.user.entity.User;
 import com.whh.findmuseapi.user.repository.UserRepository;
@@ -110,7 +113,7 @@ public class JwtService {
             userRepository.saveAndFlush(user);
         } else {
             log.info(email + "로 가입된 유저가 없습니다.");
-            throw new CustomBadRequestException(email);
+            throw new CBadRequestException(email + "잘못된 요청입니다.");
         }
     }
     
@@ -143,9 +146,9 @@ public class JwtService {
         } catch (TokenExpiredException e) {
             log.info("유효기간이 만료된 토큰입니다. {} {}", e.getMessage(), e.getExpiredOn());
             throw new TokenExpiredException(e.getMessage(), e.getExpiredOn());
-        } catch (Exception e) {
+        } catch (JWTVerificationException e) {
             log.info("유효하지 않은 토큰입니다. {}", e.getMessage());
-            return false;
+            throw new CUnAuthorizationException(ResponseCode.TOKEN_INVALID);
         }
     }
 

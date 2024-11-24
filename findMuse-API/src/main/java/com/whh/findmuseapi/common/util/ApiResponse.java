@@ -36,6 +36,10 @@ public class ApiResponse<T> {
     public static ApiResponse<?> createError(ResponseCode responseCode) {
         return new ApiResponse<>(responseCode.getStatus(), null, responseCode.getMessage());
     }
+
+    public static ApiResponse<?> createError(HttpStatus status, String message) {
+        return new ApiResponse<>(status, "ERROR", message);
+    }
     
     private ApiResponse(HttpStatus status, T data, String message) {
         this.status = status;
