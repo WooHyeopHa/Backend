@@ -51,7 +51,7 @@ public class ChatMessage {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class AppointmentDetails {  // 추가
+    public static class AppointmentDetails {
         private String id;
         private String location;
         private LocalDateTime appointmentTime;

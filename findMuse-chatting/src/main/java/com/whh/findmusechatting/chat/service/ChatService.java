@@ -35,14 +35,13 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final ChatMessageRepository messageRepository;
-    private final KafkaTemplate<String, ChatMessageResponse> messageKafkaTemplate;
+    private final KafkaTemplate<String, CreateChatMessageRequest> messageKafkaTemplate;
     private final KafkaTemplate<String, ChatNotification> notificationKafkaTemplate;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
     private final MysqlUserService mysqlUserService;
     private final S3Util s3Util;
 
-    private final Map<String, Sinks.Many<ChatMessageResponse>> messagesSinks;
+    private final Map<String, Sinks.Many<ChatMessage>> messagesSinks;
     private final Map<String, Sinks.Many<ChatNotification>> notificationSinks;
 
     @Value("${spring.kafka.topic.message}")
@@ -52,71 +51,42 @@ public class ChatService {
     private String notificationTopic;
 
     @Description("메시지 전송")
-    public Mono<ChatMessage> sendMessage(CreateChatMessageRequest message) {
-        Mono<ChatMessage> chatMessage = messageRepository.save(ChatMessage.of(message));
-        Mono<ChatMessageResponse.UserInfo> userInfo = mysqlUserService.findUserInfoById(message.senderId());
-
-        return Mono.zip(chatMessage, userInfo)
-                .flatMap(tuple -> {
-                    ChatMessage savedMessage = tuple.getT1();
-                    ChatMessageResponse.UserInfo senderInfo = tuple.getT2();
-
-                    // ChatMessageResponse 생성
-                    ChatMessageResponse response = ChatMessageResponse.from(savedMessage, senderInfo);
-
-                    // Kafka에 메시지 전송
-                    return Mono.fromSupplier(() -> {
-                        messageKafkaTemplate.send(messageTopic, response.roomId(), response);
-                        return savedMessage;
-                    });
-                });
-    }
-
-    @Description("이미지 메시지 전송")
-    public Mono<ChatMessage> sendImageMessage(FilePart filePart, String roomId, String senderId) {
-        return s3Util.uploadFile(filePart, "image")
-                .flatMap(file -> {
-                    CreateChatMessageRequest imageMessage = CreateChatMessageRequest.builder()
-                            .roomId(roomId)
-                            .senderId(senderId)
-                            .content(file.getFileDetail().getUrl())
-                            .messageType(MessageType.IMAGE)
-                            .imageDetails(ChatMessage.ImageDetails.builder()
-                                    .originalFileName(file.getName())
-                                    .contentType(file.getContentType())
-                                    .fileSize(filePart.headers().getContentLength())
-                                    .thumbnailUrl(file.getFileDetail().getUrl())
-                                    .build())
-                            .build();
-
-                    return sendMessage(imageMessage);
-                });
-    }
-
-    @Description("약속 메시지 전송")
-    public void sendAppointmentMessage(Appointment appointment) {
-        ChatMessage appointmentMessage = ChatMessage.builder()
-                .roomId(appointment.getRoomId())
-                .messageType(MessageType.APPOINTMENT)
-                .appointmentDetails(ChatMessage.AppointmentDetails.from(appointment))
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        sendSystemMessage(appointmentMessage).subscribe();
-    }
-
-    @Description("시스템 메시지 전송")
-    public Mono<ChatMessage> sendSystemMessage(ChatMessage message) {
-        Mono<ChatMessage> chatMessage = messageRepository.save(message);
-
-        return chatMessage.flatMap(savedMessage -> {
-            ChatMessageResponse response = ChatMessageResponse.from(savedMessage, ChatMessageResponse.UserInfo.getSystemInfo());
-
-            return Mono.fromSupplier(() -> {
-                messageKafkaTemplate.send(messageTopic, response.roomId(), response);
-                return savedMessage;
-            });
+    public Mono<Void> sendMessage(CreateChatMessageRequest message) {
+        return Mono.fromRunnable(() -> {
+            messageKafkaTemplate.send(messageTopic, message.roomId(), message);
         });
+    }
+    
+    @Description("이미지 메시지 전송")
+    public Mono<Void> sendImageMessage(FilePart filePart, String roomId, String senderId) {
+        return s3Util.uploadFile(filePart, "image")
+            .flatMap(file -> {
+                CreateChatMessageRequest imageMessage = CreateChatMessageRequest.builder()
+                    .roomId(roomId)
+                    .senderId(senderId)
+                    .content(file.getFileDetail().getUrl())
+                    .messageType(MessageType.IMAGE)
+                    .imageDetails(ChatMessage.ImageDetails.builder()
+                        .originalFileName(file.getName())
+                        .contentType(file.getContentType())
+                        .fileSize(filePart.headers().getContentLength())
+                        .thumbnailUrl(file.getFileDetail().getUrl())
+                        .build())
+                    .build();
+                
+                return sendMessage(imageMessage);
+            });
+    }
+    
+    @Description("약속 메시지 전송")
+    public Mono<Void> sendAppointmentMessage(Appointment appointment) {
+        CreateChatMessageRequest appointmentMessage = CreateChatMessageRequest.builder()
+            .roomId(appointment.getRoomId())
+            .messageType(MessageType.APPOINTMENT)
+            .appointmentDetails(ChatMessage.AppointmentDetails.from(appointment))
+            .build();
+        
+        return sendMessage(appointmentMessage);
     }
 
 
@@ -148,35 +118,43 @@ public class ChatService {
                     notification.getReceiverId(), notification);
         });
     }
-
+    
     @Description("page에 해당하는 채팅방 메시지 목록 가져오기")
     public Flux<ChatMessageResponse> getPaginatedChatMessages(String roomId, int page, int size) {
         Query query = new Query(Criteria.where("roomId").is(roomId))
-                .with(Sort.by(Sort.Direction.ASC, "timestamp"))
-                .with(PageRequest.of(page, size));
-
+            .with(Sort.by(Sort.Direction.ASC, "timestamp"))
+            .with(PageRequest.of(page, size));
+        
         return reactiveMongoTemplate.find(query, ChatMessage.class)
-                .flatMap(message -> mysqlUserService.findUserInfoById(message.getSenderId())
-                        .map(userInfo -> ChatMessageResponse.from(message, userInfo)));
+            .flatMap(message -> mysqlUserService.findUserInfoById(message.getSenderId(), message.getMessageType())
+                .map(userInfo -> ChatMessageResponse.from(message, userInfo)));
     }
-
-    @Description("채팅 조회")
+    
+    @Description("채팅 조회 with 스트리밍")
     public Flux<ChatMessageResponse> getChatMessagesWithStreaming(String roomId, int page, int size) {
+        // 1. 페이지네이션된 기존 메시지 조회
         Flux<ChatMessageResponse> paginatedMessages = getPaginatedChatMessages(roomId, page, size);
-
-        // paginatedMessages의 마지막 타임스탬프 얻기
+        
+        // 2. 마지막 메시지의 타임스탬프 추출 (없으면 최소 시간)
         Mono<LocalDateTime> lastTimestamp = paginatedMessages
-                .last()
-                .map(ChatMessageResponse::timestamp)
-                .defaultIfEmpty(LocalDateTime.MIN);
-
-        // lastTimestamp 이후의 새로운 메시지만 구독
-        Flux<ChatMessageResponse> newMessages = lastTimestamp.flatMapMany(timestamp ->
-                messagesSinks.computeIfAbsent(roomId, id -> Sinks.many().multicast().onBackpressureBuffer())
-                        .asFlux()
-        );
-
-        return paginatedMessages.concatWith(newMessages);
+            .last()
+            .map(ChatMessageResponse::timestamp)
+            .defaultIfEmpty(LocalDateTime.MIN);
+        
+        // 3. 실시간 메시지 스트림 생성
+        Flux<ChatMessageResponse> liveMessages = lastTimestamp
+            .flatMapMany(timestamp ->
+                messagesSinks.computeIfAbsent(roomId, k -> Sinks.many().multicast().onBackpressureBuffer())
+                    .asFlux()
+                    .filter(message -> message.getTimestamp().isAfter(timestamp))
+                    .flatMap(message ->
+                        mysqlUserService.findUserInfoById(message.getSenderId(), message.getMessageType())
+                            .map(userInfo -> ChatMessageResponse.from(message, userInfo))
+                    )
+            );
+        
+        // 4. 기존 메시지와 실시간 메시지 결합
+        return Flux.concat(paginatedMessages, liveMessages);
     }
 
     @Description("유저 채팅방 알림 등록")

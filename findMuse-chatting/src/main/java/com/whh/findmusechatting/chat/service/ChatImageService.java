@@ -41,7 +41,7 @@ public class ChatImageService {
         Mono<Long> totalCount = reactiveMongoTemplate.count(query, ChatMessage.class);
 
         Flux<ImageMessageResponse> images = reactiveMongoTemplate.find(query, ChatMessage.class)
-                .flatMap(message -> mysqlUserService.findUserInfoById(message.getSenderId())
+                .flatMap(message -> mysqlUserService.findUserInfoById(message.getSenderId(), message.getMessageType())
                         .map(userInfo -> ImageMessageResponse.from(message, userInfo)));
 
         return Mono.zip(images.collectList(), totalCount)

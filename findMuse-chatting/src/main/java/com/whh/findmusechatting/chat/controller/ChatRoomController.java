@@ -1,5 +1,6 @@
 package com.whh.findmusechatting.chat.controller;
 
+import com.whh.findmusechatting.chat.dto.request.CreateChatRoomRequest;
 import com.whh.findmusechatting.chat.dto.response.ChatRoomResponse;
 import com.whh.findmusechatting.chat.dto.request.UpdateChatRoomRequest;
 import com.whh.findmusechatting.chat.entity.ChatRoom;
@@ -25,18 +26,18 @@ public class ChatRoomController {
     public Flux<ChatRoomResponse> getUserChatRooms(@PathVariable String userId) {
         return chatRoomService.getUserChatRooms(userId);
     }
-
+    
     @Operation(summary = "채팅방 생성하기")
     @PostMapping
-    public Mono<ChatRoom> createRoom(@RequestBody ChatRoom chatRoom) {
-        return chatRoomService.createChatRoom(chatRoom)
-                .doOnSuccess(room -> log.info("채팅방이 생성되었습니다 : {}", room))
-                .doOnError(error -> log.error("채팅방 생성에 실패했습니다 : {}", error.getMessage()));
+    public Mono<ChatRoom> createRoom(@RequestBody CreateChatRoomRequest request) {
+        return chatRoomService.createChatRoom(request)
+            .doOnSuccess(room -> log.info("채팅방이 생성되었습니다 : {}", room))
+            .doOnError(error -> log.error("채팅방 생성에 실패했습니다 : {}", error.getMessage()));
     }
 
     @Operation(summary = "채팅방 참여하기")
-    @PostMapping("/{roomId}/join")
-    public Mono<ChatRoom> joinRoom(@PathVariable String roomId, @RequestBody String userId) {
+    @PostMapping("/{roomId}/join/{userId}")
+    public Mono<ChatRoom> joinRoom(@PathVariable String roomId, @PathVariable String userId) {
         return chatRoomService.joinChatRoom(roomId, userId)
                 .doOnSuccess(room -> log.info("사용자 {} 가 채팅방 {} 에 참여했습니다", userId, roomId))
                 .doOnError(error -> log.error("채팅방 참여 실패: {}", error.getMessage()));
@@ -61,16 +62,16 @@ public class ChatRoomController {
     }
 
     @Operation(summary = "채팅방 나가기")
-    @PostMapping("/{roomId}/leave")
-    public Mono<ChatRoom> leaveRoom(@PathVariable String roomId, @RequestBody String userId) {
+    @PostMapping("/{roomId}/leave/{userId}")
+    public Mono<ChatRoom> leaveRoom(@PathVariable String roomId, @PathVariable String userId) {
         return chatRoomService.leaveChatRoom(roomId, userId)
                 .doOnSuccess(room -> log.info("사용자 {} 가 채팅방 {} 를 나갔습니다", userId, roomId))
                 .doOnError(error -> log.error("채팅방 나가기 실패: {}", error.getMessage()));
     }
 
     @Operation(summary = "채팅방 삭제하기")
-    @DeleteMapping("/{roomId}/delete")
-    public Mono<Void> deleteRoom(@PathVariable String roomId, @RequestBody String userId) {
+    @DeleteMapping("/{roomId}/delete/{userId}")
+    public Mono<Void> deleteRoom(@PathVariable String roomId, @PathVariable String userId) {
         return chatRoomService.deleteChatRoom(roomId, userId)
                 .doOnSuccess(unused -> log.info("채팅방 {} 이 삭제되었습니다", roomId))
                 .doOnError(error -> log.error("채팅방 삭제 실패: {}", error.getMessage()));

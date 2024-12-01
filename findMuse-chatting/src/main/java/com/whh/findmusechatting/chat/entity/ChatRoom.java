@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Data
 @Builder
@@ -23,6 +24,8 @@ public class ChatRoom {
     private String ownerId;
     private String artId;
     private String thumbnail;
+    
+    @Field("participants")
     private List<Participant> participants;
     private LocalDateTime createdAt;
 
