@@ -1,5 +1,6 @@
 package com.whh.findmusechatting.kafka.consumer;
 
+import com.whh.findmusechatting.chat.dto.request.CreateChatMessageRequest;
 import com.whh.findmusechatting.chat.dto.response.ChatMessageResponse;
 import com.whh.findmusechatting.chat.entity.ChatMessage;
 import com.whh.findmusechatting.chat.entity.ChatNotification;
@@ -61,13 +62,13 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public KafkaReceiver<String, ChatMessageResponse> messageKafkaReceiver() {
-        ReceiverOptions<String, ChatMessageResponse> receiverOptions = ReceiverOptions
-                .<String, ChatMessageResponse>create(consumerConfig())
+    public KafkaReceiver<String, CreateChatMessageRequest> messageKafkaReceiver() {
+        ReceiverOptions<String, CreateChatMessageRequest> receiverOptions = ReceiverOptions
+                .<String, CreateChatMessageRequest>create(consumerConfig())
                 .subscription(Collections.singleton(messageTopic))
                 .withKeyDeserializer(new ErrorHandlingDeserializer<>(new StringDeserializer()))
                 .withValueDeserializer(new ErrorHandlingDeserializer<>(
-                        new JsonDeserializer<>(ChatMessageResponse.class, false)
+                        new JsonDeserializer<>(CreateChatMessageRequest.class, false)
                 ));
 
         return KafkaReceiver.create(receiverOptions);

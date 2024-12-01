@@ -9,7 +9,8 @@ public record CreateChatMessageRequest(
         String senderId,
         String content,
         MessageType messageType,
-        ChatMessage.ImageDetails imageDetails
+        ChatMessage.ImageDetails imageDetails,
+        ChatMessage.AppointmentDetails appointmentDetails
 ) {
     @Builder
     public CreateChatMessageRequest {}
