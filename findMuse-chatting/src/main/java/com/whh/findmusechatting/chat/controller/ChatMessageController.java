@@ -28,7 +28,6 @@ public class ChatMessageController {
     @MessageMapping("chat.messages")
     public Mono<Void> sendMessage(CreateChatMessageRequest message) {
         return chatService.sendMessage(message)
-                .doOnSuccess(msg -> log.info("전송된 메시지 : {}", msg))
                 .doOnError(error -> log.error("메시지 전송에 실패했습니다 : {}", error.getMessage()))
                 .then(chatService.sendNotification(message));
     }

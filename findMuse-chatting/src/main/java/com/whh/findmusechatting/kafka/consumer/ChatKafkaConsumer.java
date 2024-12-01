@@ -43,6 +43,8 @@ public class ChatKafkaConsumer {
                 
                 return mysqlUserService.findUserInfoById(messageRequest.senderId(), messageRequest.messageType())
                     .flatMap(userInfo -> {
+                        
+                        log.info("User Info : " + userInfo.toString());
                         ChatMessage chatMessage = ChatMessage.of(messageRequest);
                         return messageRepository.save(chatMessage)
                             .flatMap(savedMessage -> {
