@@ -55,7 +55,7 @@ A.채팅과 동행인을 쉽게 구할 수 있는 서비스 제공
 
 ## 📦시스템 아키텍처
 - 비즈니스 서버와 채팅 서버 2개로 분리 운영
-<img width="650px" src="https://github.com/bridge0813/bridge-backend/assets/102718303/87193b9c-a469-4855-94f5-5d113edb31e6">
+<img width="700px" src="https://github.com/user-attachments/assets/3667a2cb-5590-4fdf-96ae-166edc7d280f">
 
 <br><br>
 
